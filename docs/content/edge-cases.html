@@ -1,0 +1,1054 @@
+<div class="cards-grid">
+
+<div class="section-title" id="sec-overflow"><span class="icon">&#128165;</span> Overflow</div>
+
+<!-- E1. Addition overflow — silent wrap -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Addition overflow — silent wrap</span>
+  <span class="severity bug">Silent Wrap</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Go wraps silently — no panic, no error!
+a := math.MaxInt
+b := 1
+sum := a + b   // wraps to math.MinInt
+
+// ✅ Check before adding
+if a &gt; math.MaxInt - b {
+    // would overflow
+}</code></pre>
+</div>
+</div>
+
+<!-- E2. Multiplication overflow -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Multiplication overflow</span>
+  <span class="severity bug">Silent Wrap</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ int32 values multiplied may overflow int
+width, height := 50000, 50000
+area := width * height   // may overflow int32
+
+// ✅ Cast to int64 before multiplying
+area := int64(width) * int64(height)</code></pre>
+</div>
+</div>
+
+<!-- E3. Midpoint overflow -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Midpoint overflow</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Overflows when lo + hi &gt; MaxInt
+mid := (lo + hi) / 2
+
+// ✅ Safe midpoint
+mid := lo + (hi-lo)/2
+
+// Go has no &gt;&gt;&gt; — use the subtraction form above
+// For uint: mid := (lo + hi) / 2  (safe since unsigned)</code></pre>
+</div>
+</div>
+
+<!-- E4. MinInt negation trap -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">MinInt negation trap</span>
+  <span class="severity bug">Silent Wrap</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ⚠ -math.MinInt64 == math.MinInt64 (wraps!)
+n := math.MinInt64
+neg := -n       // still MinInt64!
+
+// ✅ Check before negating
+if n == math.MinInt64 {
+    // handle separately — no positive counterpart
+}
+
+// abs function must guard against MinInt
+func abs(n int) int {
+    if n == math.MinInt {
+        panic("cannot negate MinInt")
+    }
+    if n &lt; 0 {
+        return -n
+    }
+    return n
+}</code></pre>
+</div>
+</div>
+
+<!-- E5. INF + w overflow in shortest path -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">INF + w overflow in shortest path</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Using MaxInt as INF causes overflow when adding edge weight
+INF := math.MaxInt
+if dist[u] + w &lt; dist[v] { ... }  // INF + w wraps!
+
+// ✅ Use 1e9 as INF (1e9 + 1e9 = 2e9, fits in int32)
+INF := int(1e9)
+
+// ✅ Or guard before adding
+if dist[u] != INF &amp;&amp; dist[u]+w &lt; dist[v] {
+    dist[v] = dist[u] + w
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-array-input-guards"><span class="icon">&#128230;</span> Array / Input Guards</div>
+
+<!-- E6. Empty array / nil slice -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Empty array / nil slice</span>
+  <span class="severity bug">Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ✅ Guard before any logic
+if len(nums) == 0 {
+    return ...
+}
+if len(nums) &lt; 2 { return nums[0] }   // needs at least 2
+
+// Kadane's: init with nums[0], loop from i=1 → needs guard
+// Two pointers: right = len(nums)-1 → -1 if empty → panic
+// Fixed window: k &gt; n → index out of bounds</code></pre>
+</div>
+</div>
+
+<!-- E7. Empty string & split trap -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Empty string &amp; split trap</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">if len(s) == 0 {
+    return ...
+}
+
+// strings.Split("", ",") returns [""] (length=1, NOT 0!)
+parts := strings.Split("", ",")  // len=1, parts[0]=""
+
+// ✅ Guard before split
+if s == "" {
+    return []string{}
+}
+
+// Palindrome: "" → true (empty is palindrome)
+// "  " → after stripping → empty → true
+
+// Also: strings.Split("a,,b", ",") → ["a", "", "b"]
+// Empty strings appear between consecutive delimiters</code></pre>
+</div>
+</div>
+
+<!-- E8. Linked list nil guard -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Linked list nil guard</span>
+  <span class="severity bug">Nil Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ✅ Guard before any logic
+if head == nil {
+    return nil
+}
+if head.Next == nil {
+    return head
+}
+
+// Iterate safely
+for curr != nil {
+    // process curr.Val
+    curr = curr.Next
+}
+
+// Dummy head avoids nil checks for head insertion/deletion
+dummy := &amp;ListNode{Next: head}
+// ... work with dummy ...
+return dummy.Next</code></pre>
+</div>
+</div>
+
+<!-- E9. Tree nil guard -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Tree nil guard</span>
+  <span class="severity bug">Nil Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ✅ DFS base case — always first line
+if node == nil {
+    return 0
+}
+
+// ✅ BFS start
+if root == nil {
+    return result
+}
+
+// ✅ Don't offer nil children to queue
+if node.Left != nil {
+    queue = append(queue, node.Left)
+}
+if node.Right != nil {
+    queue = append(queue, node.Right)
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-size-edge-cases"><span class="icon">&#128207;</span> Size Edge Cases</div>
+
+<!-- E10. Single element -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Single element</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Kadane: max subarray of [-5] = -5 (init from nums[0]) ✓
+// House Robber II [5] → must return nums[0]
+if len(nums) == 1 {
+    return nums[0]
+}
+
+// Binary Search [5], find 5: lo=hi=0, mid=0, found ✓
+// Min in rotated [5]: no rotation → returns nums[0] ✓</code></pre>
+</div>
+</div>
+
+<!-- E11. Two elements -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Two elements</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// House Robber II [2,3]: can't rob both → max(2,3) = 3
+if len(nums) == 2 {
+    return max(nums[0], nums[1])
+}
+
+// Remove 2nd from end of [1→2]: removes head → need dummy
+dummy := &amp;ListNode{Next: head}
+
+// Two Sum [3,3] target=6: same element used twice?
+// Use index check: i != j</code></pre>
+</div>
+</div>
+
+<!-- E12. Single tree node -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Single tree node</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Diameter of tree [1]: diameter = 0 (no edges)
+// Not 1! Diameter counts edges, not nodes.
+
+// BST validate [MinInt]: use int64 bounds
+validate(root, math.MinInt64, math.MaxInt64)
+
+// LCA: if root is p or q, early return handles it
+if root == p || root == q {
+    return root
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-value-edge-cases"><span class="icon">&#128142;</span> Value Edge Cases</div>
+
+<!-- E13. Duplicates -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Duplicates</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// 3Sum [0,0,0] → return [[0,0,0]], not multiple copies
+// Skip: if i &gt; 0 &amp;&amp; nums[i] == nums[i-1] { continue }
+
+// Rotated Sorted Array II [1,1,1,1]: can't determine sorted half
+if nums[lo] == nums[mid] &amp;&amp; nums[mid] == nums[hi] {
+    lo++; hi--  // linear fallback
+}
+
+// Longest Consecutive [1,1,1] → answer=1 (not 3)
+// Use set; count only from sequence start</code></pre>
+</div>
+</div>
+
+<!-- E14. All negatives -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All negatives</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Kadane's: init maxSoFar = 0
+// Input [-3,-1,-2] → wrongly returns 0, correct is -1
+
+// ✅ Init from first element
+maxSoFar, curr := nums[0], nums[0]
+
+// Max Product [-2] → -2, not 0
+// Init maxProd = minProd = ans = nums[0]</code></pre>
+</div>
+</div>
+
+<!-- E15. Zeros in array -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Zeros in array</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Max Product [2,3,0,4]: zero resets the subarray
+// Product Except Self with zero:
+//   1 zero → only zero's position has nonzero product
+//   2+ zeros → all products are zero
+
+// Subarray Sum = 0: valid answer exists
+// → prefixCount[0] = 1 handles it</code></pre>
+</div>
+</div>
+
+<!-- E16. Not rotated (sorted) array -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Not rotated (sorted) array — still works</span>
+  <span class="severity tip">Correct by Design</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Sorted array = rotation by 0
+// Binary search: findMin returns index 0 ✓
+// Search in rotated: left half is always sorted ✓
+
+// 3Sum on sorted array: early exit if nums[0] &gt; 0
+if nums[i] &gt; 0 {
+    break
+}
+
+// No special case needed — algorithms handle it naturally</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-sliding-window"><span class="icon">&#129695;</span> Sliding Window</div>
+
+<!-- E17. Window size k > n -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Window size k &gt; n</span>
+  <span class="severity bug">Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">if k &gt; len(nums) {
+    return 0
+}
+
+// k = n: sliding loop [k, n) never executes → first window result ✓
+// k = 1: trivial single element ✓
+
+// Permutation In String: len(p) &gt; len(s) → false immediately
+if len(p) &gt; len(s) {
+    return false
+}</code></pre>
+</div>
+</div>
+
+<!-- E18. All/no chars satisfy — result init -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All/no chars satisfy — result init</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Min Window Substring: no valid window → return ""
+result := ""
+if minLen &gt; len(s) {
+    return ""
+}
+
+// Max Consecutive Ones: all ones → return n
+// All zeros → return 0 (default)
+
+// Longest Substring w/o Repeat:
+//   all unique → return n
+//   all same char → return 1</code></pre>
+</div>
+</div>
+
+<!-- E19. Matches counter — boundary cross -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Matches counter — boundary cross</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Sliding window with "formed" counter for Min Window Substring
+// ✅ Increment formed only at exact boundary
+if window[c] == need[c] {
+    formed++
+}
+
+// ✅ Decrement formed only when crossing below threshold
+window[lc]--
+if window[lc] &lt; need[lc] {
+    formed--
+}
+
+// formed++ only when count goes from need-1 → need
+// formed-- only when count goes from need → need-1</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-binary-search"><span class="icon">&#128269;</span> Binary Search</div>
+
+<!-- E20. Infinite loop: lo = mid -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Infinite loop: lo = mid</span>
+  <span class="severity bug">Hangs Forever</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ No progress when lo=0, hi=1: mid=0, lo stays 0
+for lo &lt; hi {
+    mid := lo + (hi-lo)/2
+    if valid(mid) {
+        hi = mid
+    } else { lo = mid }  // ← INFINITE LOOP!
+}
+
+// ✅ Always advance by at least 1
+lo = mid + 1
+
+// Rule: lo &lt; hi  → for boundary-finding
+// Rule: lo &lt;= hi → for exact-match</code></pre>
+</div>
+</div>
+
+<!-- E21. First/last occurrence — don't return early -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">First/last occurrence — don't return early</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// First occurrence: keep searching LEFT when found
+if nums[mid] == target { hi = mid }       // ← not return!
+
+// Last occurrence: keep searching RIGHT when found
+if nums[mid] == target { lo = mid + 1 }   // ← not return!
+// answer is lo-1 after loop</code></pre>
+</div>
+</div>
+
+<!-- E22. Search-on-answer wrong boundaries -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Search-on-answer wrong boundaries</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// lo/hi must cover the complete valid range!
+
+// Koko Eating Bananas:
+lo = 1             // minimum possible rate
+hi = max(piles)    // one pile per hour
+
+// Capacity to Ship:
+lo = max(weights)  // must fit heaviest package
+hi = sum(weights)  // ship everything in one day
+
+// isFeasible must be strictly monotone!</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-linked-list"><span class="icon">&#128279;</span> Linked List</div>
+
+<!-- E23. Fast/slow nil check order -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Fast/slow nil check order</span>
+  <span class="severity bug">Nil Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Panic when list has even length (fast.Next == nil)
+for fast.Next.Next != nil {
+    ...
+}
+
+// ✅ Short-circuit: fast checked before fast.Next
+for fast != nil &amp;&amp; fast.Next != nil {
+    slow = slow.Next
+    fast = fast.Next.Next
+}
+// Odd  [1,2,3]:   fast=3(node), slow=2 (middle) ✓
+// Even [1,2,3,4]: fast=nil,     slow=2 (1st middle) ✓</code></pre>
+</div>
+</div>
+
+<!-- E24. Reverse: save next before overwriting -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Reverse: save next before overwriting</span>
+  <span class="severity bug">Lost Pointer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ curr.Next overwritten, rest of list lost
+curr.Next = prev
+curr = curr.Next    // already points to prev!
+
+// ✅ Save first
+next := curr.Next    // 1. save
+curr.Next = prev     // 2. reverse
+prev = curr          // 3. advance prev
+curr = next          // 4. advance curr</code></pre>
+</div>
+</div>
+
+<!-- E25. Remove Nth: n = list length → head deletion -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Remove Nth: n = list length → head deletion</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ✅ Dummy node avoids special case for head removal
+dummy := &amp;ListNode{Next: head}
+fast, slow := dummy, dummy
+for i := 0; i &lt;= n; i++ {
+    fast = fast.Next
+}
+for fast != nil {
+    fast = fast.Next; slow = slow.Next
+}
+slow.Next = slow.Next.Next
+return dummy.Next</code></pre>
+</div>
+</div>
+
+<!-- E26. Floyd's cycle: phase 2 detection -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Floyd's cycle: phase 2 detection</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Phase 1: detect cycle
+slow, fast := head, head
+for fast != nil &amp;&amp; fast.Next != nil {
+    slow = slow.Next
+    fast = fast.Next.Next
+    if slow == fast {
+        break
+    }
+}
+if fast == nil || fast.Next == nil {
+    return nil
+}
+
+// Phase 2: find cycle start
+ptr := head
+for ptr != slow {
+    ptr = ptr.Next
+    slow = slow.Next
+}
+return ptr  // cycle entry point</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-tree"><span class="icon">&#127795;</span> Tree</div>
+
+<!-- E27. Skewed tree → stack overflow -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Skewed tree → stack overflow</span>
+  <span class="severity bug">Stack Overflow</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Skewed tree (n=10^5 nodes all left): recursion depth = n
+
+// ✅ Use iterative inorder for large inputs
+var stack []*TreeNode
+curr := root
+for curr != nil || len(stack) &gt; 0 {
+    for curr != nil {
+        stack = append(stack, curr)
+        curr = curr.Left
+    }
+    curr = stack[len(stack)-1]
+    stack = stack[:len(stack)-1]
+    // process curr.Val
+    curr = curr.Right
+}</code></pre>
+</div>
+</div>
+
+<!-- E28. BST validate — int bounds vs int64 -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">BST validate — int bounds vs int64</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Node with value = math.MinInt32 fails int bounds
+validate(node, math.MinInt32, math.MaxInt32)
+
+// ✅ Always use int64 bounds
+func validate(n *TreeNode, lo, hi int64) bool {
+    if n == nil {
+        return true
+    }
+    v := int64(n.Val)
+    if v &lt;= lo || v &gt;= hi {
+        return false
+    }
+    return validate(n.Left, lo, v) &amp;&amp; validate(n.Right, v, hi)
+}
+validate(root, math.MinInt64, math.MaxInt64)</code></pre>
+</div>
+</div>
+
+<!-- E29. Max Path Sum — negative node values -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Max Path Sum — negative node values</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ ans = 0 fails for tree [-3]
+ans := 0
+
+// ✅ Init to smallest possible
+ans := math.MinInt
+
+// Skip negative contribution from subtrees
+leftGain := max(0, maxGain(n.Left))
+rightGain := max(0, maxGain(n.Right))</code></pre>
+</div>
+</div>
+
+<!-- E30. LCA — p is ancestor of q -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LCA — p is ancestor of q</span>
+  <span class="severity tip">Correct by Design</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Standard algorithm handles this correctly
+if root == nil || root == p || root == q {
+    return root
+}
+left := lca(root.Left, p, q)
+right := lca(root.Right, p, q)
+if left != nil &amp;&amp; right != nil {
+    return root
+}
+if left != nil {
+    return left
+}
+return right</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-graph"><span class="icon">&#128376;&#65039;</span> Graph</div>
+
+<!-- E31. Disconnected graph — incomplete BFS -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Disconnected graph — incomplete BFS</span>
+  <span class="severity bug">Missed Nodes</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Only visits component containing node 0
+dfs(graph, 0, visited)
+
+// ✅ Start from every unvisited node
+for i := 0; i &lt; n; i++ {
+    if !visited[i] {
+        dfs(graph, i, visited); components++
+    }
+}</code></pre>
+</div>
+</div>
+
+<!-- E32. Dijkstra — stale entries & negative weights -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Dijkstra — stale entries &amp; negative weights</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ✅ Stale-entry guard (must have!)
+curr := heap.Pop(h)
+if curr.dist &gt; dist[curr.node] { continue } // skip outdated
+
+// ❌ Dijkstra with negative weights → use Bellman-Ford
+
+// Unreachable nodes: dist stays INF
+if dist[dst] == INF {
+    return -1
+}</code></pre>
+</div>
+</div>
+
+<!-- E33. Undirected DFS — parent ≠ back-edge -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Undirected DFS — parent ≠ back-edge</span>
+  <span class="severity subtle">False Cycle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Treats parent edge as cycle → false positive
+if visited[neighbor] {
+    return true
+}
+
+// ✅ Ignore the parent in undirected DFS
+if neighbor == parent {
+    continue
+}
+if visited[neighbor] { return true }  // real cycle
+
+// For directed: use 3-state (unvisited / in-stack / done)</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-stack-queue"><span class="icon">&#128218;</span> Stack / Queue</div>
+
+<!-- E34. Pop/peek on empty — panic -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Pop/peek on empty — panic</span>
+  <span class="severity bug">Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Panics: index out of range
+top := stack[len(stack)-1]  // when stack is empty
+
+// ✅ Always check before accessing
+if len(stack) &gt; 0 {
+    top = stack[len(stack)-1]
+}
+
+// Same for queue:
+if len(queue) &gt; 0 {
+    front = queue[0]
+}</code></pre>
+</div>
+</div>
+
+<!-- E35. Leftover elements after loop — monotonic -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Leftover elements after loop — monotonic</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Monotonic stack: after loop, remaining elements have
+// no "next greater" → result stays default (often 0 or -1)
+
+// Largest Rectangle (#84): append sentinel height 0
+// to force all bars to pop at the end
+heights = append(heights, 0)
+
+// Next Greater Element: remaining stack elements → result = -1
+// (already handled if result initialized to -1)</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-dp"><span class="icon">&#127919;</span> DP</div>
+
+<!-- E36. Wrong base case / index-0 crash -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Wrong base case / index-0 crash</span>
+  <span class="severity bug">Panic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Climbing Stairs: n=1 → dp[i-2] accesses dp[-1]
+if n &lt;= 1 {
+    return n
+}
+
+// Decode Ways: s[0]='0' → 0 ways immediately
+// Coin Change: amount=0 → 0 (no coins needed)
+// Edit Distance: dp[i][0]=i, dp[0][j]=j → don't forget!</code></pre>
+</div>
+</div>
+
+<!-- E37. Circular DP — run twice -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Circular DP — run twice</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// House Robber II: can't use first and last together
+if len(nums) == 1 {
+    return nums[0]
+}
+r1 := rob(nums[0 : n-1])  // skip last
+r2 := rob(nums[1 : n])    // skip first
+return max(r1, r2)</code></pre>
+</div>
+</div>
+
+<!-- E38. Unbounded vs 0/1 knapsack loop direction -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Unbounded vs 0/1 knapsack loop direction</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Unbounded (Coin Change): each coin reusable → loop FORWARD
+for _, coin := range coins {
+    for j := coin; j &lt;= amount; j++ {
+        dp[j] = min(dp[j], dp[j-coin]+1)
+    }
+}
+
+// 0/1 Knapsack: each item once → loop BACKWARD
+for _, item := range items {
+    for j := W; j &gt;= item.w; j-- {
+        dp[j] = max(dp[j], dp[j-item.w]+item.v)
+    }
+}
+
+// ❌ Coin Change with backward loop → each coin used once → wrong</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-backtracking"><span class="icon">&#127807;</span> Backtracking</div>
+
+<!-- E39. Must snapshot the list -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Must snapshot the list</span>
+  <span class="severity bug">All Results Same</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ All results point to same backing array
+result = append(result, curr)
+
+// ✅ Always copy on add
+cp := make([]int, len(curr))
+copy(cp, curr)
+result = append(result, cp)
+
+// Bug produces result = [[], [], ...] (all empty)</code></pre>
+</div>
+</div>
+
+<!-- E40. Duplicate skip: i > start, not i > 0 -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Duplicate skip: i &gt; start, not i &gt; 0</span>
+  <span class="severity bug">Missing Results</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ i &gt; 0: skips valid combinations (too aggressive)
+if i &gt; 0 &amp;&amp; nums[i] == nums[i-1] {
+    continue
+}
+
+// ✅ i &gt; start: only skip duplicates at same recursion level
+if i &gt; start &amp;&amp; nums[i] == nums[i-1] {
+    continue
+}
+
+// MUST sort array first!
+sort.Ints(nums)</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-string"><span class="icon">&#128292;</span> String</div>
+
+<!-- E41. String equality — Go vs Java -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String equality — Go vs Java</span>
+  <span class="severity tip">Go Advantage</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// In Go, == on strings is VALUE comparison ✅
+// (Unlike Java where == is reference comparison)
+s1 == s2                    // ✅ always correct in Go
+strings.EqualFold(s1, s2)   // case-insensitive
+
+// Integer comparison is also safe — no autoboxing pitfall
+a, b := 1000, 1000
+a == b   // ✅ true (Go has no Integer cache issue)</code></pre>
+</div>
+</div>
+
+<!-- E42. Palindrome definition — empty, spaces -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Palindrome definition — empty, spaces</span>
+  <span class="severity tip">Best Practice</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Empty string → palindrome (true)
+// Single char → palindrome (true)
+// "  " → after stripping → empty → true
+
+// Valid Palindrome: strip non-alphanumeric, lowercase
+func isPalindrome(s string) bool {
+    var clean []rune
+    for _, c := range s {
+        if unicode.IsLetter(c) || unicode.IsDigit(c) {
+            clean = append(clean, unicode.ToLower(c))
+        }
+    }
+    for l, r := 0, len(clean)-1; l &lt; r; l, r = l+1, r-1 {
+        if clean[l] != clean[r] {
+            return false
+        }
+    }
+    return true
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-edge-bit-manipulation"><span class="icon">&#9889;</span> Bit Manipulation</div>
+
+<!-- E44. Arithmetic shift on negative numbers -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Arithmetic shift on negative numbers</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Go's &gt;&gt; is arithmetic for signed (preserves sign)
+// -1 &gt;&gt; 1 → still -1 (sign bit propagates)
+
+// Count bits on any int (including negative):
+// ✅ Convert to uint
+bits.OnesCount(uint(n))
+
+// Go has no &gt;&gt;&gt; (unsigned shift) — use uint types instead</code></pre>
+</div>
+</div>
+
+<!-- E45. n=0 and power-of-2 check -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">n=0 and power-of-2 check</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ 0 falsely passes
+return (n &amp; (n-1)) == 0
+
+// ✅ Must check n &gt; 0
+return n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-universal"><span class="icon">&#9888;&#65039;</span> Universal</div>
+
+<!-- E46. Off-by-one errors -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Off-by-one errors</span>
+  <span class="severity bug">Most Common</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Subarray length: right - left + 1
+// Substring s[i:j]: [i, j), length = j - i
+
+// ❌ Misses last element
+for i := 0; i &lt; n-1; i++ {
+     
+}
+// ✅
+for i := 0; i &lt; n; i++ {
+     
+}
+
+// for left &lt; right  vs  for left &lt;= right
+// Binary search: lo &lt;= hi for exact-match
+// Binary search: lo &lt; hi  for boundary-finding</code></pre>
+</div>
+</div>
+
+<!-- E47. Negative modulo -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Negative modulo</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Go's % keeps sign of dividend (like Java)
+-7 % 3   // == -1  (not 2!)
+-1 % 5   // == -1  (not 4!)
+
+// ✅ Always-positive modulo
+mod := ((a % n) + n) % n
+// -7 mod 3: ((-7%3)+3)%3 = (-1+3)%3 = 2 ✓
+
+// Common in: circular array index, hash functions</code></pre>
+</div>
+</div>
+
+<!-- E49. Return value conventions -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Return value conventions</span>
+  <span class="severity tip">Best Practice</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Binary Search not found    → -1
+// Min Window no window       → ""
+// Coin Change impossible     → -1 (NOT 0!)
+// Gas Station impossible     → -1
+// Subsets: empty set []      → valid result
+// Path Sum no path           → false
+
+// Coin Change: "0 coins needed" vs "impossible"
+if dp[amount] &gt; amount {
+    return -1
+}
+return dp[amount]</code></pre>
+</div>
+</div>
+
+<!-- E51. Map modification during iteration -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Map modification during iteration</span>
+  <span class="severity subtle">Non-deterministic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// In Go, modifying a map while iterating is ALLOWED
+// (unlike Java's ConcurrentModificationException)
+// BUT behavior is non-deterministic — you may or may not see changes.
+
+// ✅ Collect keys first, then modify
+var toDelete []int
+for k := range m {
+    if shouldRemove(k) {
+        toDelete = append(toDelete, k)
+    }
+}
+for _, k := range toDelete {
+    delete(m, k)
+}</code></pre>
+</div>
+</div>
+
+</div><!-- end cards-grid -->

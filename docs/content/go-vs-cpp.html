@@ -1,0 +1,1280 @@
+
+<!-- ======================= CONTAINERS ======================= -->
+<div class="section-title" id="sec-containers"><span class="icon">📦</span> Containers</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Dynamic Array</td>
+<td><pre><code class="language-go">// slice — growable, reference semantics
+s := []int{1, 2, 3}
+s = append(s, 4, 5)
+s = append(s, other...)    // concat
+sub := s[1:3]              // subslice (shared backing)
+cp := make([]int, len(s))
+copy(cp, s)</code></pre><span class="tag go-tag">builtin slice</span></td>
+<td><pre><code class="language-cpp">vector&lt;int&gt; v = {1, 2, 3};
+v.push_back(4);
+v.insert(v.end(), other.begin(), other.end());
+// subrange via iterators or span
+auto cp = v;  // deep copy</code></pre><span class="tag cpp-tag">std::vector</span></td></tr>
+
+<tr><td>Fixed-Size Array</td>
+<td><pre><code class="language-go">var a [5]int               // zero-valued
+a := [3]int{1, 2, 3}
+b := a                     // deep copy (value type)</code></pre><span class="tag go-tag">builtin [N]T</span></td>
+<td><pre><code class="language-cpp">array&lt;int, 5&gt; a = {};      // zero-init
+array&lt;int, 3&gt; a = {1, 2, 3};
+auto b = a;                // deep copy</code></pre><span class="tag cpp-tag">std::array</span></td></tr>
+
+<tr><td>Doubly-Linked List</td>
+<td><pre><code class="language-go">import "container/list"
+l := list.New()
+l.PushBack(10)
+l.PushFront(5)
+
+// Iterate front to back
+for e := l.Front(); e != nil; e = e.Next() {
+    fmt.Println(e.Value)
+}
+
+// Pop front
+front := l.Front()
+val := front.Value.(int)
+l.Remove(front)
+
+// Pop back
+back := l.Back()
+val = back.Value.(int)
+l.Remove(back)</code></pre><span class="tag go-tag">container/list</span></td>
+<td><pre><code class="language-cpp">list&lt;int&gt; l;
+l.push_back(10);
+l.push_front(5);
+
+// Iterate
+for (auto&amp; v : l) { cout &lt;&lt; v; }
+
+// Pop front / back
+int front = l.front(); l.pop_front();
+int back  = l.back();  l.pop_back();
+
+// Erase by iterator
+auto it = l.begin();
+l.erase(it);</code></pre><span class="tag cpp-tag">std::list</span></td></tr>
+
+<tr><td>Double-Ended Queue</td>
+<td><pre><code class="language-go">// Using container/list as deque (all O(1))
+import "container/list"
+dq := list.New()
+dq.PushBack(5)
+dq.PushFront(1)
+front := dq.Remove(dq.Front()).(int)  // pop front
+back  := dq.Remove(dq.Back()).(int)   // pop back
+
+// Or slice-based (push front is O(n))
+deq := []int{}
+deq = append(deq, 5)              // push back
+deq = append([]int{1}, deq...)    // push front
+deq = deq[1:]                     // pop front
+deq = deq[:len(deq)-1]            // pop back</code></pre><span class="tag go-tag">container/list / slice</span></td>
+<td><pre><code class="language-cpp">deque&lt;int&gt; dq;
+dq.push_back(5);
+dq.push_front(1);  // O(1)
+dq.pop_front();
+dq.pop_back();</code></pre><span class="tag cpp-tag">std::deque</span></td></tr>
+
+<tr><td>Stack (LIFO)</td>
+<td><pre><code class="language-go">// Using container/list as stack
+import "container/list"
+st := list.New()
+st.PushBack(1)                            // push
+top := st.Back().Value.(int)              // peek
+st.Remove(st.Back())                      // pop
+
+// Or slice-based
+stack := []int{}
+stack = append(stack, 1)                  // push
+top = stack[len(stack)-1]                 // peek
+stack = stack[:len(stack)-1]              // pop</code></pre><span class="tag go-tag">container/list / slice</span></td>
+<td><pre><code class="language-cpp">stack&lt;int&gt; st;
+st.push(1);
+int top = st.top();
+st.pop();</code></pre><span class="tag cpp-tag">std::stack</span></td></tr>
+
+<tr><td>Queue (FIFO)</td>
+<td><pre><code class="language-go">// Using container/list as queue (all O(1))
+import "container/list"
+q := list.New()
+q.PushBack(1)                             // enqueue
+front := q.Remove(q.Front()).(int)        // dequeue
+
+// Or slice-based
+qs := []int{}
+qs = append(qs, 1)                        // enqueue
+front = qs[0]; qs = qs[1:]               // dequeue
+
+// Or buffered channel
+ch := make(chan int, 100)
+ch &lt;- 1
+v := &lt;-ch</code></pre><span class="tag go-tag">container/list / slice / chan</span></td>
+<td><pre><code class="language-cpp">queue&lt;int&gt; q;
+q.push(1);
+int front = q.front();
+q.pop();</code></pre><span class="tag cpp-tag">std::queue</span></td></tr>
+
+<tr><td>Priority Queue / Heap</td>
+<td><pre><code class="language-go">import "container/heap"
+// Implement heap.Interface: Len, Less, Swap, Push, Pop
+type MinHeap []int
+func (h MinHeap) Len() int           { return len(h) }
+func (h MinHeap) Less(i, j int) bool { return h[i] &lt; h[j] }
+func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *MinHeap) Push(x any)        { *h = append(*h, x.(int)) }
+func (h *MinHeap) Pop() any {
+    old := *h; n := len(old)
+    x := old[n-1]; *h = old[:n-1]; return x
+}
+heap.Init(&amp;h); heap.Push(&amp;h, 3)</code></pre><span class="tag go-tag">container/heap</span></td>
+<td><pre><code class="language-cpp">// Max-heap by default
+priority_queue&lt;int&gt; pq;
+pq.push(3);
+int top = pq.top();
+pq.pop();
+
+// Min-heap
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minPQ;</code></pre><span class="tag cpp-tag">std::priority_queue</span></td></tr>
+
+<tr><td>Hash Map</td>
+<td><pre><code class="language-go">m := map[string]int{"a": 1, "b": 2}
+m["c"] = 3
+v, ok := m["a"]          // lookup + existence check
+delete(m, "b")
+for k, v := range m { } // iterate (random order)</code></pre><span class="tag go-tag">builtin map</span></td>
+<td><pre><code class="language-cpp">unordered_map&lt;string, int&gt; m = {{"a",1}, {"b",2}};
+m["c"] = 3;
+auto it = m.find("a");   // iterator
+m.erase("b");
+for (auto&amp; [k,v] : m) {} // C++17</code></pre><span class="tag cpp-tag">std::unordered_map</span></td></tr>
+
+<tr><td>Ordered Map</td>
+<td><pre><code class="language-go">// No built-in ordered map.
+// Sort keys manually:
+keys := make([]string, 0, len(m))
+for k := range m { keys = append(keys, k) }
+slices.Sort(keys)
+for _, k := range keys { v := m[k] }</code></pre><span class="tag no-equiv">manual sort</span></td>
+<td><pre><code class="language-cpp">map&lt;string, int&gt; m;       // red-black tree
+m["a"] = 1;
+// Always iterated in sorted key order
+for (auto&amp; [k,v] : m) {}</code></pre><span class="tag cpp-tag">std::map</span></td></tr>
+
+<tr><td>Hash Set</td>
+<td><pre><code class="language-go">set := map[string]struct{}{}
+set["a"] = struct{}{}
+_, exists := set["a"]
+delete(set, "a")
+for k := range set { }</code></pre><span class="tag go-tag">map[K]struct{}</span></td>
+<td><pre><code class="language-cpp">unordered_set&lt;string&gt; s = {"a", "b"};
+s.insert("c");
+bool exists = s.count("a");
+s.erase("a");
+for (auto&amp; v : s) {}</code></pre><span class="tag cpp-tag">std::unordered_set</span></td></tr>
+
+<tr><td>Ordered Set</td>
+<td><pre><code class="language-go">// No built-in; use sorted slice + binary search
+// or a third-party btree library
+import "slices"
+slices.Sort(s)
+_, found := slices.BinarySearch(s, target)</code></pre><span class="tag no-equiv">sorted slice</span></td>
+<td><pre><code class="language-cpp">set&lt;int&gt; s = {3, 1, 2};  // red-black tree
+s.insert(4);
+auto it = s.lower_bound(2);
+s.erase(3);</code></pre><span class="tag cpp-tag">std::set</span></td></tr>
+
+<tr><td>Multi-Map / Multi-Set</td>
+<td><pre><code class="language-go">// Use map[K][]V for multi-map
+mm := map[string][]int{}
+mm["a"] = append(mm["a"], 1, 2)</code></pre><span class="tag go-tag">map[K][]V</span></td>
+<td><pre><code class="language-cpp">multimap&lt;string, int&gt; mm;
+mm.insert({"a", 1});
+mm.insert({"a", 2});
+auto range = mm.equal_range("a");</code></pre><span class="tag cpp-tag">std::multimap / std::multiset</span></td></tr>
+
+<tr><td>Pair / Tuple</td>
+<td><pre><code class="language-go">// Use struct or multiple return values
+type Pair struct{ First, Second int }
+func twoVals() (int, string) { return 1, "hi" }
+a, b := twoVals()</code></pre><span class="tag go-tag">struct / multi-return</span></td>
+<td><pre><code class="language-cpp">pair&lt;int, string&gt; p = {1, "hi"};
+auto [a, b] = p;               // structured binding
+tuple&lt;int, string, double&gt; t = {1, "hi", 3.14};
+auto val = get&lt;0&gt;(t);</code></pre><span class="tag cpp-tag">std::pair / std::tuple</span></td></tr>
+
+<tr><td>Ring Buffer</td>
+<td><pre><code class="language-go">import "container/ring"
+r := ring.New(5)
+r.Value = 1
+r = r.Next()
+r.Do(func(v any) { fmt.Println(v) })</code></pre><span class="tag go-tag">container/ring</span></td>
+<td><pre><code class="language-cpp">// No direct STL equivalent; use circular buffer
+// from Boost or implement manually with deque
+// boost::circular_buffer&lt;int&gt; cb(5);</code></pre><span class="tag no-equiv">manual / Boost</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= ALGORITHMS — SORTING ======================= -->
+<div class="section-title" id="sec-sorting"><span class="icon">🔢</span> Sorting &amp; Ordering</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Sort Slice</td>
+<td><pre><code class="language-go">import "slices"
+slices.Sort(s)                    // Go 1.21+
+slices.SortFunc(s, func(a, b int) int {
+    return a - b
+})
+
+import "sort"
+sort.Ints(s)                      // older API
+sort.Slice(s, func(i, j int) bool {
+    return s[i] &lt; s[j]
+})</code></pre><span class="tag go-tag">slices / sort</span></td>
+<td><pre><code class="language-cpp">sort(v.begin(), v.end());         // ascending
+sort(v.begin(), v.end(), greater&lt;int&gt;()); // descending
+sort(v.begin(), v.end(), [](int a, int b) {
+    return a &lt; b;                  // custom comparator
+});</code></pre><span class="tag cpp-tag">std::sort</span></td></tr>
+
+<tr><td>Stable Sort</td>
+<td><pre><code class="language-go">slices.SortStableFunc(s, cmpFunc) // Go 1.21+
+sort.Stable(sort.IntSlice(s))</code></pre><span class="tag go-tag">slices / sort</span></td>
+<td><pre><code class="language-cpp">stable_sort(v.begin(), v.end());
+stable_sort(v.begin(), v.end(), cmp);</code></pre><span class="tag cpp-tag">std::stable_sort</span></td></tr>
+
+<tr><td>Check if Sorted</td>
+<td><pre><code class="language-go">ok := slices.IsSorted(s)          // Go 1.21+
+ok := sort.IntsAreSorted(s)</code></pre><span class="tag go-tag">slices / sort</span></td>
+<td><pre><code class="language-cpp">bool ok = is_sorted(v.begin(), v.end());</code></pre><span class="tag cpp-tag">std::is_sorted</span></td></tr>
+
+<tr><td>Partial Sort / Nth Element</td>
+<td><pre><code class="language-go">// No built-in; sort and take first N,
+// or use container/heap for top-K
+h := &amp;MinHeap{}
+heap.Init(h)
+for _, v := range data {
+    heap.Push(h, v)
+    if h.Len() &gt; k { heap.Pop(h) }
+}</code></pre><span class="tag no-equiv">heap for top-K</span></td>
+<td><pre><code class="language-cpp">nth_element(v.begin(), v.begin()+k, v.end());
+partial_sort(v.begin(), v.begin()+k, v.end());</code></pre><span class="tag cpp-tag">std::nth_element / partial_sort</span></td></tr>
+
+<tr><td>Reverse</td>
+<td><pre><code class="language-go">slices.Reverse(s)                 // Go 1.21+
+// Manual:
+for i, j := 0, len(s)-1; i &lt; j; i, j = i+1, j-1 {
+    s[i], s[j] = s[j], s[i]
+}</code></pre><span class="tag go-tag">slices</span></td>
+<td><pre><code class="language-cpp">reverse(v.begin(), v.end());</code></pre><span class="tag cpp-tag">std::reverse</span></td></tr>
+
+<tr><td>Rotate</td>
+<td><pre><code class="language-go">// Rotate left by k positions
+k %= len(s)
+s = append(s[k:], s[:k]...)</code></pre><span class="tag no-equiv">slice concat</span></td>
+<td><pre><code class="language-cpp">rotate(v.begin(), v.begin()+k, v.end());</code></pre><span class="tag cpp-tag">std::rotate</span></td></tr>
+
+<tr><td>Shuffle</td>
+<td><pre><code class="language-go">import "math/rand"
+rand.Shuffle(len(s), func(i, j int) {
+    s[i], s[j] = s[j], s[i]
+})</code></pre><span class="tag go-tag">math/rand</span></td>
+<td><pre><code class="language-cpp">mt19937 rng(random_device{}());
+shuffle(v.begin(), v.end(), rng);</code></pre><span class="tag cpp-tag">std::shuffle</span></td></tr>
+
+<tr><td>Next Permutation</td>
+<td><pre><code class="language-go">// No built-in; implement manually
+func nextPermutation(nums []int) bool {
+    n := len(nums); i := n - 2
+    for i &gt;= 0 &amp;&amp; nums[i] &gt;= nums[i+1] { i-- }
+    if i &lt; 0 { return false }
+    j := n - 1
+    for nums[j] &lt;= nums[i] { j-- }
+    nums[i], nums[j] = nums[j], nums[i]
+    slices.Reverse(nums[i+1:])
+    return true
+}</code></pre><span class="tag no-equiv">manual</span></td>
+<td><pre><code class="language-cpp">// Returns false when wrapped to first permutation
+bool more = next_permutation(v.begin(), v.end());
+prev_permutation(v.begin(), v.end());</code></pre><span class="tag cpp-tag">std::next_permutation</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= SEARCHING ======================= -->
+<div class="section-title" id="sec-searching"><span class="icon">🔍</span> Searching</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Binary Search</td>
+<td><pre><code class="language-go">// Go 1.21+
+idx, found := slices.BinarySearch(s, target)
+
+// Older API — returns insertion point
+i := sort.SearchInts(s, target)
+found := i &lt; len(s) &amp;&amp; s[i] == target</code></pre><span class="tag go-tag">slices / sort</span></td>
+<td><pre><code class="language-cpp">bool found = binary_search(v.begin(), v.end(), target);</code></pre><span class="tag cpp-tag">std::binary_search</span></td></tr>
+
+<tr><td>Lower / Upper Bound</td>
+<td><pre><code class="language-go">// sort.Search returns first index where f(i) is true
+lb := sort.Search(len(s), func(i int) bool {
+    return s[i] &gt;= target
+})
+ub := sort.Search(len(s), func(i int) bool {
+    return s[i] &gt; target
+})</code></pre><span class="tag go-tag">sort.Search</span></td>
+<td><pre><code class="language-cpp">auto lb = lower_bound(v.begin(), v.end(), target);
+auto ub = upper_bound(v.begin(), v.end(), target);
+auto [lo, hi] = equal_range(v.begin(), v.end(), target);</code></pre><span class="tag cpp-tag">lower_bound / upper_bound</span></td></tr>
+
+<tr><td>Linear Find</td>
+<td><pre><code class="language-go">idx := slices.Index(s, target)            // Go 1.21+
+idx := slices.IndexFunc(s, func(v int) bool {
+    return v &gt; 10
+})</code></pre><span class="tag go-tag">slices</span></td>
+<td><pre><code class="language-cpp">auto it = find(v.begin(), v.end(), target);
+auto it = find_if(v.begin(), v.end(), [](int x) {
+    return x &gt; 10;
+});</code></pre><span class="tag cpp-tag">std::find / find_if</span></td></tr>
+
+<tr><td>Contains</td>
+<td><pre><code class="language-go">ok := slices.Contains(s, target)          // Go 1.21+</code></pre><span class="tag go-tag">slices</span></td>
+<td><pre><code class="language-cpp">// C++23
+bool ok = ranges::contains(v, target);
+// Pre-C++23
+bool ok = find(v.begin(), v.end(), target) != v.end();</code></pre><span class="tag cpp-tag">std::ranges::contains</span></td></tr>
+
+<tr><td>Count</td>
+<td><pre><code class="language-go">// Manual loop
+cnt := 0
+for _, v := range s {
+    if v == target { cnt++ }
+}</code></pre><span class="tag no-equiv">manual loop</span></td>
+<td><pre><code class="language-cpp">int cnt = count(v.begin(), v.end(), target);
+int cnt = count_if(v.begin(), v.end(), pred);</code></pre><span class="tag cpp-tag">std::count / count_if</span></td></tr>
+
+<tr><td>Min / Max Element</td>
+<td><pre><code class="language-go">m := slices.Min(s)                        // Go 1.21+
+m := slices.Max(s)
+// Scalar
+smaller := min(a, b)                      // Go 1.21+ builtin
+larger  := max(a, b)</code></pre><span class="tag go-tag">slices / builtin</span></td>
+<td><pre><code class="language-cpp">auto it = min_element(v.begin(), v.end());
+auto it = max_element(v.begin(), v.end());
+auto [lo, hi] = minmax_element(v.begin(), v.end());
+int smaller = min(a, b);
+int larger  = max(a, b);</code></pre><span class="tag cpp-tag">std::min_element / max_element</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= TRANSFORM & MUTATE ======================= -->
+<div class="section-title" id="sec-transform"><span class="icon">🔧</span> Transform &amp; Mutate</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Copy</td>
+<td><pre><code class="language-go">dst := make([]int, len(src))
+copy(dst, src)                    // builtin</code></pre><span class="tag builtin">builtin copy</span></td>
+<td><pre><code class="language-cpp">copy(src.begin(), src.end(), dst.begin());
+auto dst = src;  // vector deep copy</code></pre><span class="tag cpp-tag">std::copy</span></td></tr>
+
+<tr><td>Fill</td>
+<td><pre><code class="language-go">// Zero-value fill via make
+s := make([]int, 10)              // all zeros
+// Custom fill
+for i := range s { s[i] = 42 }</code></pre><span class="tag go-tag">make / loop</span></td>
+<td><pre><code class="language-cpp">fill(v.begin(), v.end(), 42);
+fill_n(v.begin(), 10, 42);</code></pre><span class="tag cpp-tag">std::fill</span></td></tr>
+
+<tr><td>Transform / Map</td>
+<td><pre><code class="language-go">// Manual loop (no generic map yet)
+result := make([]int, len(s))
+for i, v := range s {
+    result[i] = v * 2
+}</code></pre><span class="tag no-equiv">manual loop</span></td>
+<td><pre><code class="language-cpp">transform(v.begin(), v.end(), out.begin(),
+    [](int x) { return x * 2; });</code></pre><span class="tag cpp-tag">std::transform</span></td></tr>
+
+<tr><td>Accumulate / Reduce</td>
+<td><pre><code class="language-go">sum := 0
+for _, v := range s { sum += v }</code></pre><span class="tag no-equiv">manual loop</span></td>
+<td><pre><code class="language-cpp">int sum = accumulate(v.begin(), v.end(), 0);
+// C++17 parallel
+int sum = reduce(v.begin(), v.end(), 0);</code></pre><span class="tag cpp-tag">std::accumulate / reduce</span></td></tr>
+
+<tr><td>Remove Duplicates</td>
+<td><pre><code class="language-go">slices.Sort(s)
+s = slices.Compact(s)             // Go 1.21+</code></pre><span class="tag go-tag">slices.Compact</span></td>
+<td><pre><code class="language-cpp">sort(v.begin(), v.end());
+auto it = unique(v.begin(), v.end());
+v.erase(it, v.end());</code></pre><span class="tag cpp-tag">std::unique</span></td></tr>
+
+<tr><td>Remove / Filter</td>
+<td><pre><code class="language-go">// Go 1.21+
+s = slices.DeleteFunc(s, func(v int) bool {
+    return v &lt; 0
+})</code></pre><span class="tag go-tag">slices.DeleteFunc</span></td>
+<td><pre><code class="language-cpp">auto it = remove_if(v.begin(), v.end(),
+    [](int x) { return x &lt; 0; });
+v.erase(it, v.end());  // erase-remove idiom</code></pre><span class="tag cpp-tag">std::remove_if</span></td></tr>
+
+<tr><td>Swap</td>
+<td><pre><code class="language-go">a, b = b, a                      // multi-assign</code></pre><span class="tag builtin">builtin</span></td>
+<td><pre><code class="language-cpp">swap(a, b);
+iter_swap(it1, it2);</code></pre><span class="tag cpp-tag">std::swap</span></td></tr>
+
+<tr><td>Insert into Slice</td>
+<td><pre><code class="language-go">// Go 1.21+
+s = slices.Insert(s, idx, vals...)
+// Manual
+s = append(s[:idx], append([]int{val}, s[idx:]...)...)</code></pre><span class="tag go-tag">slices.Insert</span></td>
+<td><pre><code class="language-cpp">v.insert(v.begin() + idx, val);
+v.insert(v.begin() + idx, first, last);</code></pre><span class="tag cpp-tag">vector::insert</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= STRINGS ======================= -->
+<div class="section-title" id="sec-strings"><span class="icon">📝</span> Strings</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>String Type</td>
+<td><pre><code class="language-go">s := "hello"                // immutable, UTF-8 bytes
+bs := []byte(s)             // mutable byte slice
+rs := []rune(s)             // mutable rune slice (Unicode)</code></pre><span class="tag go-tag">builtin string</span></td>
+<td><pre><code class="language-cpp">string s = "hello";         // mutable
+string_view sv = s;         // C++17, non-owning
+wstring ws = L"wide";</code></pre><span class="tag cpp-tag">std::string / string_view</span></td></tr>
+
+<tr><td>Substring</td>
+<td><pre><code class="language-go">sub := s[1:4]               // byte-based slicing
+// For Unicode-safe: []rune(s)[1:4]</code></pre><span class="tag go-tag">slice syntax</span></td>
+<td><pre><code class="language-cpp">string sub = s.substr(1, 3);   // pos, len
+string_view sv = string_view(s).substr(1, 3);</code></pre><span class="tag cpp-tag">string::substr</span></td></tr>
+
+<tr><td>Find / Contains</td>
+<td><pre><code class="language-go">import "strings"
+ok := strings.Contains(s, "ell")
+idx := strings.Index(s, "ell")       // -1 if not found
+idx  = strings.LastIndex(s, "l")
+ok  := strings.HasPrefix(s, "he")
+ok  = strings.HasSuffix(s, "lo")</code></pre><span class="tag go-tag">strings</span></td>
+<td><pre><code class="language-cpp">size_t pos = s.find("ell");          // npos if not found
+pos = s.rfind("l");
+bool ok = s.starts_with("he");       // C++20
+ok = s.ends_with("lo");              // C++20
+ok = s.contains("ell");              // C++23</code></pre><span class="tag cpp-tag">string::find / starts_with</span></td></tr>
+
+<tr><td>Split / Join</td>
+<td><pre><code class="language-go">parts := strings.Split("a,b,c", ",")
+joined := strings.Join(parts, "-")
+fields := strings.Fields("a  b  c")  // split on whitespace</code></pre><span class="tag go-tag">strings</span></td>
+<td><pre><code class="language-cpp">// No built-in split; use stringstream or ranges
+istringstream iss("a,b,c");
+string tok;
+vector&lt;string&gt; parts;
+while (getline(iss, tok, ',')) parts.push_back(tok);</code></pre><span class="tag no-equiv">manual / sstream</span></td></tr>
+
+<tr><td>Replace</td>
+<td><pre><code class="language-go">s = strings.Replace(s, "old", "new", 1)   // first N
+s = strings.ReplaceAll(s, "old", "new")</code></pre><span class="tag go-tag">strings</span></td>
+<td><pre><code class="language-cpp">// Replace first occurrence manually
+size_t pos = s.find("old");
+if (pos != string::npos)
+    s.replace(pos, 3, "new");
+// Or use regex_replace for all
+s = regex_replace(s, regex("old"), "new");</code></pre><span class="tag cpp-tag">string::replace / regex</span></td></tr>
+
+<tr><td>Case Conversion</td>
+<td><pre><code class="language-go">s = strings.ToLower(s)
+s = strings.ToUpper(s)
+s = strings.Title(s)                // deprecated in 1.18
+import "golang.org/x/text/cases"    // proper title case</code></pre><span class="tag go-tag">strings</span></td>
+<td><pre><code class="language-cpp">transform(s.begin(), s.end(), s.begin(), ::tolower);
+transform(s.begin(), s.end(), s.begin(), ::toupper);
+// Or use ranges::transform in C++20</code></pre><span class="tag cpp-tag">transform + tolower/toupper</span></td></tr>
+
+<tr><td>Trim / Strip</td>
+<td><pre><code class="language-go">s = strings.TrimSpace(s)
+s = strings.Trim(s, " \t")
+s = strings.TrimLeft(s, "0")
+s = strings.TrimRight(s, "\n")</code></pre><span class="tag go-tag">strings</span></td>
+<td><pre><code class="language-cpp">// No built-in; manual or use Boost
+// C++20/23 still lacks trim
+s.erase(0, s.find_first_not_of(" \t"));
+s.erase(s.find_last_not_of(" \t") + 1);</code></pre><span class="tag no-equiv">manual erase</span></td></tr>
+
+<tr><td>String Builder</td>
+<td><pre><code class="language-go">var b strings.Builder
+b.WriteString("hello")
+b.WriteByte(' ')
+b.WriteString("world")
+result := b.String()</code></pre><span class="tag go-tag">strings.Builder</span></td>
+<td><pre><code class="language-cpp">ostringstream oss;
+oss &lt;&lt; "hello" &lt;&lt; ' ' &lt;&lt; "world";
+string result = oss.str();</code></pre><span class="tag cpp-tag">std::ostringstream</span></td></tr>
+
+<tr><td>Regex</td>
+<td><pre><code class="language-go">import "regexp"
+re := regexp.MustCompile(`\d+`)
+ok := re.MatchString("abc123")
+all := re.FindAllString("a1b2c3", -1)</code></pre><span class="tag go-tag">regexp</span>
+<div class="note">Go uses RE2 (no backreferences, guaranteed linear time)</div></td>
+<td><pre><code class="language-cpp">#include &lt;regex&gt;
+regex re(R"(\d+)");
+bool ok = regex_search("abc123", re);
+// Or regex_match for full-string match
+smatch m;
+regex_search(s, m, re);</code></pre><span class="tag cpp-tag">std::regex</span></td></tr>
+
+<tr><td>String ↔ Number</td>
+<td><pre><code class="language-go">import "strconv"
+s := strconv.Itoa(42)
+n, _ := strconv.Atoi("42")
+f, _ := strconv.ParseFloat("3.14", 64)
+s  = strconv.FormatFloat(3.14, 'f', 2, 64)</code></pre><span class="tag go-tag">strconv</span></td>
+<td><pre><code class="language-cpp">string s = to_string(42);
+int n = stoi("42");
+double f = stod("3.14");
+// C++17
+auto [ptr, ec] = from_chars(s.data(), s.data()+s.size(), n);</code></pre><span class="tag cpp-tag">std::to_string / stoi / from_chars</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= ITERATORS & RANGES ======================= -->
+<div class="section-title" id="sec-iterators"><span class="icon">🔁</span> Iteration &amp; Ranges</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Range-Based Loop</td>
+<td><pre><code class="language-go">for i, v := range s { }       // index + value
+for _, v := range s { }       // value only
+for i := range s { }          // index only
+for range 10 { }              // Go 1.22+, repeat N times</code></pre><span class="tag builtin">for range</span></td>
+<td><pre><code class="language-cpp">for (auto&amp; v : vec) {}        // value (C++11)
+for (auto [k,v] : mp) {}      // structured binding (C++17)
+for (int i = 0; i &lt; 10; i++) {}</code></pre><span class="tag cpp-tag">range-for</span></td></tr>
+
+<tr><td>Iterators</td>
+<td><pre><code class="language-go">// Go has no iterator abstraction.
+// Use index-based or for-range loops.
+// Go 1.23+ adds iter package for pull/push iterators
+import "iter"
+func All(s []int) iter.Seq[int] { ... }</code></pre><span class="tag go-tag">for range / iter</span></td>
+<td><pre><code class="language-cpp">auto it = v.begin();
+advance(it, 3);
+auto d = distance(v.begin(), it);
+auto n = next(it, 2);
+auto p = prev(it);</code></pre><span class="tag cpp-tag">iterators</span></td></tr>
+
+<tr><td>Ranges / Views</td>
+<td><pre><code class="language-go">// No equivalent to C++20 ranges/views.
+// Use manual loops or helper functions.</code></pre><span class="tag no-equiv">not available</span></td>
+<td><pre><code class="language-cpp">// C++20 ranges
+auto evens = v | views::filter([](int x) { return x%2==0; })
+             | views::transform([](int x) { return x*2; });
+for (int x : evens) {}</code></pre><span class="tag cpp-tag">std::ranges / views</span></td></tr>
+
+<tr><td>Generate Sequence</td>
+<td><pre><code class="language-go">// Manual
+s := make([]int, n)
+for i := range s { s[i] = i }</code></pre><span class="tag no-equiv">manual loop</span></td>
+<td><pre><code class="language-cpp">vector&lt;int&gt; v(n);
+iota(v.begin(), v.end(), 0);   // 0,1,2,...
+generate(v.begin(), v.end(), [n=0]() mutable { return n++; });</code></pre><span class="tag cpp-tag">std::iota / generate</span></td></tr>
+
+<tr><td>For Each</td>
+<td><pre><code class="language-go">for _, v := range s {
+    process(v)
+}</code></pre><span class="tag builtin">for range</span></td>
+<td><pre><code class="language-cpp">for_each(v.begin(), v.end(), [](int x) { process(x); });
+// C++20
+ranges::for_each(v, process);</code></pre><span class="tag cpp-tag">std::for_each</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= CONCURRENCY ======================= -->
+<div class="section-title" id="sec-concurrency"><span class="icon">⚡</span> Concurrency</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Thread / Goroutine</td>
+<td><pre><code class="language-go">go func() {
+    fmt.Println("concurrent")
+}()
+// Goroutines are multiplexed onto OS threads
+// Lightweight: ~2KB initial stack</code></pre><span class="tag builtin">go keyword</span></td>
+<td><pre><code class="language-cpp">thread t([]() {
+    cout &lt;&lt; "concurrent\n";
+});
+t.join();  // must join or detach
+// C++20
+jthread jt([]() { /* auto-joins */ });</code></pre><span class="tag cpp-tag">std::thread / jthread</span></td></tr>
+
+<tr><td>Channel / Message Passing</td>
+<td><pre><code class="language-go">ch := make(chan int, 10)      // buffered
+ch &lt;- 42                      // send
+v := &lt;-ch                     // receive
+close(ch)
+// Select for multiplexing
+select {
+case v := &lt;-ch1: ...
+case ch2 &lt;- val: ...
+default: ...
+}</code></pre><span class="tag go-tag">builtin chan</span></td>
+<td><pre><code class="language-cpp">// No built-in channel; use condition_variable + queue
+// Or C++20 concepts with custom channel
+// Boost has message queues</code></pre><span class="tag no-equiv">manual / third-party</span></td></tr>
+
+<tr><td>Mutex</td>
+<td><pre><code class="language-go">import "sync"
+var mu sync.Mutex
+mu.Lock()
+defer mu.Unlock()
+// Read-write:
+var rw sync.RWMutex
+rw.RLock(); rw.RUnlock()</code></pre><span class="tag go-tag">sync.Mutex</span></td>
+<td><pre><code class="language-cpp">mutex mtx;
+lock_guard&lt;mutex&gt; lock(mtx);  // RAII
+// Read-write:
+shared_mutex sm;
+shared_lock sl(sm);            // read
+unique_lock ul(sm);            // write</code></pre><span class="tag cpp-tag">std::mutex / shared_mutex</span></td></tr>
+
+<tr><td>Atomic Operations</td>
+<td><pre><code class="language-go">import "sync/atomic"
+var counter atomic.Int64
+counter.Add(1)
+v := counter.Load()
+counter.Store(0)
+swapped := counter.CompareAndSwap(old, new)</code></pre><span class="tag go-tag">sync/atomic</span></td>
+<td><pre><code class="language-cpp">atomic&lt;int64_t&gt; counter{0};
+counter.fetch_add(1);
+int64_t v = counter.load();
+counter.store(0);
+counter.compare_exchange_strong(old, newVal);</code></pre><span class="tag cpp-tag">std::atomic</span></td></tr>
+
+<tr><td>Wait Group / Barrier</td>
+<td><pre><code class="language-go">var wg sync.WaitGroup
+for i := 0; i &lt; 5; i++ {
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        work()
+    }()
+}
+wg.Wait()</code></pre><span class="tag go-tag">sync.WaitGroup</span></td>
+<td><pre><code class="language-cpp">// C++20
+barrier bar(5, []() noexcept { /* completion */ });
+// In each thread:
+bar.arrive_and_wait();
+
+latch l(5);    // one-shot barrier
+l.count_down();
+l.wait();</code></pre><span class="tag cpp-tag">std::barrier / latch</span></td></tr>
+
+<tr><td>Once Init</td>
+<td><pre><code class="language-go">var once sync.Once
+once.Do(func() {
+    expensiveInit()
+})</code></pre><span class="tag go-tag">sync.Once</span></td>
+<td><pre><code class="language-cpp">once_flag flag;
+call_once(flag, []() {
+    expensiveInit();
+});</code></pre><span class="tag cpp-tag">std::call_once</span></td></tr>
+
+<tr><td>Future / Async</td>
+<td><pre><code class="language-go">ch := make(chan int, 1)
+go func() {
+    ch &lt;- computeResult()
+}()
+result := &lt;-ch  // blocks until ready</code></pre><span class="tag go-tag">channel pattern</span></td>
+<td><pre><code class="language-cpp">auto fut = async(launch::async, computeResult);
+int result = fut.get();   // blocks until ready
+
+promise&lt;int&gt; p;
+auto f = p.get_future();
+p.set_value(42);</code></pre><span class="tag cpp-tag">std::async / future / promise</span></td></tr>
+
+<tr><td>Thread Pool</td>
+<td><pre><code class="language-go">// Go runtime manages goroutine scheduling.
+// For worker pools:
+jobs := make(chan Job, 100)
+for w := 0; w &lt; numWorkers; w++ {
+    go worker(jobs)
+}</code></pre><span class="tag go-tag">goroutine pool</span></td>
+<td><pre><code class="language-cpp">// No built-in pool; use:
+// - C++23 std::execution (executors proposal)
+// - Third-party: BS::thread_pool, Intel TBB
+// - Manual: vector&lt;thread&gt; + queue</code></pre><span class="tag no-equiv">manual / third-party</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= I/O ======================= -->
+<div class="section-title" id="sec-io"><span class="icon">📁</span> I/O &amp; Formatting</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Print / Format</td>
+<td><pre><code class="language-go">fmt.Println("hello", 42)
+fmt.Printf("name=%s age=%d\n", name, age)
+s := fmt.Sprintf("%.2f", 3.14159)</code></pre><span class="tag go-tag">fmt</span></td>
+<td><pre><code class="language-cpp">cout &lt;&lt; "hello " &lt;&lt; 42 &lt;&lt; endl;
+printf("name=%s age=%d\n", name, age);
+// C++20
+string s = format("name={} age={}", name, age);
+print("hello {}\n", 42);  // C++23</code></pre><span class="tag cpp-tag">iostream / std::format</span></td></tr>
+
+<tr><td>Read Input</td>
+<td><pre><code class="language-go">var n int
+fmt.Scan(&amp;n)
+
+scanner := bufio.NewScanner(os.Stdin)
+for scanner.Scan() {
+    line := scanner.Text()
+}</code></pre><span class="tag go-tag">fmt / bufio</span></td>
+<td><pre><code class="language-cpp">int n;
+cin &gt;&gt; n;
+string line;
+getline(cin, line);</code></pre><span class="tag cpp-tag">cin / getline</span></td></tr>
+
+<tr><td>File Read</td>
+<td><pre><code class="language-go">data, err := os.ReadFile("file.txt")   // entire file
+// Line by line:
+f, _ := os.Open("file.txt")
+defer f.Close()
+scanner := bufio.NewScanner(f)
+for scanner.Scan() { line := scanner.Text() }</code></pre><span class="tag go-tag">os / bufio</span></td>
+<td><pre><code class="language-cpp">ifstream f("file.txt");
+string line;
+while (getline(f, line)) { /* process */ }
+// Entire file:
+string content((istreambuf_iterator&lt;char&gt;(f)),
+               istreambuf_iterator&lt;char&gt;());</code></pre><span class="tag cpp-tag">std::ifstream</span></td></tr>
+
+<tr><td>File Write</td>
+<td><pre><code class="language-go">os.WriteFile("file.txt", []byte("hello"), 0644)
+// Buffered:
+f, _ := os.Create("file.txt")
+defer f.Close()
+w := bufio.NewWriter(f)
+w.WriteString("hello")
+w.Flush()</code></pre><span class="tag go-tag">os / bufio</span></td>
+<td><pre><code class="language-cpp">ofstream f("file.txt");
+f &lt;&lt; "hello\n";
+f.close();</code></pre><span class="tag cpp-tag">std::ofstream</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= MATH ======================= -->
+<div class="section-title" id="sec-math"><span class="icon">🔢</span> Math &amp; Numerics</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Abs / Power / Sqrt</td>
+<td><pre><code class="language-go">import "math"
+x := math.Abs(-3.14)
+x  = math.Pow(2, 10)
+x  = math.Sqrt(144)
+x  = math.Log(2.718)
+x  = math.Log2(8)
+
+// Integer abs (no builtin before Go 1.21)
+func abs(x int) int {
+    if x &lt; 0 { return -x }
+    return x
+}</code></pre><span class="tag go-tag">math</span></td>
+<td><pre><code class="language-cpp">#include &lt;cmath&gt;
+double x = abs(-3.14);    // or fabs
+x = pow(2, 10);
+x = sqrt(144);
+x = log(2.718);
+x = log2(8);
+int a = abs(-5);           // &lt;cstdlib&gt;</code></pre><span class="tag cpp-tag">cmath / cstdlib</span></td></tr>
+
+<tr><td>Ceil / Floor / Round</td>
+<td><pre><code class="language-go">c := math.Ceil(3.2)       // 4
+f := math.Floor(3.8)      // 3
+r := math.Round(3.5)      // 4</code></pre><span class="tag go-tag">math</span></td>
+<td><pre><code class="language-cpp">double c = ceil(3.2);
+double f = floor(3.8);
+double r = round(3.5);
+int ri = lround(3.5);</code></pre><span class="tag cpp-tag">cmath</span></td></tr>
+
+<tr><td>Min / Max Constants</td>
+<td><pre><code class="language-go">math.MaxInt                // 9223372036854775807
+math.MinInt                // -9223372036854775808
+math.MaxFloat64
+math.MaxInt32
+math.Inf(1)                // +Inf
+math.IsNaN(x)</code></pre><span class="tag go-tag">math</span></td>
+<td><pre><code class="language-cpp">#include &lt;limits&gt;
+numeric_limits&lt;int&gt;::max()
+numeric_limits&lt;int&gt;::min()
+numeric_limits&lt;double&gt;::max()
+numeric_limits&lt;double&gt;::infinity()
+isnan(x)</code></pre><span class="tag cpp-tag">numeric_limits</span></td></tr>
+
+<tr><td>Random Numbers</td>
+<td><pre><code class="language-go">import "math/rand/v2"          // Go 1.22+
+n := rand.IntN(100)             // [0, 100)
+f := rand.Float64()             // [0.0, 1.0)
+// Seeded (deterministic)
+src := rand.NewPCG(42, 0)
+rng := rand.New(src)</code></pre><span class="tag go-tag">math/rand/v2</span></td>
+<td><pre><code class="language-cpp">#include &lt;random&gt;
+mt19937 rng(random_device{}());
+uniform_int_distribution&lt;int&gt; dist(0, 99);
+int n = dist(rng);
+uniform_real_distribution&lt;double&gt; fd(0.0, 1.0);
+double f = fd(rng);</code></pre><span class="tag cpp-tag">random</span></td></tr>
+
+<tr><td>GCD / LCM</td>
+<td><pre><code class="language-go">// No builtin; implement:
+func gcd(a, b int) int {
+    for b != 0 { a, b = b, a%b }
+    return a
+}
+func lcm(a, b int) int { return a / gcd(a, b) * b }</code></pre><span class="tag no-equiv">manual</span></td>
+<td><pre><code class="language-cpp">#include &lt;numeric&gt;
+int g = gcd(12, 8);    // C++17
+int l = lcm(12, 8);    // C++17</code></pre><span class="tag cpp-tag">std::gcd / lcm</span></td></tr>
+
+<tr><td>Bit Manipulation</td>
+<td><pre><code class="language-go">import "math/bits"
+bits.OnesCount(x)           // popcount
+bits.Len(x)                 // bit length
+bits.LeadingZeros(x)
+bits.TrailingZeros(x)
+bits.RotateLeft(x, k)
+bits.Reverse(x)</code></pre><span class="tag go-tag">math/bits</span></td>
+<td><pre><code class="language-cpp">#include &lt;bit&gt;              // C++20
+popcount(x);
+bit_width(x);
+countl_zero(x);
+countr_zero(x);
+rotl(x, k);
+rotr(x, k);
+has_single_bit(x);          // power of 2 check</code></pre><span class="tag cpp-tag">bit (C++20)</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= TYPE SYSTEM & GENERICS ======================= -->
+<div class="section-title" id="sec-types"><span class="icon">🏷️</span> Type System &amp; Generics</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Generics</td>
+<td><pre><code class="language-go">// Go 1.18+ type parameters
+func Map[T, U any](s []T, f func(T) U) []U {
+    r := make([]U, len(s))
+    for i, v := range s { r[i] = f(v) }
+    return r
+}
+// Constraints
+type Number interface { ~int | ~float64 }</code></pre><span class="tag go-tag">type params (1.18+)</span></td>
+<td><pre><code class="language-cpp">template&lt;typename T, typename U&gt;
+vector&lt;U&gt; Map(const vector&lt;T&gt;&amp; s, function&lt;U(T)&gt; f) {
+    vector&lt;U&gt; r; r.reserve(s.size());
+    transform(s.begin(), s.end(), back_inserter(r), f);
+    return r;
+}
+// C++20 concepts
+template&lt;typename T&gt; requires integral&lt;T&gt;</code></pre><span class="tag cpp-tag">templates / concepts</span></td></tr>
+
+<tr><td>Interface / Abstract</td>
+<td><pre><code class="language-go">type Reader interface {
+    Read(p []byte) (n int, err error)
+}
+// Implicit satisfaction — no "implements" keyword</code></pre><span class="tag go-tag">interface</span></td>
+<td><pre><code class="language-cpp">class Reader {
+public:
+    virtual int Read(char* p, int len) = 0;
+    virtual ~Reader() = default;
+};
+// Explicit inheritance required</code></pre><span class="tag cpp-tag">abstract class</span></td></tr>
+
+<tr><td>Type Assertion / Cast</td>
+<td><pre><code class="language-go">v, ok := iface.(ConcreteType)   // safe
+v := iface.(ConcreteType)       // panics if wrong
+switch v := iface.(type) {     // type switch
+case int: ...
+case string: ...
+}</code></pre><span class="tag go-tag">type assertion</span></td>
+<td><pre><code class="language-cpp">auto* p = dynamic_cast&lt;Derived*&gt;(base); // nullptr if wrong
+auto&amp; r = dynamic_cast&lt;Derived&amp;&gt;(base); // throws
+auto* p = static_cast&lt;Derived*&gt;(base);  // unsafe
+if constexpr (is_same_v&lt;T, int&gt;) {}     // compile-time</code></pre><span class="tag cpp-tag">dynamic_cast / static_cast</span></td></tr>
+
+<tr><td>any / variant / optional</td>
+<td><pre><code class="language-go">var x any = 42                  // any (Go 1.18+)
+x = "hello"
+
+// Optional → use pointer or (value, bool)
+func find(id int) (*User, bool) { ... }
+
+// Variant → use interface + type switch</code></pre><span class="tag go-tag">any / pointer / interface</span></td>
+<td><pre><code class="language-cpp">any x = 42;                     // C++17
+x = string("hello");
+int v = any_cast&lt;int&gt;(x);
+
+optional&lt;int&gt; opt = 42;
+if (opt) cout &lt;&lt; *opt;
+
+variant&lt;int, string&gt; var = "hi";
+auto&amp; s = get&lt;string&gt;(var);</code></pre><span class="tag cpp-tag">std::any / optional / variant</span></td></tr>
+
+<tr><td>Function Type / Closure</td>
+<td><pre><code class="language-go">fn := func(x int) int { return x * 2 }
+apply := func(f func(int) int, v int) int {
+    return f(v)
+}
+// Closures capture by reference
+counter := 0
+inc := func() { counter++ }</code></pre><span class="tag builtin">func literal</span></td>
+<td><pre><code class="language-cpp">auto fn = [](int x) { return x * 2; };
+function&lt;int(int)&gt; fn2 = fn;   // type-erased
+// Capture modes
+int counter = 0;
+auto inc = [&amp;counter]() { counter++; }; // by ref
+auto cpy = [counter]() { return counter; }; // by val</code></pre><span class="tag cpp-tag">lambda / std::function</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= MEMORY & SMART POINTERS ======================= -->
+<div class="section-title" id="sec-memory"><span class="icon">🧠</span> Memory Management</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Heap Allocation</td>
+<td><pre><code class="language-go">p := new(int)                   // *int, zero-valued
+p  = &amp;MyStruct{Field: 1}        // composite literal
+s := make([]int, 0, 100)        // slice with capacity
+// Compiler decides stack vs heap (escape analysis)</code></pre><span class="tag builtin">new / make / &amp;</span></td>
+<td><pre><code class="language-cpp">int* p = new int(42);
+delete p;
+// Smart pointers (prefer these):
+auto p = make_unique&lt;int&gt;(42);
+auto p = make_shared&lt;int&gt;(42);</code></pre><span class="tag cpp-tag">new / make_unique</span></td></tr>
+
+<tr><td>Smart Pointers</td>
+<td><pre><code class="language-go">// Go has garbage collection — no need for smart ptrs.
+// All heap objects are automatically collected.
+// Use runtime.SetFinalizer for rare cleanup needs.</code></pre><span class="tag builtin">GC (automatic)</span></td>
+<td><pre><code class="language-cpp">unique_ptr&lt;Widget&gt; u = make_unique&lt;Widget&gt;();
+shared_ptr&lt;Widget&gt; s = make_shared&lt;Widget&gt;();
+weak_ptr&lt;Widget&gt; w = s;   // non-owning
+// unique_ptr: single owner, zero overhead
+// shared_ptr: ref-counted, thread-safe count</code></pre><span class="tag cpp-tag">unique_ptr / shared_ptr / weak_ptr</span></td></tr>
+
+<tr><td>Memory Pool / Arena</td>
+<td><pre><code class="language-go">import "sync"
+pool := sync.Pool{
+    New: func() any { return new(bytes.Buffer) },
+}
+buf := pool.Get().(*bytes.Buffer)
+buf.Reset()
+pool.Put(buf)
+// Go 1.22+ arena (experimental)</code></pre><span class="tag go-tag">sync.Pool</span></td>
+<td><pre><code class="language-cpp">// C++17 polymorphic memory resource
+pmr::monotonic_buffer_resource pool(1024);
+pmr::vector&lt;int&gt; v(&amp;pool);
+// Or pmr::unsynchronized_pool_resource
+// Or pmr::synchronized_pool_resource</code></pre><span class="tag cpp-tag">pmr (C++17)</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= ERROR HANDLING ======================= -->
+<div class="section-title" id="sec-errors"><span class="icon">🛡️</span> Error Handling</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Error Return</td>
+<td><pre><code class="language-go">func divide(a, b float64) (float64, error) {
+    if b == 0 { return 0, errors.New("divide by zero") }
+    return a / b, nil
+}
+result, err := divide(10, 0)
+if err != nil { log.Fatal(err) }</code></pre><span class="tag go-tag">error interface</span></td>
+<td><pre><code class="language-cpp">// C++23 std::expected
+expected&lt;double, string&gt; divide(double a, double b) {
+    if (b == 0) return unexpected("divide by zero");
+    return a / b;
+}
+auto result = divide(10, 0);
+if (!result) cerr &lt;&lt; result.error();</code></pre><span class="tag cpp-tag">std::expected (C++23)</span></td></tr>
+
+<tr><td>Exceptions / Panic</td>
+<td><pre><code class="language-go">// Go prefers error values; panic is for truly exceptional
+panic("fatal error")
+
+// Recover from panic
+defer func() {
+    if r := recover(); r != nil {
+        fmt.Println("recovered:", r)
+    }
+}()</code></pre><span class="tag go-tag">panic / recover</span></td>
+<td><pre><code class="language-cpp">throw runtime_error("fatal error");
+try {
+    riskyOp();
+} catch (const exception&amp; e) {
+    cerr &lt;&lt; e.what();
+} catch (...) {
+    cerr &lt;&lt; "unknown error";
+}</code></pre><span class="tag cpp-tag">try / catch / throw</span></td></tr>
+
+<tr><td>Error Wrapping</td>
+<td><pre><code class="language-go">import "errors"
+err := fmt.Errorf("open failed: %w", origErr)
+if errors.Is(err, os.ErrNotExist) { }
+var pathErr *os.PathError
+if errors.As(err, &amp;pathErr) { }</code></pre><span class="tag go-tag">errors / fmt</span></td>
+<td><pre><code class="language-cpp">// No built-in wrapping; use:
+// - nested_exception (C++11)
+// - Custom exception hierarchy
+try { inner(); }
+catch (...) {
+    throw_with_nested(runtime_error("outer"));
+}</code></pre><span class="tag cpp-tag">nested_exception</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= TESTING ======================= -->
+<div class="section-title" id="sec-testing"><span class="icon">🧪</span> Testing &amp; Benchmarks</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Unit Testing</td>
+<td><pre><code class="language-go">import "testing"
+func TestAdd(t *testing.T) {
+    got := Add(2, 3)
+    if got != 5 {
+        t.Errorf("Add(2,3) = %d, want 5", got)
+    }
+}
+// Run: go test ./...</code></pre><span class="tag go-tag">testing</span></td>
+<td><pre><code class="language-cpp">// No built-in; use Google Test, Catch2, etc.
+#include &lt;gtest/gtest.h&gt;
+TEST(AddTest, Basic) {
+    EXPECT_EQ(Add(2, 3), 5);
+}
+// C++23 has no std testing framework</code></pre><span class="tag no-equiv">third-party (gtest)</span></td></tr>
+
+<tr><td>Benchmark</td>
+<td><pre><code class="language-go">func BenchmarkSort(b *testing.B) {
+    for b.Loop() {
+        sort.Ints(data)
+    }
+}
+// Run: go test -bench=.</code></pre><span class="tag go-tag">testing</span></td>
+<td><pre><code class="language-cpp">// Google Benchmark
+static void BM_Sort(benchmark::State&amp; state) {
+    for (auto _ : state) {
+        sort(data.begin(), data.end());
+    }
+}
+BENCHMARK(BM_Sort);</code></pre><span class="tag no-equiv">third-party (gbench)</span></td></tr>
+
+<tr><td>Table-Driven Tests</td>
+<td><pre><code class="language-go">tests := []struct{
+    name string; a, b, want int
+}{
+    {"positive", 2, 3, 5},
+    {"zero", 0, 0, 0},
+}
+for _, tt := range tests {
+    t.Run(tt.name, func(t *testing.T) {
+        if got := Add(tt.a, tt.b); got != tt.want {
+            t.Errorf("got %d, want %d", got, tt.want)
+        }
+    })
+}</code></pre><span class="tag go-tag">testing subtests</span></td>
+<td><pre><code class="language-cpp">// Google Test parameterized
+class AddTest : public TestWithParam&lt;tuple&lt;int,int,int&gt;&gt; {};
+TEST_P(AddTest, Works) {
+    auto [a, b, want] = GetParam();
+    EXPECT_EQ(Add(a, b), want);
+}
+INSTANTIATE_TEST_SUITE_P(Basic, AddTest,
+    Values(make_tuple(2,3,5), make_tuple(0,0,0)));</code></pre><span class="tag no-equiv">gtest parameterized</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= JSON & SERIALIZATION ======================= -->
+<div class="section-title" id="sec-serialization"><span class="icon">📦</span> JSON &amp; Serialization</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>JSON Encode / Decode</td>
+<td><pre><code class="language-go">import "encoding/json"
+type User struct {
+    Name string `json:"name"`
+    Age  int    `json:"age,omitempty"`
+}
+data, _ := json.Marshal(user)       // struct → JSON
+json.Unmarshal(data, &amp;user)          // JSON → struct
+// Streaming:
+json.NewEncoder(w).Encode(user)
+json.NewDecoder(r).Decode(&amp;user)</code></pre><span class="tag go-tag">encoding/json</span></td>
+<td><pre><code class="language-cpp">// No built-in JSON in STL.
+// Use nlohmann/json or simdjson:
+#include &lt;nlohmann/json.hpp&gt;
+using json = nlohmann::json;
+json j = {{"name", "Bob"}, {"age", 30}};
+string s = j.dump();
+auto j2 = json::parse(s);</code></pre><span class="tag no-equiv">third-party (nlohmann)</span></td></tr>
+
+<tr><td>Binary Serialization</td>
+<td><pre><code class="language-go">import "encoding/gob"
+var buf bytes.Buffer
+gob.NewEncoder(&amp;buf).Encode(data)
+gob.NewDecoder(&amp;buf).Decode(&amp;result)
+
+import "encoding/binary"
+binary.Write(w, binary.LittleEndian, val)</code></pre><span class="tag go-tag">encoding/gob / binary</span></td>
+<td><pre><code class="language-cpp">// No built-in; use Protocol Buffers, FlatBuffers,
+// Boost.Serialization, or cereal
+// Manual binary:
+ostream.write(reinterpret_cast&lt;char*&gt;(&amp;val), sizeof(val));</code></pre><span class="tag no-equiv">third-party</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= NETWORKING ======================= -->
+<div class="section-title" id="sec-networking"><span class="icon">🌐</span> Networking &amp; HTTP</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>HTTP Server</td>
+<td><pre><code class="language-go">import "net/http"
+http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Hello!")
+})
+http.ListenAndServe(":8080", nil)</code></pre><span class="tag go-tag">net/http</span></td>
+<td><pre><code class="language-cpp">// No HTTP in STL.
+// Use: Boost.Beast, cpp-httplib, Crow
+// httplib example:
+httplib::Server svr;
+svr.Get("/hello", [](auto&amp; req, auto&amp; res) {
+    res.set_content("Hello!", "text/plain");
+});
+svr.listen("0.0.0.0", 8080);</code></pre><span class="tag no-equiv">third-party</span></td></tr>
+
+<tr><td>HTTP Client</td>
+<td><pre><code class="language-go">resp, err := http.Get("https://api.example.com/data")
+defer resp.Body.Close()
+body, _ := io.ReadAll(resp.Body)
+
+// POST
+resp, err = http.Post(url, "application/json", bytes.NewReader(data))</code></pre><span class="tag go-tag">net/http</span></td>
+<td><pre><code class="language-cpp">// No HTTP client in STL.
+// Use: libcurl, Boost.Beast, cpp-httplib
+// cpp-httplib example:
+httplib::Client cli("https://api.example.com");
+auto res = cli.Get("/data");
+string body = res-&gt;body;</code></pre><span class="tag no-equiv">third-party</span></td></tr>
+
+<tr><td>TCP / UDP Sockets</td>
+<td><pre><code class="language-go">import "net"
+ln, _ := net.Listen("tcp", ":9000")
+conn, _ := ln.Accept()
+defer conn.Close()
+buf := make([]byte, 1024)
+n, _ := conn.Read(buf)</code></pre><span class="tag go-tag">net</span></td>
+<td><pre><code class="language-cpp">// POSIX sockets or Boost.Asio
+// Boost.Asio example:
+asio::io_context ctx;
+tcp::acceptor acc(ctx, tcp::endpoint(tcp::v4(), 9000));
+tcp::socket sock(ctx);
+acc.accept(sock);
+asio::read(sock, asio::buffer(buf));</code></pre><span class="tag no-equiv">POSIX / Boost.Asio</span></td></tr>
+
+</tbody>
+</table>
+
+<!-- ======================= TIME ======================= -->
+<div class="section-title" id="sec-time"><span class="icon">⏱️</span> Time &amp; Duration</div>
+<table class="cmp-table">
+<thead><tr><th>Concept</th><th>Go Standard Library</th><th>C++ STL</th></tr></thead>
+<tbody>
+
+<tr><td>Current Time</td>
+<td><pre><code class="language-go">import "time"
+now := time.Now()
+unix := now.Unix()
+nano := now.UnixNano()</code></pre><span class="tag go-tag">time</span></td>
+<td><pre><code class="language-cpp">#include &lt;chrono&gt;
+auto now = chrono::system_clock::now();
+auto unix = chrono::system_clock::to_time_t(now);
+auto ns = chrono::duration_cast&lt;chrono::nanoseconds&gt;(
+    now.time_since_epoch()).count();</code></pre><span class="tag cpp-tag">chrono</span></td></tr>
+
+<tr><td>Duration</td>
+<td><pre><code class="language-go">d := 5 * time.Second
+d  = 100 * time.Millisecond
+time.Sleep(d)
+elapsed := time.Since(start)</code></pre><span class="tag go-tag">time.Duration</span></td>
+<td><pre><code class="language-cpp">auto d = chrono::seconds(5);
+auto d = chrono::milliseconds(100);
+this_thread::sleep_for(d);
+auto elapsed = chrono::steady_clock::now() - start;</code></pre><span class="tag cpp-tag">chrono::duration</span></td></tr>
+
+<tr><td>Timer / Ticker</td>
+<td><pre><code class="language-go">timer := time.NewTimer(2 * time.Second)
+&lt;-timer.C  // blocks
+
+ticker := time.NewTicker(time.Second)
+defer ticker.Stop()
+for t := range ticker.C { /* every second */ }</code></pre><span class="tag go-tag">time.Timer / Ticker</span></td>
+<td><pre><code class="language-cpp">// No built-in timer; use:
+// - sleep loop in a thread
+// - Boost.Asio deadline_timer
+// - Platform-specific timers
+asio::steady_timer timer(ctx, chrono::seconds(2));
+timer.wait();</code></pre><span class="tag no-equiv">manual / Boost.Asio</span></td></tr>
+
+<tr><td>Format / Parse</td>
+<td><pre><code class="language-go">// Go uses reference time: Mon Jan 2 15:04:05 MST 2006
+s := now.Format("2006-01-02 15:04:05")
+t, _ := time.Parse("2006-01-02", "2024-03-15")</code></pre><span class="tag go-tag">time</span></td>
+<td><pre><code class="language-cpp">// C++20
+auto s = format("{:%Y-%m-%d %H:%M:%S}", now);
+// or strftime with tm struct</code></pre><span class="tag cpp-tag">chrono / format (C++20)</span></td></tr>
+
+</tbody>
+</table>
+

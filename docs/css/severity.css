@@ -1,0 +1,20 @@
+/* ============================================================
+   severity.css — Edge-case severity badges
+   Used by: index.html, edge-cases.html
+   ============================================================ */
+
+.severity {
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.severity.bug { background: #3d1010; color: var(--danger); }
+.severity.subtle { background: #3d2e00; color: var(--warn); }
+.severity.tip { background: #0d2d1a; color: var(--success); }
+
+/* ---- Light theme ---- */
+[data-theme="light"] .severity.bug { background: #ffebe9; color: var(--danger); }
+[data-theme="light"] .severity.subtle { background: #fff8c5; color: var(--warn); }
+[data-theme="light"] .severity.tip { background: #dafbe1; color: var(--success); }

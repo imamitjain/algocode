@@ -1,0 +1,1465 @@
+<div class="cards-grid">
+
+<div class="section-title" id="sec-type-conversions"><span class="icon">&#128260;</span> Type Conversions</div>
+
+<!-- 1. int ↔ string -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">int ↔ string</span>
+  <div class="card-tags"><span class="tag go">strconv</span><span class="tag">fmt</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// int → string (3 ways)
+s := strconv.Itoa(42)              // most common
+s := fmt.Sprintf("%d", 42)         // via fmt
+s := strconv.FormatInt(42, 10)
+
+// string → int
+n, err := strconv.Atoi("42")      // returns (int, error)
+n, err := strconv.ParseInt("42", 10, 64) // int64
+
+// string → float64
+f, err := strconv.ParseFloat("3.14", 64)</code></pre>
+<div class="note">Go has no exceptions — always check the returned error.</div>
+</div>
+</div>
+
+<!-- 2. rune (char) ↔ int index -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">rune (char) ↔ int index</span>
+  <div class="card-tags"><span class="tag go">rune</span><span class="tag">ASCII</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// rune → 0-based alphabet index
+idx := 'c' - 'a'                  // 2
+idx  = 'C' - 'A'                  // 2
+
+// digit rune → int value
+d := '7' - '0'                    // 7
+
+// int → rune
+ch := 'a' + 2                     // 'c'
+ch  = 65                          // 'A'
+
+// rune → ASCII int
+code := int('A')                   // 65</code></pre>
+</div>
+</div>
+
+<!-- 3. Collection type conversions -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Collection type conversions</span>
+  <div class="card-tags"><span class="tag go">[]rune</span><span class="tag">[]byte</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// string ↔ []rune (unicode-safe)
+runes := []rune(s)
+s = string(runes)
+
+// string ↔ []byte
+bytes := []byte(s)
+s = string(bytes)
+
+// int → binary/hex/octal string
+strconv.FormatInt(10, 2)          // "1010"
+strconv.FormatInt(255, 16)        // "ff"
+strconv.FormatInt(8, 8)           // "10"
+
+// parse with radix
+n, _ := strconv.ParseInt("1010", 2, 64)  // 10
+n, _ := strconv.ParseInt("FF", 16, 64)   // 255</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-sorting-amp-ordering"><span class="icon">&#128202;</span> Sorting &amp; Ordering</div>
+
+<!-- 4. Sort ascending, descending, reverse -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Sort ascending, descending, reverse</span>
+  <div class="card-tags"><span class="tag go">sort</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Sort int slice ascending
+sort.Ints(arr)
+
+// Sort int slice descending
+sort.Sort(sort.Reverse(sort.IntSlice(arr)))
+
+// Sort strings ascending
+sort.Strings(strs)
+
+// Custom sort with sort.Slice
+sort.Slice(arr, func(i, j int) bool {
+    return arr[i] &lt; arr[j]  // ascending
+})
+
+// Stable sort (preserves equal-element order)
+sort.SliceStable(arr, func(i, j int) bool {
+    return arr[i] &lt; arr[j]
+})
+
+// Reverse a slice in-place
+for l, r := 0, len(arr)-1; l &lt; r; l, r = l+1, r-1 {
+    arr[l], arr[r] = arr[r], arr[l]
+}</code></pre>
+<div class="note">Go's sort.Slice uses a bool &lt; function — no subtraction overflow risk like Java comparators.</div>
+</div>
+</div>
+
+<div class="section-title" id="sec-integer-limits-amp-overflow-safety"><span class="icon">&#128290;</span> Integer Limits &amp; Overflow Safety</div>
+
+<!-- 5. Integer limits & safe infinity -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Integer limits &amp; safe infinity</span>
+  <div class="card-tags"><span class="tag go">math</span><span class="tag warn">overflow</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">math.MaxInt32    //  2,147,483,647  (2^31 - 1)
+math.MinInt32    // -2,147,483,648  (-2^31)
+math.MaxInt64    //  9.2e18
+math.MinInt64    // -9.2e18
+math.MaxInt      // platform-dependent (64-bit on 64-bit systems)
+
+// ⚠ Go wraps silently on overflow — no panic!
+// Safe add check:
+overflow := a &gt; math.MaxInt - b
+
+// Common safe "infinity" for DP / shortest path:
+INF := int(1e9)             // 1e9 + 1e9 = 2e9, fits in int32
+INF := math.MaxInt32 / 2    // safe for addition</code></pre>
+</div>
+</div>
+
+<!-- 6. Safe midpoint & negative modulo -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Safe midpoint &amp; negative modulo</span>
+  <div class="card-tags"><span class="tag warn">overflow</span><span class="tag go">math</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// ❌ Wrong — can overflow if lo+hi &gt; MaxInt
+mid := (lo + hi) / 2
+
+// ✅ Correct
+mid := lo + (hi-lo)/2
+
+// Go has no &gt;&gt;&gt; (unsigned right shift) — use the above.
+// For uint: mid := (lo + hi) / 2  (safe since unsigned)
+
+// Negative modulo — Go's % keeps sign of dividend:
+// -7 % 3 == -1  (not 2!)
+
+// ✅ Always-positive modulo:
+mod := ((a % n) + n) % n</code></pre>
+</div>
+</div>
+
+<!-- 7. DP initialization — fill with infinity -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">DP initialization — fill with infinity</span>
+  <div class="card-tags"><span class="tag go">DP</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// 1D DP with infinity
+dp := make([]int, n)
+for i := range dp { dp[i] = 1e9 }       // safer than MaxInt
+dp[0] = 0  // base case
+
+// 2D DP with infinity
+dp := make([][]int, m)
+for i := range dp {
+    dp[i] = make([]int, n)
+    for j := range dp[i] {
+        dp[i][j] = 1e9
+    }
+}
+
+// Memoization (sentinel = -1 for uncomputed)
+memo := make([]int, n)
+for i := range memo {
+    memo[i] = -1
+}
+
+// Boolean DP
+dp := make([]bool, n+1)
+dp[0] = true  // base: empty subset
+
+// Space-optimized (two variables)
+prev2, prev1 := 0, 0
+for _, num := range nums {
+    curr := max(prev1, prev2+num)
+    prev2 = prev1
+    prev1 = curr
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-math-utilities"><span class="icon">&#129518;</span> Math Utilities</div>
+
+<!-- 8. max, min, abs, pow, sqrt, ceil division -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">max, min, abs, pow, sqrt, ceil division</span>
+  <div class="card-tags"><span class="tag go">math</span><span class="tag">built-in</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Go 1.21+ has built-in max/min for all ordered types:
+max(a, b)
+min(a, b)
+
+// Absolute value
+if x &lt; 0 { x = -x }    // int
+math.Abs(f)              // float64
+
+// Power
+math.Pow(2, 10)          // float64: 1024.0
+int(math.Pow(2, 10))     // cast to int
+
+// Square root
+math.Sqrt(float64(n))
+int(math.Sqrt(float64(n)))  // integer sqrt
+
+// Perfect square check
+sq := int(math.Sqrt(float64(n)))
+isPerfect := sq*sq == n
+
+// Ceiling division (no float)
+ceil := (a + b - 1) / b     // ceil(a/b) for positive a, b</code></pre>
+</div>
+</div>
+
+<!-- 9. Rounding, logs, GCD, LCM, isPrime -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Rounding, logs, GCD, LCM, isPrime</span>
+  <div class="card-tags"><span class="tag go">math</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">math.Floor(d)      // rounds toward -∞
+math.Ceil(d)       // rounds toward +∞
+math.Round(d)      // rounds to nearest
+
+math.Log(n)        // natural log (base e)
+math.Log2(n)       // log base 2
+math.Log10(n)      // log base 10
+
+// Number of digits in n (n &gt; 0)
+digits := int(math.Log10(float64(n))) + 1
+
+// GCD — Euclidean O(log min(a,b))
+func gcd(a, b int) int {
+    for b != 0 {
+        a, b = b, a%b
+    }
+    return a
+}
+
+// LCM (divide first to avoid overflow)
+func lcm(a, b int) int { return a / gcd(a, b) * b }
+
+// isPrime O(√n)
+func isPrime(n int) bool {
+    if n &lt; 2 {
+        return false
+    }
+    for i := 2; i*i &lt;= n; i++ {
+        if n%i == 0 {
+            return false
+        }
+    }
+    return true
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-character-rune-operations"><span class="icon">&#128288;</span> Character / Rune Operations</div>
+
+<!-- 10. Character checks -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Character checks — isDigit, isLetter, isUpper</span>
+  <div class="card-tags"><span class="tag go">unicode</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">unicode.IsDigit(c)          // '0'..'9'
+unicode.IsLetter(c)         // a-z, A-Z, Unicode
+unicode.IsSpace(c)          // space, tab, newline
+unicode.IsUpper(c)          // A-Z
+unicode.IsLower(c)          // a-z
+
+// Fast inline ASCII-only checks (tight loops):
+c &gt;= 'a' &amp;&amp; c &lt;= 'z'        // lowercase
+c &gt;= 'A' &amp;&amp; c &lt;= 'Z'        // uppercase
+c &gt;= '0' &amp;&amp; c &lt;= '9'        // digit</code></pre>
+</div>
+</div>
+
+<!-- 11. Case conversion & bit-level tricks -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Case conversion &amp; bit-level tricks</span>
+  <div class="card-tags"><span class="tag go">unicode</span><span class="tag">ASCII</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">unicode.ToUpper(c)  // 'a' → 'A'
+unicode.ToLower(c)  // 'A' → 'a'
+
+// Bit-level case tricks (ASCII letters only):
+c | ' '    // force lowercase  ('A'→'a', 'a'→'a')
+c &amp; '_'    // force uppercase  ('a'→'A', 'A'→'A')
+c ^ ' '    // toggle case      ('a'↔'A')
+// ' ' = 32 = 0b0010_0000,  '_' = 95 = 0b0101_1111
+
+// Vowel check
+lower := unicode.ToLower(c)
+isVowel := lower=='a' || lower=='e' || lower=='i' || lower=='o' || lower=='u'</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-string-operations"><span class="icon">&#128292;</span> String Operations</div>
+
+<!-- 12. String basics -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String basics — length, index, substring, search</span>
+  <div class="card-tags"><span class="tag go">strings</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">len(s)                  // byte length
+len([]rune(s))          // rune (unicode char) count
+s[i]                    // byte at index i
+[]rune(s)[i]            // rune at index i
+
+s[i:j]                  // substring [i, j)
+s[i:]                   // from i to end
+s[:j]                   // from 0 to j
+
+strings.Index(s, "sub")       // first occurrence, -1 if not found
+strings.LastIndex(s, "sub")   // last occurrence
+strings.Contains(s, "sub")    // boolean
+strings.HasPrefix(s, "pre")   // starts with
+strings.HasSuffix(s, "suf")   // ends with
+len(s) == 0                   // isEmpty
+strings.TrimSpace(s) == ""    // isBlank</code></pre>
+</div>
+</div>
+
+<!-- 13. String manipulation -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String manipulation — lower, upper, split, join</span>
+  <div class="card-tags"><span class="tag go">strings</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">strings.ToLower(s)
+strings.ToUpper(s)
+strings.TrimSpace(s)           // trim whitespace
+strings.ReplaceAll(s, "old", "new")
+strings.Split(s, ",")          // split by separator
+strings.Fields(s)              // split by any whitespace
+strings.Join(elems, "-")       // join with delimiter
+strings.Repeat("ab", 3)        // "ababab"
+
+// Reverse a string (unicode-safe)
+runes := []rune(s)
+for l, r := 0, len(runes)-1; l &lt; r; l, r = l+1, r-1 {
+    runes[l], runes[r] = runes[r], runes[l]
+}
+s = string(runes)</code></pre>
+</div>
+</div>
+
+<!-- 14. String comparison & anagram keys -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String comparison &amp; anagram keys</span>
+  <div class="card-tags"><span class="tag go">strings</span><span class="tag">sort</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// In Go, == on strings is value comparison (unlike Java)
+s1 == s2                       // structural equality ✅
+strings.EqualFold(s1, s2)      // case-insensitive
+strings.Compare(s1, s2)        // -1, 0, or 1
+
+// Sorted key for anagram grouping
+runes := []rune(s)
+sort.Slice(runes, func(i, j int) bool { return runes[i] &lt; runes[j] })
+key := string(runes)
+
+// Frequency array key (no sort needed)
+var freq [26]int
+for _, c := range s {
+    freq[c-'a']++
+}
+// use freq as map key (arrays are comparable in Go)</code></pre>
+</div>
+</div>
+
+<!-- 15. strings.Builder -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">strings.Builder</span>
+  <div class="card-tags"><span class="tag go">strings.Builder</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">var sb strings.Builder
+sb.WriteString("text")  // append string
+sb.WriteRune('c')       // append rune
+sb.WriteByte(b)         // append byte
+sb.Len()                // current length
+sb.Reset()              // clear
+sb.String()             // convert to string
+
+// Reverse a string via builder
+var sb strings.Builder
+runes := []rune(s)
+for i := len(runes) - 1; i &gt;= 0; i-- {
+    sb.WriteRune(runes[i])
+}
+reversed := sb.String()</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-slice-operations"><span class="icon">&#128203;</span> Slice Operations</div>
+
+<!-- 16. Arrays/Slice sort & fill -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Arrays/Slice sort &amp; fill</span>
+  <div class="card-tags"><span class="tag go">sort</span><span class="tag">slice</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">sort.Ints(arr)    // ascending
+sort.Slice(arr, func(i, j int) bool { return arr[i] &lt; arr[j] })
+
+// Fill 1D with value
+for i := range arr {
+    arr[i] = val
+}
+
+// Fill 2D
+for i := range grid {
+    for j := range grid[i] {
+        grid[i][j] = -1
+    }
+}
+
+// Sort 2D by first element
+sort.Slice(intervals, func(i, j int) bool {
+    return intervals[i][0] &lt; intervals[j][0]
+})</code></pre>
+</div>
+</div>
+
+<!-- 17. Slice copy, equals, print -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Slice copy, equals, print</span>
+  <div class="card-tags"><span class="tag go">copy</span><span class="tag">reflect</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Clone (deep copy)
+cp := make([]int, len(arr))
+copy(cp, arr)
+
+// Equality (slices are NOT comparable with ==)
+reflect.DeepEqual(a, b)   // import "reflect"
+
+// Print
+fmt.Println(arr)           // [1 2 3]
+fmt.Printf("%v\n", arr)   // [1 2 3]
+
+// 2D clone
+cp2d := make([][]int, len(grid))
+for i := range grid {
+    cp2d[i] = make([]int, len(grid[i]))
+    copy(cp2d[i], grid[i])
+}</code></pre>
+</div>
+</div>
+
+<!-- 18. Slice search & aggregate -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Slice search &amp; aggregate</span>
+  <div class="card-tags"><span class="tag go">sort</span><span class="tag">search</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Binary search in sorted slice (returns insertion point)
+idx := sort.SearchInts(sorted, target)
+found := idx &lt; len(sorted) &amp;&amp; sorted[idx] == target
+
+// Sum
+sum := 0
+for _, v := range arr {
+    sum += v
+}
+
+// Min of slice
+mn := arr[0]
+for _, v := range arr[1:] {
+    if v &lt; mn {
+        mn = v
+    }
+}
+
+// Max of slice
+mx := arr[0]
+for _, v := range arr[1:] {
+    if v &gt; mx {
+        mx = v
+    }
+}</code></pre>
+</div>
+</div>
+
+<!-- 19. Slice utilities — reverse, shuffle, swap -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Slice utilities — reverse, shuffle, swap</span>
+  <div class="card-tags"><span class="tag go">slice</span><span class="tag">rand</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Reverse in-place
+for l, r := 0, len(arr)-1; l &lt; r; l, r = l+1, r-1 {
+    arr[l], arr[r] = arr[r], arr[l]
+}
+
+// Shuffle (Fisher-Yates)
+rand.Shuffle(len(arr), func(i, j int) {
+    arr[i], arr[j] = arr[j], arr[i]
+})
+
+// Swap two elements
+arr[i], arr[j] = arr[j], arr[i]
+
+// Remove at index (order preserved)
+arr = append(arr[:i], arr[i+1:]...)
+
+// Remove at index (O(1), order not preserved)
+arr[i] = arr[len(arr)-1]
+arr = arr[:len(arr)-1]</code></pre>
+</div>
+</div>
+
+<!-- 21. Slice factories — nil, empty, pre-filled -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Slice factories — nil, empty, pre-filled</span>
+  <div class="card-tags"><span class="tag go">make</span><span class="tag">slice</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Nil slice (nil, length 0, capacity 0)
+var arr []int             // arr == nil
+
+// Empty slice (not nil, length 0)
+arr := []int{}            // arr != nil, len=0
+arr := make([]int, 0)     // same
+
+// Pre-sized (length=n, all zeros)
+arr := make([]int, n)
+
+// Pre-sized with capacity
+arr := make([]int, 0, n)  // len=0, cap=n
+
+// Pre-filled literal
+arr := []int{1, 2, 3}
+
+// Grow dynamically
+arr = append(arr, val)
+
+// 2D slice
+grid := make([][]int, rows)
+for i := range grid {
+    grid[i] = make([]int, cols)
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-map-amp-set"><span class="icon">&#128451;&#65039;</span> Map &amp; Set</div>
+
+<!-- 22. Map operations -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Map operations — put, get, delete, frequency</span>
+  <div class="card-tags"><span class="tag go">map</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">m := make(map[int]int)
+m[key] = val                        // put
+val := m[key]                       // get (zero if missing)
+val, ok := m[key]                   // get with existence check
+delete(m, key)                      // remove
+len(m)                              // size
+clear(m)                            // remove all (Go 1.21+)
+
+// getOrDefault pattern
+if v, ok := m[key]; ok {
+    use(v)
+} else {
+    use(defaultVal)
+}
+
+// Frequency counting
+freq := make(map[int]int)
+for _, n := range nums {
+    freq[n]++
+}
+
+// Decrement and remove if zero
+freq[key]--
+if freq[key] == 0 {
+    delete(freq, key)
+}</code></pre>
+</div>
+</div>
+
+<!-- 23. Map patterns — frequency counting, grouping -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Map patterns — frequency counting, grouping</span>
+  <div class="card-tags"><span class="tag go">map</span><span class="tag">patterns</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Merge / accumulate pattern
+freq := make(map[int]int)
+for _, n := range nums {
+    freq[n]++
+}
+
+// Group by key (computeIfAbsent equivalent)
+groups := make(map[int][]int)
+groups[key] = append(groups[key], val)  // auto-inits slice
+
+// Iterate map (order is random)
+for key, val := range m {
+    /* ... */
+}
+
+// Check if two maps have same keys
+func mapsEqual(a, b map[int]int) bool {
+    if len(a) != len(b) {
+        return false
+    }
+    for k, v := range a {
+        if b[k] != v {
+            return false
+        }
+    }
+    return true
+}</code></pre>
+</div>
+</div>
+
+<!-- 24. Set via map[T]struct{} -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Set via map[T]struct{}</span>
+  <div class="card-tags"><span class="tag go">map</span><span class="tag">set</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">set := make(map[int]struct{})
+set[val] = struct{}{}           // add
+_, exists := set[val]           // contains — O(1)
+delete(set, val)                // remove
+len(set)                        // size
+
+// Set from slice
+set := make(map[int]struct{})
+for _, v := range arr {
+    set[v] = struct{}{}
+}
+
+// Intersection
+for k := range set1 {
+    if _, ok := set2[k]; ok {
+        /* in both */
+    }
+}
+
+// Union
+for k := range set2 {
+    set1[k] = struct{}{}
+}
+
+// Visited pattern (BFS/DFS)
+visited := make(map[int]bool)
+if !visited[node] {
+    visited[node] = true; /* process */
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-heap-priority-queue"><span class="icon">&#9935;&#65039;</span> Heap / Priority Queue</div>
+
+<!-- 25. Min-heap & max-heap -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Min-heap &amp; max-heap</span>
+  <div class="card-tags"><span class="tag go">container/heap</span></div>
+</div>
+<div class="card-body">
+<p>Go requires implementing the heap.Interface (5 methods).</p>
+<pre><code class="language-go">type MinHeap []int
+func (h MinHeap) Len() int            { return len(h) }
+func (h MinHeap) Less(i, j int) bool  { return h[i] &lt; h[j] }
+func (h MinHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *MinHeap) Push(x any)         { *h = append(*h, x.(int)) }
+func (h *MinHeap) Pop() any {
+    old := *h; n := len(old)
+    x := old[n-1]; *h = old[:n-1]
+    return x
+}
+
+// For max-heap: flip Less to h[i] &gt; h[j]
+
+// Usage:
+h := &amp;MinHeap{}
+heap.Init(h)
+heap.Push(h, 5)
+heap.Push(h, 3)
+top := heap.Pop(h).(int)   // 3 (smallest)
+peek := (*h)[0]             // peek without removing</code></pre>
+</div>
+</div>
+
+<!-- 26. Custom heap comparators -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Custom heap comparators</span>
+  <div class="card-tags"><span class="tag go">container/heap</span><span class="tag">PairHeap</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// PairHeap for {distance, node} — Dijkstra
+type PairHeap [][2]int
+func (h PairHeap) Len() int            { return len(h) }
+func (h PairHeap) Less(i, j int) bool  { return h[i][0] &lt; h[j][0] }
+func (h PairHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *PairHeap) Push(x any)         { *h = append(*h, x.([2]int)) }
+func (h *PairHeap) Pop() any {
+    old := *h; n := len(old)
+    x := old[n-1]; *h = old[:n-1]
+    return x
+}
+
+// Frequency-based max-heap: sort by freq desc, then val asc
+type FreqItem struct{ val, freq int }
+type FreqHeap []FreqItem
+func (h FreqHeap) Less(i, j int) bool {
+    if h[i].freq != h[j].freq {
+        return h[i].freq &gt; h[j].freq
+    }
+    return h[i].val &lt; h[j].val
+}
+// ... Len, Swap, Push, Pop same pattern</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-sort-comparators"><span class="icon">&#128202;</span> Sort Comparators</div>
+
+<!-- 27. Sort comparators — intervals, strings, 2D -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Sort comparators — intervals, strings, 2D</span>
+  <div class="card-tags"><span class="tag go">sort.Slice</span><span class="tag">comparators</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Sort intervals by start time
+sort.Slice(intervals, func(i, j int) bool {
+    return intervals[i][0] &lt; intervals[j][0]
+})
+
+// Sort by start asc, end desc (tie-break)
+sort.Slice(intervals, func(i, j int) bool {
+    if intervals[i][0] != intervals[j][0] {
+        return intervals[i][0] &lt; intervals[j][0]
+    }
+    return intervals[i][1] &gt; intervals[j][1]
+})
+
+// Sort by string length
+sort.Slice(strs, func(i, j int) bool {
+    return len(strs[i]) &lt; len(strs[j])
+})
+
+// Largest Number #179 — concat comparison
+sort.Slice(strs, func(i, j int) bool {
+    return strs[i]+strs[j] &gt; strs[j]+strs[i]
+})
+
+// Sort by absolute value
+sort.Slice(arr, func(i, j int) bool {
+    ai, aj := arr[i], arr[j]
+    if ai &lt; 0 {
+        ai = -ai
+    }
+    if aj &lt; 0 {
+        aj = -aj
+    }
+    return ai &lt; aj
+})</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-stack-queue-deque"><span class="icon">&#128218;</span> Stack / Queue / Deque</div>
+
+<!-- 28. Stack via slice -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Stack via slice</span>
+  <div class="card-tags"><span class="tag go">[]int</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">var stack []int
+stack = append(stack, x)           // push
+top := stack[len(stack)-1]         // peek
+stack = stack[:len(stack)-1]       // pop
+len(stack) == 0                    // isEmpty</code></pre>
+</div>
+</div>
+
+<!-- 29. Queue via slice -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Queue via slice</span>
+  <div class="card-tags"><span class="tag go">[]int</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">var queue []int
+queue = append(queue, x)           // enqueue (offer)
+front := queue[0]                  // peek
+queue = queue[1:]                  // dequeue (poll)
+len(queue) == 0                    // isEmpty</code></pre>
+<div class="note">Dequeue is O(n) due to slice copy. For O(1), use container/list or a ring buffer.</div>
+</div>
+</div>
+
+<!-- 30. Deque — double-ended + sliding window max -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Deque — double-ended + sliding window max</span>
+  <div class="card-tags"><span class="tag go">[]int</span><span class="tag">monotonic</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">var dq []int
+dq = append(dq, x)                // offerLast  O(1)
+dq = append([]int{x}, dq...)      // offerFirst O(n)
+dq = dq[1:]                       // pollFirst
+dq = dq[:len(dq)-1]               // pollLast
+dq[0]                              // peekFirst
+dq[len(dq)-1]                      // peekLast
+
+// Sliding window maximum (monotonic decreasing deque of indices)
+for i, num := range nums {
+    for len(dq) &gt; 0 &amp;&amp; nums[dq[len(dq)-1]] &lt; num {
+        dq = dq[:len(dq)-1]         // remove smaller from back
+    }
+    dq = append(dq, i)
+    if dq[0] &lt;= i-k { dq = dq[1:] } // out of window
+    if i &gt;= k-1 {
+        result = append(result, nums[dq[0]])
+    }
+}</code></pre>
+</div>
+</div>
+
+<!-- container/list — doubly linked list -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">container/list — doubly linked list</span>
+  <div class="card-tags"><span class="tag go">container/list</span><span class="tag">O(1) ops</span></div>
+</div>
+<div class="card-body">
+<p>Go's container/list is a doubly-linked list with O(1) insert, remove, and move.</p>
+<pre><code class="language-go">import "container/list"
+
+l := list.New()
+
+// Insert — all return *list.Element
+e1 := l.PushBack(10)               // append
+e2 := l.PushFront(5)               // prepend
+l.InsertBefore(7, e1)              // before a known element
+l.InsertAfter(8, e1)               // after a known element
+
+// Access
+front := l.Front()                 // *Element (nil if empty)
+back  := l.Back()                  // *Element
+val   := front.Value.(int)         // type-assert the value
+size  := l.Len()                   // number of elements
+
+// Remove &amp; move — O(1) with pointer
+l.Remove(e2)                       // returns e2.Value
+l.MoveToFront(e1)                  // promote
+l.MoveToBack(e1)                   // demote
+
+// Iterate forward
+for e := l.Front(); e != nil; e = e.Next() {
+    fmt.Println(e.Value)
+}
+// Iterate backward
+for e := l.Back(); e != nil; e = e.Prev() {
+    fmt.Println(e.Value)
+}
+
+// O(1) queue (vs slice dequeue which is O(n))
+q := list.New()
+q.PushBack(x)                     // enqueue
+val = q.Front().Value.(int)        // peek
+q.Remove(q.Front())                // dequeue O(1)
+
+// LRU cache: map[key]*list.Element + list for eviction order
+type LRU struct {
+    cap   int
+    items map[int]*list.Element    // key → element pointer
+    order *list.List               // front = most recent
+}
+type entry struct{ key, val int }
+
+func (c *LRU) Get(key int) (int, bool) {
+    if el, ok := c.items[key]; ok {
+        c.order.MoveToFront(el)    // mark as recently used
+        return el.Value.(*entry).val, true
+    }
+    return 0, false
+}
+
+func (c *LRU) Put(key, val int) {
+    if el, ok := c.items[key]; ok {
+        el.Value.(*entry).val = val
+        c.order.MoveToFront(el)
+        return
+    }
+    if c.order.Len() == c.cap {    // evict oldest
+        oldest := c.order.Back()
+        c.order.Remove(oldest)
+        delete(c.items, oldest.Value.(*entry).key)
+    }
+    el := c.order.PushFront(&amp;entry{key, val})
+    c.items[key] = el
+}</code></pre>
+<div class="note">Values are stored as <code>any</code> — always type-assert. Pair with a <code>map</code> for O(1) lookup by key (LRU pattern). Never remove an element that belongs to a different list.</div>
+</div>
+</div>
+
+<div class="section-title" id="sec-bit-manipulation"><span class="icon">&#9889;</span> Bit Manipulation</div>
+
+<!-- 31. Bit — check, set, clear, toggle -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bit — check, set, clear, toggle</span>
+  <div class="card-tags"><span class="tag go">bits</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Check if bit i is set (0-indexed from right)
+(n &gt;&gt; i) &amp; 1 == 1
+
+// Set bit i (force to 1)
+n |= 1 &lt;&lt; i
+
+// Clear bit i (force to 0)
+n &amp;^= 1 &lt;&lt; i         // Go's AND-NOT operator
+
+// Toggle bit i (flip)
+n ^= 1 &lt;&lt; i
+
+// Update bit i to value v (0 or 1)
+n = (n &amp;^ (1 &lt;&lt; i)) | (v &lt;&lt; i)</code></pre>
+</div>
+</div>
+
+<!-- 32. Bit — lowest set, Kernighan's, power-of-2 -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bit — lowest set, Kernighan's, power-of-2</span>
+  <div class="card-tags"><span class="tag go">bits</span><span class="tag">math/bits</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Lowest set bit (isolate rightmost 1)
+n &amp; (-n)                       // 12(1100) → 4(0100)
+
+// Clear lowest set bit (Kernighan's trick)
+n &amp;= n - 1                    // removes one '1' per step
+
+// Count set bits — Kernighan's O(k)
+count := 0
+for n != 0 {
+    n &amp;= n - 1; count++
+}
+
+// Count set bits — built-in O(1)
+bits.OnesCount(uint(n))
+
+// Power of 2 check
+n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0
+
+// Highest one bit (floor power of 2)
+1 &lt;&lt; (bits.Len(uint(n)) - 1)
+
+// Trailing / leading zeros
+bits.TrailingZeros(uint(n))
+bits.LeadingZeros(uint(n))</code></pre>
+</div>
+</div>
+
+<!-- 33. Bit — shifts, even/odd, XOR swap, negate -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bit — shifts, even/odd, XOR swap, negate</span>
+  <div class="card-tags"><span class="tag go">bits</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Multiply / divide by power of 2
+n &lt;&lt; k    // n × 2^k
+n &gt;&gt; k    // n ÷ 2^k (arithmetic — preserves sign)
+
+// Even / odd
+n&amp;1 == 0    // even
+n&amp;1 == 1    // odd
+
+// Swap without temp
+a, b = b, a  // Go's idiomatic swap (no XOR trick needed)
+
+// Negate via bits (two's complement)
+^n + 1   // same as -n  (^ is bitwise NOT in Go)</code></pre>
+</div>
+</div>
+
+<!-- 34. Bit — XOR rules, bitmask, subset enumeration -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bit — XOR rules, bitmask, subset enumeration</span>
+  <div class="card-tags"><span class="tag go">bits</span><span class="tag">XOR</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// XOR identity rules
+a ^ 0 == a        // unchanged
+a ^ a == 0        // self-cancels ← key for Single Number
+a ^ b ^ a == b    // associative + self-cancel
+
+// Bitmask for n bits
+(1 &lt;&lt; n) - 1      // n=4 → 0b1111 = 15
+
+// Enumerate all subsets of bitmask m
+for sub := m; sub &gt; 0; sub = (sub - 1) &amp; m {
+    // process sub
+}
+// don't forget empty subset (sub = 0)</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-grid-matrix"><span class="icon">&#128306;</span> Grid / Matrix</div>
+
+<!-- 35. Grid — 4/8 directional, bounds check -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Grid — 4/8 directional, bounds check</span>
+  <div class="card-tags"><span class="tag go">grid</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// 4-directional (up, right, down, left)
+dr := [4]int{-1, 0, 1, 0}
+dc := [4]int{0, 1, 0, -1}
+
+// 8-directional (includes diagonals)
+dr8 := [8]int{-1,-1,-1, 0, 0, 1, 1, 1}
+dc8 := [8]int{-1, 0, 1,-1, 1,-1, 0, 1}
+
+// Usage with bounds check
+for d := 0; d &lt; 4; d++ {
+    nr, nc := r+dr[d], c+dc[d]
+    if nr &gt;= 0 &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; cols {
+        // valid neighbor at (nr, nc)
+    }
+}
+
+// InBounds helper
+func inBounds(r, c, rows, cols int) bool {
+    return r &gt;= 0 &amp;&amp; r &lt; rows &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; cols
+}</code></pre>
+</div>
+</div>
+
+<!-- 36. Grid — 2D↔1D, transpose, rotate -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Grid — 2D↔1D, transpose, rotate</span>
+  <div class="card-tags"><span class="tag go">matrix</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// 2D → 1D index
+idx := r*cols + c
+// 1D → 2D
+r, c := idx/cols, idx%cols
+
+// Transpose (swap [i][j] and [j][i])
+for i := 0; i &lt; n; i++ {
+    for j := i+1; j &lt; n; j++ {
+        mat[i][j], mat[j][i] = mat[j][i], mat[i][j]
+    }
+}
+
+// Rotate 90° clockwise = transpose + reverse each row
+// Rotate 90° CCW = transpose + reverse each column</code></pre>
+</div>
+</div>
+
+<!-- 37. Grid — spiral, diagonal, DFS -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Grid — spiral, diagonal, DFS</span>
+  <div class="card-tags"><span class="tag go">matrix</span><span class="tag">DFS</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Spiral traversal: 4 boundaries shrinking
+top, bot, left, right := 0, m-1, 0, n-1
+for top &lt;= bot &amp;&amp; left &lt;= right {
+    // → top row, ↓ right col, ← bottom row, ↑ left col
+    top++; right--; bot--; left++
+}
+
+// Diagonal properties:
+// Same diagonal:      r - c  is constant
+// Same anti-diagonal: r + c  is constant
+
+// Grid DFS (4-directional)
+func dfs(grid [][]int, vis [][]bool, r, c int) {
+    if r &lt; 0 || r &gt;= len(grid) || c &lt; 0 || c &gt;= len(grid[0]) || vis[r][c] {
+        return
+    }
+    vis[r][c] = true
+    for d := 0; d &lt; 4; d++ {
+        dfs(grid, vis, r+dr[d], c+dc[d])
+    }
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-common-algorithms"><span class="icon">&#127919;</span> Common Algorithms</div>
+
+<!-- 39. Rotated array — findPivot -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Rotated array — findPivot</span>
+  <div class="card-tags"><span class="tag go">binary search</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Find minimum in rotated sorted array (= pivot index)
+func findMin(nums []int) int {
+    lo, hi := 0, len(nums)-1
+    for lo &lt; hi {
+        mid := lo + (hi-lo)/2
+        if nums[mid] &gt; nums[hi] {
+            lo = mid + 1   // min is in right half
+        } else {
+            hi = mid        // min is at mid or left
+        }
+    }
+    return lo  // index of minimum element
+}
+
+// Search in rotated array
+func search(nums []int, target int) int {
+    lo, hi := 0, len(nums)-1
+    for lo &lt;= hi {
+        mid := lo + (hi-lo)/2
+        if nums[mid] == target {
+            return mid
+        }
+        if nums[lo] &lt;= nums[mid] {
+            if nums[lo] &lt;= target &amp;&amp; target &lt; nums[mid] {
+                hi = mid - 1
+            } else { lo = mid + 1 }
+        } else {
+            if nums[mid] &lt; target &amp;&amp; target &lt;= nums[hi] {
+                lo = mid + 1
+            } else { hi = mid - 1 }
+        }
+    }
+    return -1
+}</code></pre>
+</div>
+</div>
+
+<!-- 40. Palindrome — string, integer, expand -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Palindrome — string, integer, expand</span>
+  <div class="card-tags"><span class="tag go">palindrome</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// String palindrome (two pointers)
+l, r := 0, len(s)-1
+for l &lt; r {
+    if s[l] != s[r] {
+        return false
+    }
+    l++; r--
+}
+return true
+
+// Integer palindrome (no string conversion)
+if x &lt; 0 || (x%10 == 0 &amp;&amp; x != 0) {
+    return false
+}
+rev := 0
+for x &gt; rev {
+    rev = rev*10 + x%10; x /= 10
+}
+return x == rev || x == rev/10
+
+// Expand around center (longest palindrome)
+func expand(s string, l, r int) int {
+    for l &gt;= 0 &amp;&amp; r &lt; len(s) &amp;&amp; s[l] == s[r] {
+        l--; r++
+    }
+    return r - l - 1
+}</code></pre>
+</div>
+</div>
+
+<div class="section-title" id="sec-data-structures-amp-templates"><span class="icon">&#129521;</span> Data Structures &amp; Templates</div>
+
+<!-- 41. ListNode, TreeNode, TrieNode, GraphNode -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ListNode, TreeNode, TrieNode, GraphNode</span>
+  <div class="card-tags"><span class="tag go">struct</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">type ListNode struct {
+    Val  int
+    Next *ListNode
+}
+
+type TreeNode struct {
+    Val   int
+    Left  *TreeNode
+    Right *TreeNode
+}
+
+type TrieNode struct {
+    Children [26]*TrieNode
+    IsEnd    bool
+}
+
+type GraphNode struct {
+    Val       int
+    Neighbors []*GraphNode
+}</code></pre>
+</div>
+</div>
+
+<!-- 42. Modular arithmetic — modPow, mod add/mul -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Modular arithmetic — modPow, mod add/mul</span>
+  <div class="card-tags"><span class="tag go">mod</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">const MOD = 1_000_000_007
+
+// Modular exponentiation O(log exp)
+func modPow(base, exp, mod int) int {
+    result := 1; base %= mod
+    for exp &gt; 0 {
+        if exp&amp;1 == 1 {
+            result = result * base % mod
+        }
+        base = base * base % mod
+        exp &gt;&gt;= 1
+    }
+    return result
+}
+
+// Safe modular add
+(a%MOD + b%MOD) % MOD
+
+// Safe modular multiply (use int64 to prevent overflow)
+int(int64(a) * int64(b) % int64(MOD))</code></pre>
+</div>
+</div>
+
+<!-- 43. Union-Find (DSU) -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Union-Find (DSU)</span>
+  <div class="card-tags"><span class="tag go">DSU</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">parent := make([]int, n)
+rank := make([]int, n)
+for i := range parent {
+    parent[i] = i
+}
+
+func find(x int) int {
+    if parent[x] != x {
+        parent[x] = find(parent[x])  // path compression
+    }
+    return parent[x]
+}
+
+func union(x, y int) bool {
+    px, py := find(x), find(y)
+    if px == py {
+        return false
+    }
+    if rank[px] &lt; rank[py] {
+        px, py = py, px
+    }
+    parent[py] = px
+    if rank[px] == rank[py] {
+        rank[px]++
+    }
+    return true
+}</code></pre>
+</div>
+</div>
+
+<!-- 44. Comparator safety — no subtraction overflow in Go -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Comparator safety — no subtraction overflow in Go</span>
+  <div class="card-tags"><span class="tag go">sort</span><span class="tag">safety</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Java: (a, b) -&gt; a - b can overflow!
+// Go:   sort.Slice uses bool, no subtraction needed ✅
+
+sort.Slice(arr, func(i, j int) bool {
+    return arr[i] &lt; arr[j]   // safe — no overflow risk
+})
+
+// Go's sort panics if Less is inconsistent
+// (violates transitivity), so always ensure:
+//   Less(i,j) &amp;&amp; Less(j,k) → Less(i,k)
+
+// sort.SliceStable preserves equal-element order
+sort.SliceStable(arr, func(i, j int) bool {
+    return arr[i] &lt; arr[j]
+})</code></pre>
+</div>
+</div>
+
+<!-- 45. Frequency arrays — [26], [128] -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Frequency arrays — [26], [128]</span>
+  <div class="card-tags"><span class="tag go">array</span><span class="tag">anagram</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// 26 lowercase letters
+var freq [26]int
+for _, c := range s {
+    freq[c-'a']++
+}
+
+// 128 ASCII
+var freq [128]int
+for _, c := range s {
+    freq[c]++
+}
+
+// Check two freq arrays equal (arrays are comparable!)
+freq1 == freq2  // ✅ works for fixed-size arrays in Go</code></pre>
+</div>
+</div>
+
+<!-- 46. Graph building — adjacency list, in-degree -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Graph building — adjacency list, in-degree</span>
+  <div class="card-tags"><span class="tag go">graph</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Unweighted undirected
+adj := make([][]int, n)
+for _, e := range edges {
+    adj[e[0]] = append(adj[e[0]], e[1])
+    adj[e[1]] = append(adj[e[1]], e[0])  // omit for directed
+}
+
+// Weighted: [][2]int{neighbor, weight}
+adj := make([][][2]int, n)
+adj[u] = append(adj[u], [2]int{v, w})
+
+// In-degree array (for Kahn's topo sort)
+inDeg := make([]int, n)
+for _, e := range edges {
+    inDeg[e[1]]++
+}</code></pre>
+</div>
+</div>
+
+<!-- 48. Result patterns — min/max, collect, guards -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Result patterns — min/max, collect, guards</span>
+  <div class="card-tags"><span class="tag go">patterns</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Find minimum / maximum
+ans := math.MaxInt
+ans = min(ans, candidate)
+
+// Collect results — always snapshot the slice!
+cp := make([]int, len(current))
+copy(cp, current)
+result = append(result, cp)
+
+// Global variable for DFS — closures capture by reference
+ans := 0
+var dfs func(*TreeNode)
+dfs = func(node *TreeNode) {
+    if node == nil {
+        return
+    }
+    ans = max(ans, node.Val)
+    dfs(node.Left); dfs(node.Right)
+}
+
+// Early-return checklist
+if len(nums) == 0  { return ... }   // array
+if len(s) == 0     { return ... }   // string
+if root == nil     { return ... }   // tree
+if head == nil     { return head }  // linked list
+if k &gt; len(nums)   { return 0 }    // window too large
+if len(s) != len(t){ return false } // anagram length</code></pre>
+</div>
+</div>
+
+<!-- 49. Parse safety -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Parse safety</span>
+  <div class="card-tags"><span class="tag go">strconv</span><span class="tag">error</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// strconv.Atoi returns (int, error) — always check!
+n, err := strconv.Atoi(s)
+if err != nil {
+    // handle: s is not a valid integer
+    return 0, err
+}
+
+// Go has no exceptions — error handling is explicit
+// via (value, error) return pattern
+
+// ParseInt for int64 with base
+n64, err := strconv.ParseInt(s, 10, 64)
+
+// ParseFloat
+f, err := strconv.ParseFloat(s, 64)
+
+// FormatInt for custom bases
+strconv.FormatInt(int64(n), 2)  // binary
+strconv.FormatInt(int64(n), 16) // hex</code></pre>
+</div>
+</div>
+
+</div><!-- end cards-grid -->

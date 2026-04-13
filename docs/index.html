@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>AlgoCode</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" id="hljs-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/severity.css">
+<link rel="stylesheet" href="css/table.css">
+<link rel="prefetch" href="content/code-tricks.html">
+<script>
+(function() {
+  var s = localStorage.getItem('theme') || 'dark';
+  if (s !== 'dark') {
+    document.documentElement.setAttribute('data-theme', s);
+    var l = document.getElementById('hljs-theme');
+    if (l) l.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  }
+})();
+</script>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo"><span class="logo-text">Algo<span>Code</span></span></span>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search tricks, patterns...">
+  </div>
+  <div class="header-tabs">
+    <a href="#java" class="tab-btn active" data-tab="java">
+      <span class="tab-icon">&#9749;</span>
+      <span><span>Java</span><span class="tab-sub">69 cards · 11 categories</span></span>
+    </a>
+    <a href="#code-tricks" class="tab-btn" data-tab="code-tricks">
+      <span class="tab-icon">&#9881;&#65039;</span>
+      <span><span>Code Tricks</span><span class="tab-sub">46 cards · 15 categories</span></span>
+    </a>
+    <a href="#edge-cases" class="tab-btn" data-tab="edge-cases">
+      <span class="tab-icon">&#9888;&#65039;</span>
+      <span><span>Edge Cases</span><span class="tab-sub">48 cards · 14 categories</span></span>
+    </a>
+    <a href="#go-vs-cpp" class="tab-btn" data-tab="go-vs-cpp">
+      <span class="tab-icon">&#9876;&#65039;</span>
+      <span><span>Go vs C++</span><span class="tab-sub">90+ comparisons · 13 categories</span></span>
+    </a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">&#9728;&#65039;</button>
+</div>
+
+<div class="nav-bar" id="navLinks"></div>
+
+<div id="content"></div>
+
+<div class="footer" id="footer">AlgoCode</div>
+
+<button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
+
+<script defer src="js/app.js"></script>
+</body>
+</html>

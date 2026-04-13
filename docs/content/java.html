@@ -1,0 +1,2083 @@
+<div class="cards-grid">
+
+<!-- ==================== 0. ARRAYS ==================== -->
+<div class="section-title" id="sec-arrays"><span class="icon">&#128220;</span> Arrays (Primitive &amp; Object)</div>
+<p class="section-intro">Arrays are <b>fixed-size, contiguous memory</b> blocks. Not part of the Collections framework but the foundation for ArrayList, ArrayDeque, PriorityQueue, and HashMap internals. All access is O(1) by index; no resizing, no generics for primitives.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── Declaration &amp; allocation ──
+int[] a = new int[5];                        // [0, 0, 0, 0, 0] — default-filled
+int[] b = {1, 2, 3, 4, 5};                   // inline literal
+int[] c = new int[]{1, 2, 3};                // explicit new + literal
+String[] s = new String[3];                  // [null, null, null]
+
+// ── Multi-dimensional ──
+int[][] grid = new int[3][4];                // 3 rows × 4 cols, all 0
+int[][] jagged = new int[3][];               // only rows allocated; cols later
+jagged[0] = new int[]{1, 2};
+jagged[1] = new int[]{3, 4, 5};
+
+// ── Fill &amp; copy ──
+Arrays.fill(a, 7);                           // all elements → 7
+int[] copy = Arrays.copyOf(b, b.length);     // shallow copy
+int[] slice = Arrays.copyOfRange(b, 1, 4);   // [2, 3, 4]
+int[] cloned = b.clone();                    // another way to copy
+
+// ── char[] ↔ String ──
+char[] chars = "hello".toCharArray();        // String → char[]
+String str   = new String(chars);            // char[] → String</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Fixed size</b> &mdash; length is set at creation and cannot change. Use <code>ArrayList</code> if you need dynamic sizing.
+<ul>
+<li><code>arr.length</code> is a field, not a method (no parentheses).</li>
+<li>Default values: <code>0</code> for numeric, <code>false</code> for boolean, <code>null</code> for objects.</li>
+</ul>
+<b>No generics for primitives</b> &mdash; <code>int[]</code> stores raw ints with zero boxing overhead. <code>List&lt;Integer&gt;</code> boxes every element.
+<ul>
+<li>For performance-critical code with primitives, prefer arrays over collections.</li>
+<li><code>Arrays.asList(intArray)</code> won&rsquo;t work for primitives. Use <code>IntStream.of(arr).boxed().toList()</code> instead.</li>
+</ul>
+<b>Pass by reference</b> &mdash; arrays are objects. Passing an array to a method shares the same memory; mutations are visible to the caller.
+<br><br><b><code>char[]</code></b> &mdash; works identically to <code>int[]</code> for all <code>Arrays.*</code> methods. See initialization card for String interop.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Access</td></tr>
+<tr><td>Length</td><td><code>int arr.length</code></td>                                 <td class="tc-1">O(1)<span class="cmt">field, not method</span></td></tr>
+<tr class="grp"><td colspan="3">Search</td></tr>
+<tr><td>Binary</td><td><code>int Arrays.binarySearch(int[] a, int key)</code></td><td class="tc-logn">O(log n)<span class="cmt">must be sorted</span></td></tr>
+<tr><td>Binary</td><td><code>int Arrays.binarySearch(T[] a, T key, Comparator c)</code></td><td class="tc-logn">O(log n)<span class="cmt">custom order</span></td></tr>
+<tr class="grp"><td colspan="3">Sort</td></tr>
+<tr><td>Sort</td><td><code>void Arrays.sort(int[] a)</code></td>                        <td class="tc-nlogn">O(n log n)<span class="cmt">dual-pivot quicksort</span></td></tr>
+<tr><td>Sort range</td><td><code>void Arrays.sort(int[] a, int from, int to)</code></td><td class="tc-nlogn">O(k log k)</td></tr>
+<tr><td>Sort objects</td><td><code>void Arrays.sort(T[] a, Comparator c)</code></td>    <td class="tc-nlogn">O(n log n)<span class="cmt">TimSort</span></td></tr>
+<tr class="grp"><td colspan="3">Copy &amp; Fill</td></tr>
+<tr><td>Copy</td><td><code>int[] Arrays.copyOf(int[] a, int len)</code></td>                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Slice</td><td><code>int[] Arrays.copyOfRange(int[] a, int from, int to)</code></td>     <td class="tc-n">O(k)</td></tr>
+<tr><td>Fill</td><td><code>void Arrays.fill(int[] a, int val)</code></td>                       <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Comparison &amp; Conversion</td></tr>
+<tr><td>Equals</td><td><code>boolean Arrays.equals(int[] a, int[] b)</code></td>                <td class="tc-n">O(n)</td></tr>
+<tr><td>Deep Equals</td><td><code>boolean Arrays.deepEquals(Object[] a, Object[] b)</code></td> <td class="tc-n">O(n)<span class="cmt">nested arrays</span></td></tr>
+<tr><td>To List</td><td><code>List&lt;T&gt; Arrays.asList(T... a)</code></td>                  <td class="tc-1">O(1)<span class="cmt">fixed-size view</span></td></tr>
+<tr><td>To Stream</td><td><code>IntStream Arrays.stream(int[] a)</code></td>                    <td class="tc-1">O(1)<span class="cmt">lazy</span></td></tr>
+<tr><td>To String</td><td><code>String Arrays.toString(int[] a)</code></td>                     <td class="tc-n">O(n)</td></tr>
+<tr><td>Deep String</td><td><code>String Arrays.deepToString(Object[] a)</code></td>            <td class="tc-n">O(n)<span class="cmt">nested arrays</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Arrays — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Arrays.equals() vs == — reference trap</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">int[] a = {1, 2, 3};
+int[] b = {1, 2, 3};
+
+// ❌ == compares references, not content
+a == b;                    // false — different objects!
+a == a.clone();            // false — clone creates a new object
+
+// ✅ Use Arrays.equals() for 1D arrays
+Arrays.equals(a, b);       // true
+
+// ❌ Arrays.equals() on 2D arrays compares inner array references
+int[][] g1 = {{1, 2}, {3, 4}};
+int[][] g2 = {{1, 2}, {3, 4}};
+Arrays.equals(g1, g2);     // false!
+
+// ✅ Use Arrays.deepEquals() for nested arrays
+Arrays.deepEquals(g1, g2); // true</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Comparator subtraction overflow</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ a - b overflows for extreme int values
+Integer[] arr = {Integer.MIN_VALUE, 0, Integer.MAX_VALUE};
+Arrays.sort(arr, (a, b) -&gt; a - b);  // WRONG — MIN_VALUE - MAX_VALUE overflows!
+
+// ✅ Use Integer.compare() — handles all values safely
+Arrays.sort(arr, (a, b) -&gt; Integer.compare(a, b));
+
+// ✅ Or use method reference
+Arrays.sort(arr, Integer::compare);
+
+// Same issue with Comparator for int[] sorting
+int[][] intervals = {{-2_000_000_000, 1}, {1, 2}};
+Arrays.sort(intervals, (a, b) -&gt; a[0] - b[0]);             // ❌ overflows
+Arrays.sort(intervals, Comparator.comparingInt(a -&gt; a[0])); // ✅ safe</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">binarySearch on unsorted array</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">int[] arr = {3, 1, 4, 1, 5};
+
+// ❌ Undefined result on unsorted array — no exception, just wrong answer
+int idx = Arrays.binarySearch(arr, 4);  // may return negative (not found)!
+
+// ✅ Sort first, then search
+Arrays.sort(arr);                        // [1, 1, 3, 4, 5]
+int idx2 = Arrays.binarySearch(arr, 4);  // 3 ✓
+
+// ⚠ Return value when not found: -(insertion point) - 1
+Arrays.binarySearch(new int[]{1, 3, 5}, 2);  // returns -2 (would insert at index 1)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Midpoint overflow in binary search</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Overflows when lo + hi &gt; Integer.MAX_VALUE
+int mid = (lo + hi) / 2;
+
+// ✅ Safe midpoint — subtraction form
+int mid = lo + (hi - lo) / 2;
+
+// ✅ Or use unsigned right shift (Java-specific)
+int mid = (lo + hi) &gt;&gt;&gt; 1;  // treats as unsigned, no overflow</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Array printing — toString vs deepToString</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">int[] arr = {1, 2, 3};
+
+// ❌ Prints useless hash like [I@6d06d69c
+System.out.println(arr);
+System.out.println(arr.toString());
+
+// ✅ Use Arrays.toString()
+System.out.println(Arrays.toString(arr));       // [1, 2, 3]
+
+// ❌ Arrays.toString() on 2D shows inner references
+int[][] grid = {{1, 2}, {3, 4}};
+System.out.println(Arrays.toString(grid));      // [[I@..., [I@...]
+
+// ✅ Use Arrays.deepToString() for nested arrays
+System.out.println(Arrays.deepToString(grid));  // [[1, 2], [3, 4]]</code></pre>
+</div>
+</div>
+
+<!-- ==================== STRING ==================== -->
+<div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String, StringBuilder &amp; Character</div>
+<p class="section-intro">Strings are <b>immutable</b> in Java &mdash; every modification creates a new object. Use <code>StringBuilder</code> for mutable sequences (loops, concatenation). <code>String</code> is backed by a <code>char[]</code> (Java 8) or <code>byte[]</code> (Java 9+ compact strings).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── String ──
+String s1 = "hello";                              // string pool (interned)
+String s2 = new String("hello");                   // heap object, bypasses pool
+String s3 = new String(charArray);                 // from char[]
+String s4 = String.format("Hi %s, age %d", "Jo", 25); // formatted
+
+// ── StringBuilder (mutable, not thread-safe) ──
+StringBuilder sb = new StringBuilder();            // empty, default capacity 16
+StringBuilder sb2 = new StringBuilder(100);        // initial capacity
+StringBuilder sb3 = new StringBuilder("hello");    // from String
+sb.append("world").append(42).insert(5, " ");      // chaining: "hello world42"
+String result = sb.toString();                     // back to String
+
+</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Immutability</b> &mdash; <code>String</code> objects cannot be changed after creation. Methods like <code>substring</code>, <code>replace</code>, <code>toUpperCase</code> all return a <b>new</b> String.
+<ul>
+<li>String concatenation in a loop creates n objects &mdash; use <code>StringBuilder</code> instead.</li>
+<li><code>==</code> compares references, not content. Always use <code>.equals()</code> for value comparison.</li>
+</ul>
+<b>String pool</b> &mdash; literals like <code>"hello"</code> are interned. <code>"hello" == "hello"</code> is <code>true</code> (same pool reference), but <code>new String("hello") == "hello"</code> is <code>false</code>.
+<ul>
+<li><code>str.intern()</code> returns the pool reference for any String.</li>
+</ul>
+<b>StringBuilder vs StringBuffer</b> &mdash; same API, but StringBuffer is synchronized (slower). Always use StringBuilder unless sharing across threads.
+</div>
+</div>
+</div>
+
+<!-- String — Access & Search -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">String Operations &amp; Time Complexity</span>
+  <div class="card-tags"><span class="tag java">String</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// s = "hello world"
+
+// ── Access ──
+s.length();                            // O(1) → 11
+s.charAt(1);                           // O(1) → 'e'
+s.toCharArray();                       // O(n) → char[]{'h','e','l','l','o',...}
+s.isEmpty();                           // O(1) → false         true if length == 0
+"   ".isBlank();                       // O(n) → true          whitespace only (Java 11+)
+
+// ── Search ──
+s.indexOf("lo");                       // O(n*m) → 3           ≥0 = position; -1 = not found
+s.lastIndexOf("l");                    // O(n*m) → 9           searches from end
+s.contains("world");                   // O(n*m) → true        delegates to indexOf ≥ 0
+s.startsWith("hel");                   // O(m) → true          m = prefix length
+s.endsWith("rld");                     // O(m) → true          m = suffix length
+
+// ── Extract ──
+s.substring(6);                        // O(k) → "world"
+s.substring(0, 5);                     // O(k) → "hello"       [begin, end)
+"aAbAc".split("A");                    // O(n) → ["a","b","c"]
+" hi ".trim();                         // O(n) → "hi"          strips ASCII whitespace
+" hi ".strip();                        // O(n) → "hi"          Unicode-aware (Java 11+)
+
+// ── Transform (returns new String) ──
+"Hello".toLowerCase();                 // O(n) → "hello"
+"Hello".toUpperCase();                 // O(n) → "HELLO"
+"aXbXc".replace('X', '-');             // O(n) → "a-b-c"       all occurrences
+"aab".replaceFirst("a", "x");          // O(n) → "xab"         first match; regex
+"a1b22c".replaceAll("\\d+", "#");      // O(n) → "a#b#c"       all matches; regex
+
+// ── Compare ──
+"hello".equals("hello");              // O(n) → true           use instead of ==
+"Hello".equalsIgnoreCase("hello");    // O(n) → true
+"apple".compareTo("banana");          // O(n) → -1            'a' &lt; 'b' → negative
+"banana".compareTo("apple");          // O(n) → 1             'b' &gt; 'a' → positive
+"apple".compareTo("apple");           // O(n) → 0             equal → zero
+"Apple".compareToIgnoreCase("apple"); // O(n) → 0             case-insensitive
+
+// ── Static Methods ──
+Integer.parseInt("42");                // O(n) → 42
+String.valueOf(42);                    // O(digits) → "42"
+String.join("-", "a", "b", "c");       // O(n) → "a-b-c"
+String.format("Hi %s, age %d", "Jo", 25); // O(n) → "Hi Jo, age 25"
+
+// ── StringBuilder (mutable) ──
+StringBuilder sb = new StringBuilder("hello");
+sb.append(" world");                   // O(1)* amortized      → "hello world"
+sb.insert(5, ",");                     // O(n) shifts right     → "hello, world"
+sb.delete(5, 6);                       // O(n) shifts left      → "hello world"
+sb.reverse();                          // O(n)                  → "dlrow olleh"
+sb.toString();                         // O(n) → String</code></pre>
+</div>
+</div>
+
+<!-- String — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String concatenation in loop — O(n&sup2;)</span>
+  <span class="severity subtle">Performance</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Each += creates a new String object — O(n²) total
+String result = "";
+for (int i = 0; i &lt; n; i++) {
+    result += "item" + i;  // n String objects created!
+}
+
+// ✅ Use StringBuilder — O(n) total
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i &lt; n; i++) {
+    sb.append("item").append(i);
+}
+String result = sb.toString();
+
+// ✅ Or use String.join() for collections
+String csv = String.join(",", list);</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">split() with regex special characters</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ "." is regex for "any character" — splits every char
+"a.b.c".split(".");     // [] — empty! (everything is a delimiter)
+
+// ✅ Escape regex special characters
+"a.b.c".split("\\.");   // ["a", "b", "c"]
+"a|b|c".split("\\|");   // ["a", "b", "c"]
+
+// ⚠ Trailing empty strings are dropped by default
+"a,,b,,".split(",");    // ["a", "", "b"] — trailing "" dropped!
+
+// ✅ Use negative limit to keep trailing empties
+"a,,b,,".split(",", -1); // ["a", "", "b", "", ""]
+
+// ⚠ split("") on empty string
+"".split(",");           // [""] — length 1, NOT 0!</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">charAt() and substring() bounds</span>
+  <span class="severity bug">StringIndexOutOfBoundsException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">String s = "hello";
+
+// ❌ Index out of bounds — no negative indexing in Java
+s.charAt(5);     // StringIndexOutOfBoundsException! (valid: 0-4)
+s.charAt(-1);    // StringIndexOutOfBoundsException!
+
+// ⚠ substring() uses [begin, end) — end is exclusive
+s.substring(0, 5);  // "hello" — end can equal length
+s.substring(2, 2);  // "" — empty string when begin == end
+s.substring(3, 2);  // StringIndexOutOfBoundsException! begin &gt; end
+
+// ⚠ Single-arg substring includes rest of string
+s.substring(5);     // "" — empty, not exception
+s.substring(6);     // StringIndexOutOfBoundsException!</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">parseInt / valueOf — parsing traps</span>
+  <span class="severity bug">NumberFormatException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Throws NumberFormatException
+Integer.parseInt("");          // empty string
+Integer.parseInt(null);        // null
+Integer.parseInt("12.5");      // decimal point
+Integer.parseInt("2147483648"); // exceeds Integer.MAX_VALUE
+
+// ✅ Guard with try-catch or validate first
+try {
+    int n = Integer.parseInt(str);
+} catch (NumberFormatException e) { ... }
+
+// ⚠ parseInt returns int, valueOf returns Integer (cached -128 to 127)
+Integer.valueOf("127") == Integer.valueOf("127");   // true  — cached
+Integer.valueOf("128") == Integer.valueOf("128");   // false — different objects
+Integer.valueOf("128").equals(Integer.valueOf("128")); // true</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Negative modulo for circular indexing</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Java's % keeps sign of dividend (same as Go)
+-7 % 3;   // -1 (not 2!)
+-1 % 5;   // -1 (not 4!)
+
+// ❌ Circular array with negative index breaks
+char c = s.charAt((-1) % s.length());  // negative index!
+
+// ✅ Always-positive modulo
+int mod = ((a % n) + n) % n;
+
+// ✅ Or use Math.floorMod() (Java 8+)
+Math.floorMod(-7, 3);  // 2 ✓
+Math.floorMod(-1, 5);  // 4 ✓</code></pre>
+</div>
+</div>
+
+<!-- ==================== INTERFACE HIERARCHY ==================== -->
+<div class="section-title" id="sec-hierarchy"><span class="icon">&#128466;</span> Interface &amp; Inheritance Hierarchy</div>
+
+<!-- Visual tree diagram (SVG) -->
+<div class="card hierarchy-card">
+<div class="card-header">
+  <span class="card-title">Collection &amp; Map Hierarchy</span>
+  <div class="card-tags"></div>
+</div>
+<div class="card-body">
+<svg viewBox="0 0 940 448" class="hierarchy-svg" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="ah" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+    <polygon points="0,0.5 10,3.5 0,6.5" class="arr"/>
+  </marker>
+</defs>
+
+<!-- ── Legend ── -->
+<rect x="655" y="10" width="16" height="13" rx="3" class="ibox"/>
+<text x="678" y="19" class="ltxt">interface</text>
+<rect x="655" y="30" width="16" height="13" rx="3" class="cbox"/>
+<text x="678" y="39" class="ltxt">class</text>
+<line x1="645" y1="54" x2="671" y2="54" class="ln-ext" marker-end="url(#ah)"/>
+<text x="678" y="57" class="ltxt">extends</text>
+<line x1="645" y1="72" x2="671" y2="72" class="ln-impl" marker-end="url(#ah)"/>
+<text x="678" y="75" class="ltxt">implements</text>
+
+<!-- ── Separator ── -->
+<line x1="650" y1="90" x2="650" y2="440" class="sep"/>
+
+<!-- ══════ EXTENDS lines (solid) ══════ -->
+<line x1="300" y1="86"  x2="300" y2="46"  class="ln-ext" marker-end="url(#ah)"/>
+<line x1="95"  y1="166" x2="260" y2="114" class="ln-ext" marker-end="url(#ah)"/>
+<line x1="300" y1="166" x2="300" y2="114" class="ln-ext" marker-end="url(#ah)"/>
+<line x1="515" y1="166" x2="340" y2="114" class="ln-ext" marker-end="url(#ah)"/>
+<line x1="375" y1="254" x2="320" y2="194" class="ln-ext" marker-end="url(#ah)"/>
+<line x1="515" y1="334" x2="515" y2="194" class="ln-ext" marker-end="url(#ah)"/>
+<line x1="795" y1="266" x2="795" y2="114" class="ln-ext" marker-end="url(#ah)"/>
+
+<!-- ══════ IMPLEMENTS lines (dashed) ══════ -->
+<line x1="53"  y1="255" x2="80"  y2="194" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="163" y1="323" x2="100" y2="194" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="163" y1="323" x2="375" y2="282" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="235" y1="255" x2="290" y2="194" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="375" y1="337" x2="375" y2="282" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="473" y1="255" x2="505" y2="194" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="605" y1="255" x2="525" y2="194" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="515" y1="409" x2="515" y2="362" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="740" y1="179" x2="790" y2="114" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="865" y1="179" x2="800" y2="114" class="ln-impl" marker-end="url(#ah)"/>
+<line x1="795" y1="355" x2="795" y2="294" class="ln-impl" marker-end="url(#ah)"/>
+
+<!-- ══════ COLLECTION FAMILY ══════ -->
+<!-- Iterable -->
+<rect x="251" y="18" width="98" height="28" rx="4" class="ibox"/>
+<text x="300" y="32" text-anchor="middle" dominant-baseline="central" class="itxt">Iterable</text>
+<!-- Collection -->
+<rect x="246" y="86" width="108" height="28" rx="4" class="ibox"/>
+<text x="300" y="100" text-anchor="middle" dominant-baseline="central" class="itxt">Collection</text>
+<!-- List -->
+<rect x="64" y="166" width="62" height="28" rx="4" class="ibox"/>
+<text x="95" y="180" text-anchor="middle" dominant-baseline="central" class="itxt">List</text>
+<!-- Queue -->
+<rect x="264" y="166" width="72" height="28" rx="4" class="ibox"/>
+<text x="300" y="180" text-anchor="middle" dominant-baseline="central" class="itxt">Queue</text>
+<!-- Set -->
+<rect x="487" y="166" width="56" height="28" rx="4" class="ibox"/>
+<text x="515" y="180" text-anchor="middle" dominant-baseline="central" class="itxt">Set</text>
+<!-- Deque -->
+<rect x="339" y="254" width="72" height="28" rx="4" class="ibox"/>
+<text x="375" y="268" text-anchor="middle" dominant-baseline="central" class="itxt">Deque</text>
+<!-- NavigableSet -->
+<rect x="451" y="334" width="128" height="28" rx="4" class="ibox"/>
+<text x="515" y="348" text-anchor="middle" dominant-baseline="central" class="itxt">NavigableSet</text>
+
+<!-- ArrayList -->
+<rect x="3" y="255" width="100" height="26" rx="4" class="cbox"/>
+<text x="53" y="268" text-anchor="middle" dominant-baseline="central" class="ctxt">ArrayList</text>
+<!-- LinkedList -->
+<rect x="109" y="323" width="108" height="26" rx="4" class="cbox"/>
+<text x="163" y="336" text-anchor="middle" dominant-baseline="central" class="ctxt">LinkedList</text>
+<!-- PriorityQueue -->
+<rect x="171" y="255" width="128" height="26" rx="4" class="cbox"/>
+<text x="235" y="268" text-anchor="middle" dominant-baseline="central" class="ctxt">PriorityQueue</text>
+<!-- ArrayDeque -->
+<rect x="321" y="337" width="108" height="26" rx="4" class="cbox"/>
+<text x="375" y="350" text-anchor="middle" dominant-baseline="central" class="ctxt">ArrayDeque</text>
+<!-- HashSet -->
+<rect x="430" y="255" width="86" height="26" rx="4" class="cbox"/>
+<text x="473" y="268" text-anchor="middle" dominant-baseline="central" class="ctxt">HashSet</text>
+<!-- LinkedHashSet -->
+<rect x="539" y="255" width="132" height="26" rx="4" class="cbox"/>
+<text x="605" y="268" text-anchor="middle" dominant-baseline="central" class="ctxt">LinkedHashSet</text>
+<!-- TreeSet -->
+<rect x="472" y="409" width="86" height="26" rx="4" class="cbox"/>
+<text x="515" y="422" text-anchor="middle" dominant-baseline="central" class="ctxt">TreeSet</text>
+
+<!-- ══════ MAP FAMILY ══════ -->
+<!-- Map -->
+<rect x="767" y="86" width="56" height="28" rx="4" class="ibox"/>
+<text x="795" y="100" text-anchor="middle" dominant-baseline="central" class="itxt">Map</text>
+<!-- NavigableMap -->
+<rect x="731" y="266" width="128" height="28" rx="4" class="ibox"/>
+<text x="795" y="280" text-anchor="middle" dominant-baseline="central" class="itxt">NavigableMap</text>
+<!-- HashMap -->
+<rect x="697" y="179" width="86" height="26" rx="4" class="cbox"/>
+<text x="740" y="192" text-anchor="middle" dominant-baseline="central" class="ctxt">HashMap</text>
+<!-- LinkedHashMap -->
+<rect x="799" y="179" width="132" height="26" rx="4" class="cbox"/>
+<text x="865" y="192" text-anchor="middle" dominant-baseline="central" class="ctxt">LinkedHashMap</text>
+<!-- TreeMap -->
+<rect x="752" y="355" width="86" height="26" rx="4" class="cbox"/>
+<text x="795" y="368" text-anchor="middle" dominant-baseline="central" class="ctxt">TreeMap</text>
+</svg>
+</div>
+</div>
+
+<!-- ==================== WHY Object NOT E ==================== -->
+<div class="section-title" id="sec-why-object"><span class="icon">&#128269;</span> Gotchas: Object params, Primitives &amp; Autoboxing</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-body">
+<div class="note">
+<b>Why do <code>contains</code>, <code>indexOf</code>, <code>remove</code> take <code>Object</code> not <code>E</code>?</b>
+<ul>
+<li>They use <code>equals(Object)</code> internally &mdash; any two objects can be compared, so the parameter must accept <code>Object</code>.</li>
+<li>A <code>List&lt;Number&gt;</code> may hold an <code>Integer</code> but you search with a <code>Double</code> &mdash; <code>Object</code> allows this cross-type lookup.</li>
+<li>Generics are erased at runtime; restricting to <code>E</code> adds no real safety, only a compile-time illusion.</li>
+</ul>
+<b>Collections only store boxed types</b> &mdash; <code>int</code> &rarr; <code>Integer</code>, <code>char</code> &rarr; <code>Character</code>, <code>double</code> &rarr; <code>Double</code>. Java autoboxes automatically.
+</div>
+<pre><code class="language-java">// Pitfall: remove(int index) vs remove(Object value) on List&lt;Integer&gt;
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(10, 20, 30));
+list.remove(1);                    // removes element at INDEX 1 → [10, 30]
+list.remove(Integer.valueOf(10));  // removes VALUE 10 → [30]
+
+// Pitfall: different box types are never equal
+new Integer(1).equals(new Long(1L));   // false!
+Set&lt;Long&gt; set = Set.of(1L, 2L, 3L);
+set.contains(1);                       // false — autoboxes to Integer, not Long
+set.contains(1L);                      // true
+
+// Pitfall: Integer cache (−128 to 127)
+Integer a = 127, b = 127;
+a == b;                                // true  — cached, same object
+Integer x = 128, y = 128;
+x == y;                                // false — different objects!
+x.equals(y);                           // true  — always use .equals()</code></pre>
+</div>
+</div>
+
+<!-- ==================== 1. LIST IMPLEMENTATIONS ==================== -->
+<div class="section-title" id="sec-list"><span class="icon">&#128218;</span> List Implementations</div>
+
+<!-- Initialization -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── ArrayList ──
+List&lt;String&gt; a1 = new ArrayList&lt;&gt;();                        // empty, default capacity 10
+List&lt;String&gt; a2 = new ArrayList&lt;&gt;(100);                     // empty, initial capacity 100
+List&lt;String&gt; a3 = new ArrayList&lt;&gt;(existingCollection);      // copy from any Collection
+List&lt;String&gt; a4 = new ArrayList&lt;&gt;(List.of("a", "b", "c"));  // from immutable list
+List&lt;String&gt; a5 = new ArrayList&lt;&gt;(Arrays.asList("x", "y")); // from fixed-size list
+
+// ── LinkedList ──
+List&lt;String&gt; l1 = new LinkedList&lt;&gt;();                        // empty
+List&lt;String&gt; l2 = new LinkedList&lt;&gt;(existingCollection);      // copy from any Collection
+Deque&lt;String&gt; dq = new LinkedList&lt;&gt;();                       // use as Deque
+
+// ── Common patterns ──
+List&lt;Integer&gt; fixed   = Arrays.asList(1, 2, 3);             // fixed-size, backed by array
+List&lt;Integer&gt; immut   = List.of(1, 2, 3);                   // immutable (Java 9+), no nulls
+List&lt;Integer&gt; copy    = List.copyOf(existingCollection);    // immutable copy (Java 10+)
+List&lt;Integer&gt; mutable = new ArrayList&lt;&gt;(List.of(1, 2, 3));  // mutable copy of immutable
+List&lt;Integer&gt; empty   = Collections.emptyList();              // empty, immutable (prefer List.of())
+List&lt;Integer&gt; single  = Collections.singletonList(42);        // single element, immutable
+List&lt;Integer&gt; filled  = Collections.nCopies(10, 0);           // 10 zeroes, immutable
+List&lt;Integer&gt; synced  = Collections.synchronizedList(new ArrayList&lt;&gt;()); // thread-safe wrapper</code></pre>
+</div>
+</div>
+
+<p class="section-intro">List extends Collection with <b>positional (index-based) access</b>: <code>get</code>, <code>set</code>, <code>add</code>, <code>remove</code> by index, <code>indexOf</code>, <code>subList</code>, and <code>sort</code>. Maintains insertion order.</p>
+
+<!-- ArrayList vs LinkedList -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ArrayList vs LinkedList</span>
+  <div class="card-tags"><span class="tag java">List</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>ArrayList</th><th>LinkedList</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>   <td class="tc-1">O(1)<span class="cmt">append tail</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">scan + shift</span></td> <td class="tc-n">O(n)<span class="cmt">scan</span></td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>                                       <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                       <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">nulls array</span></td>   <td class="tc-n">O(n)<span class="cmt">unlinks all</span></td></tr>
+<tr class="grp"><td colspan="4">Positional Access (List)</td></tr>
+<tr><td>List</td><td><code>E get(int index)</code></td>                    <td class="tc-1">O(1)</td>                                       <td class="tc-n">O(n)<span class="cmt">traverse</span></td></tr>
+<tr><td>List</td><td><code>E set(int index, E e)</code></td>               <td class="tc-1">O(1)</td>                                       <td class="tc-n">O(n)<span class="cmt">traverse</span></td></tr>
+<tr><td>List</td><td><code>void add(int index, E e)</code></td>            <td class="tc-n">O(n)<span class="cmt">shift right</span></td>   <td class="tc-n">O(n)<span class="cmt">traverse</span></td></tr>
+<tr><td>List</td><td><code>E remove(int index)</code></td>                 <td class="tc-n">O(n)<span class="cmt">shift left</span></td>    <td class="tc-n">O(n)<span class="cmt">traverse; unlink O(1)</span></td></tr>
+<tr><td>List</td><td><code>int indexOf(Object o)</code></td>               <td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+<tr><td>List</td><td><code>void sort(Comparator c)</code></td>             <td class="tc-nlogn">O(n log n)<span class="cmt">TimSort</span></td> <td class="tc-nlogn">O(n log n)</td></tr>
+<tr class="grp"><td colspan="4">Double-Ended (Deque) &mdash; LinkedList only</td></tr>
+<tr><td>Deque</td><td><code>void addFirst(E e)</code></td>                 <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>void addLast(E e)</code></td>                  <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(n)<span class="cmt">arraycopy</span></td>     <td class="tc-n">O(m)<span class="cmt">append each</span></td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                <td class="tc-n">O(n*m)</td></tr>
+<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)</td>                                       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+<div class="note"><b>ArrayList</b> &mdash; backed by Object[]
+<ul><li>Default capacity 10, grows ~50% when full</li><li>Fast random access, slow mid-inserts (element shifting)</li></ul>
+<b>LinkedList</b> &mdash; doubly-linked list, implements List + Deque
+<ul><li>O(1) head/tail ops, O(n) random access by index</li><li>Use as queue/deque, not as random-access list</li></ul></div>
+</div>
+</div>
+
+<!-- ArrayList vs LinkedList — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ConcurrentModificationException — remove during iteration</span>
+  <span class="severity bug">Throws CME</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Modifying list inside for-each throws ConcurrentModificationException
+List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "b", "c"));
+for (String s : list) {
+    if (s.equals("b")) list.remove(s);  // CME!
+}
+
+// ✅ Use Iterator.remove()
+Iterator&lt;String&gt; it = list.iterator();
+while (it.hasNext()) {
+    if (it.next().equals("b")) it.remove();
+}
+
+// ✅ Or use removeIf() (Java 8+)
+list.removeIf(s -&gt; s.equals("b"));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">remove(int) vs remove(Object) on List&lt;Integer&gt;</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(10, 20, 30));
+
+// ❌ Intending to remove VALUE 20, but removes INDEX 20 → IndexOutOfBoundsException
+// list.remove(20);
+
+// remove(1) removes element at INDEX 1, not value 1
+list.remove(1);                    // removes 20 → [10, 30]
+
+// ✅ To remove by VALUE, box explicitly
+list.remove(Integer.valueOf(10));  // removes value 10 → [30]</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Arrays.asList() returns fixed-size list</span>
+  <span class="severity bug">UnsupportedOperationException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Cannot add or remove — backed by the original array
+List&lt;String&gt; fixed = Arrays.asList("a", "b", "c");
+fixed.add("d");     // UnsupportedOperationException!
+fixed.remove(0);    // UnsupportedOperationException!
+fixed.set(0, "x");  // OK — set() works, mutates backing array
+
+// ✅ Wrap in ArrayList for a fully mutable copy
+List&lt;String&gt; mutable = new ArrayList&lt;&gt;(Arrays.asList("a", "b", "c"));
+mutable.add("d");   // OK
+
+// ⚠ Primitives trap: Arrays.asList(int[]) creates List&lt;int[]&gt;, not List&lt;Integer&gt;
+int[] arr = {1, 2, 3};
+List&lt;int[]&gt; oops = Arrays.asList(arr);  // single element: the array itself!
+// ✅ Use IntStream for primitives
+List&lt;Integer&gt; nums = IntStream.of(arr).boxed().toList();</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">List.of() is immutable &amp; rejects null</span>
+  <span class="severity bug">UnsupportedOperationException / NPE</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Any mutation throws UnsupportedOperationException
+List&lt;String&gt; immut = List.of("a", "b", "c");
+immut.add("d");     // UnsupportedOperationException!
+immut.set(0, "x");  // UnsupportedOperationException!
+immut.remove(0);    // UnsupportedOperationException!
+
+// ❌ Null elements rejected at creation time
+List.of("a", null);  // NullPointerException!
+
+// ✅ Mutable copy when you need to modify
+List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "b", "c"));
+
+// Same rules apply to Set.of(), Map.of(), Map.ofEntries()</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">subList() is a live view, not a copy</span>
+  <span class="severity subtle">Throws CME</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(1, 2, 3, 4, 5));
+List&lt;Integer&gt; sub = list.subList(1, 4);  // [2, 3, 4] — a VIEW
+
+// Mutations through subList reflect in parent
+sub.set(0, 99);  // list is now [1, 99, 3, 4, 5]
+
+// ❌ Structural change to parent invalidates subList
+list.add(6);
+sub.get(0);      // ConcurrentModificationException!
+
+// ✅ Copy if you need independence
+List&lt;Integer&gt; safe = new ArrayList&lt;&gt;(list.subList(1, 4));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LinkedList get(i) in a loop — O(n&sup2;) trap</span>
+  <span class="severity subtle">Performance</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">LinkedList&lt;Integer&gt; list = new LinkedList&lt;&gt;();
+// ... fill with n elements ...
+
+// ❌ O(n²) — each get(i) traverses from head or tail
+for (int i = 0; i &lt; list.size(); i++) {
+    process(list.get(i));  // O(n) per call!
+}
+
+// ✅ Use iterator or for-each — O(n) total
+for (int val : list) {
+    process(val);
+}
+
+// ✅ Or just use ArrayList if you need indexed access</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ArrayList capacity &ne; size</span>
+  <span class="severity subtle">IndexOutOfBoundsException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Capacity is internal buffer size, NOT the number of elements
+ArrayList&lt;Integer&gt; list = new ArrayList&lt;&gt;(100);  // capacity=100, size=0
+list.get(0);    // IndexOutOfBoundsException! size is still 0
+list.size();    // 0
+
+// ✅ Pre-fill with values if you need indexed access
+List&lt;Integer&gt; filled = new ArrayList&lt;&gt;(Collections.nCopies(100, 0));
+filled.get(0);  // OK → 0
+filled.size();  // 100
+
+// ✅ Use ensureCapacity() to avoid repeated resizing
+ArrayList&lt;Integer&gt; list2 = new ArrayList&lt;&gt;();
+list2.ensureCapacity(10000);  // pre-allocate, size still 0</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">toArray() returns Object[], not T[]</span>
+  <span class="severity subtle">ClassCastException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;String&gt; list = List.of("a", "b", "c");
+
+// ❌ toArray() returns Object[] — cannot cast to String[]
+Object[] arr = list.toArray();
+String[] bad = (String[]) list.toArray();  // ClassCastException!
+
+// ✅ Pass typed array to get T[]
+String[] ok = list.toArray(new String[0]);
+
+// ✅ Or use method reference (Java 11+)
+String[] ok2 = list.toArray(String[]::new);</code></pre>
+</div>
+</div>
+
+<!-- ==================== 2. SET IMPLEMENTATIONS ==================== -->
+<div class="section-title" id="sec-set"><span class="icon">&#127919;</span> Set Implementations</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── HashSet ──
+Set&lt;String&gt; h1 = new HashSet&lt;&gt;();                           // empty, default capacity 16
+Set&lt;String&gt; h2 = new HashSet&lt;&gt;(64);                         // empty, initial capacity 64
+Set&lt;String&gt; h3 = new HashSet&lt;&gt;(existingCollection);         // copy from any Collection
+Set&lt;String&gt; h4 = new HashSet&lt;&gt;(List.of("a", "b", "c"));    // from immutable list
+
+// ── LinkedHashSet ──
+Set&lt;String&gt; lh = new LinkedHashSet&lt;&gt;();                      // insertion-order iteration
+Set&lt;String&gt; lh2 = new LinkedHashSet&lt;&gt;(existingCollection);
+
+// ── TreeSet ──
+Set&lt;String&gt; t1 = new TreeSet&lt;&gt;();                            // natural ordering (Comparable)
+Set&lt;String&gt; t2 = new TreeSet&lt;&gt;(Comparator.reverseOrder());   // custom comparator
+Set&lt;String&gt; t3 = new TreeSet&lt;&gt;(existingCollection);          // sorted copy
+NavigableSet&lt;String&gt; t4 = new TreeSet&lt;&gt;(existingSortedSet);  // preserves comparator
+
+// ── Common patterns ──
+Set&lt;Integer&gt; immut  = Set.of(1, 2, 3);                      // immutable (Java 9+), no nulls, no dupes
+Set&lt;Integer&gt; copy   = Set.copyOf(existingCollection);       // immutable copy (Java 10+)
+Set&lt;Integer&gt; mut    = new HashSet&lt;&gt;(Set.of(1, 2, 3));       // mutable copy of immutable
+Set&lt;Integer&gt; empty  = Collections.emptySet();                // empty, immutable (prefer Set.of())
+Set&lt;Integer&gt; synced = Collections.synchronizedSet(new HashSet&lt;&gt;()); // thread-safe wrapper</code></pre>
+</div>
+</div>
+
+<p class="section-intro">Set extends Collection with a <b>no-duplicate-elements</b> contract. Same methods as Collection but <code>add()</code> returns false if element already exists. NavigableSet adds sorted-order operations: <code>first</code>, <code>last</code>, <code>floor</code>, <code>ceiling</code>, range views.</p>
+
+<!-- HashSet vs LinkedHashSet vs TreeSet -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">HashSet vs LinkedHashSet vs TreeSet</span>
+  <div class="card-tags"><span class="tag java">Set</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>HashSet</th><th>LinkedHashSet</th><th>TreeSet</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="5">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                  <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-1">O(1)<span class="cmt">new root</span></td></tr>
+<tr class="grp"><td colspan="5">Sorted Access (NavigableSet) &mdash; TreeSet only</td></tr>
+<tr><td>NavigableSet</td><td><code>E first()</code></td>                   <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">smallest</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E last()</code></td>                    <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">largest</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E floor(E e)</code></td>                <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&le; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E ceiling(E e)</code></td>              <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&ge; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E lower(E e)</code></td>                <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&lt; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E higher(E e)</code></td>               <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&gt; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E pollFirst()</code></td>               <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>E pollLast()</code></td>                <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>SortedSet subSet(E, E)</code></td>      <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">view; iter O(k)</span></td></tr>
+<tr class="grp"><td colspan="5">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)</td>      <td class="tc-n">O(m)</td>      <td class="tc-nlogn">O(m log n)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>   <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>   <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(m)</td> <td class="tc-n">O(m)</td>      <td class="tc-nlogn">O(m log n)</td></tr>
+<tr class="grp"><td colspan="5">Conversion &amp; Traversal</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>             <td class="tc-n">O(cap)<span class="cmt">capacity</span></td> <td class="tc-n">O(n)<span class="cmt">linked list</span></td> <td class="tc-n">O(n)<span class="cmt">in-order</span></td></tr>
+<tr class="grp"><td colspan="5">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+<div class="note"><b>HashSet</b> &mdash; backed by HashMap, unordered
+<ul><li>Requires proper hashCode() + equals()</li><li>Default load factor 0.75</li></ul>
+<b>LinkedHashSet</b> &mdash; insertion-order iteration
+<ul><li>Doubly-linked list across entries</li><li>Slightly more memory than HashSet, but iterator is O(n) not O(capacity)</li></ul>
+<b>TreeSet</b> &mdash; red-black tree, sorted iteration
+<ul><li>Elements must be Comparable or supply a Comparator</li></ul></div>
+</div>
+</div>
+
+<!-- HashSet vs LinkedHashSet vs TreeSet — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Broken hashCode/equals — silent duplicates</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">class Point {
+    int x, y;
+    Point(int x, int y) { this.x = x; this.y = y; }
+}
+
+// ❌ hashCode/equals not overridden — uses identity, not value
+Set&lt;Point&gt; set = new HashSet&lt;&gt;();
+set.add(new Point(1, 2));
+set.add(new Point(1, 2));
+set.size();  // 2 — treats them as different objects!
+
+// ✅ Override both hashCode() AND equals()
+@Override public boolean equals(Object o) {
+    if (!(o instanceof Point p)) return false;
+    return x == p.x &amp;&amp; y == p.y;
+}
+@Override public int hashCode() {
+    return Objects.hash(x, y);
+}
+// Now set.size() → 1</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable elements in HashSet — lost forever</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;Integer&gt; key = new ArrayList&lt;&gt;(List.of(1, 2));
+Set&lt;List&lt;Integer&gt;&gt; set = new HashSet&lt;&gt;();
+set.add(key);
+set.contains(key);  // true
+
+// ❌ Mutating the element changes its hashCode — set can't find it
+key.add(3);
+set.contains(key);  // false — hash bucket changed!
+set.remove(key);    // false — can't locate it
+set.size();         // 1 — element is stuck, unreachable
+
+// ✅ Use immutable keys, or remove → mutate → re-add</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">TreeSet with uncomparable elements</span>
+  <span class="severity bug">ClassCastException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Elements must implement Comparable OR supply a Comparator
+Set&lt;int[]&gt; set = new TreeSet&lt;&gt;();
+set.add(new int[]{1, 2});  // ClassCastException — int[] is not Comparable
+
+// ✅ Provide a Comparator
+Set&lt;int[]&gt; set2 = new TreeSet&lt;&gt;(Arrays::compare);
+
+// ⚠ Comparator consistency: if compare(a,b)==0 then a.equals(b) should be true
+// Otherwise Set contract is violated — size() may disagree with contains()</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">TreeSet vs HashSet — null handling</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// HashSet allows one null
+Set&lt;String&gt; hash = new HashSet&lt;&gt;();
+hash.add(null);  // OK
+
+// ❌ TreeSet rejects null — needs to compare, can't call compareTo(null)
+Set&lt;String&gt; tree = new TreeSet&lt;&gt;();
+tree.add(null);  // NullPointerException!
+
+// ❌ Even with a custom comparator that handles null:
+// First element added may succeed, but behavior is undefined
+Set&lt;String&gt; tree2 = new TreeSet&lt;&gt;(Comparator.nullsFirst(Comparator.naturalOrder()));
+tree2.add(null);    // works in some JVMs, not guaranteed</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Set.of() rejects duplicates at creation</span>
+  <span class="severity bug">IllegalArgumentException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Unlike HashSet, Set.of() throws on duplicate elements
+Set&lt;String&gt; s = Set.of("a", "b", "a");  // IllegalArgumentException!
+
+// HashSet silently ignores duplicates
+Set&lt;String&gt; hs = new HashSet&lt;&gt;(List.of("a", "b", "a"));  // ["a", "b"]
+
+// ✅ Use HashSet when input may contain duplicates
+Set&lt;String&gt; safe = new HashSet&lt;&gt;(possiblyDuplicateList);</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">HashSet iteration order is not stable</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Set&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add("b"); set.add("a"); set.add("c");
+System.out.println(set);  // could be [a, b, c] or [b, c, a] — no guarantee
+
+// ⚠ Order may change after rehashing (adding more elements)
+// Never depend on HashSet iteration order in tests or serialization
+
+// ✅ Use LinkedHashSet for insertion-order iteration
+Set&lt;String&gt; ordered = new LinkedHashSet&lt;&gt;();
+ordered.add("b"); ordered.add("a"); ordered.add("c");
+System.out.println(ordered);  // always [b, a, c]
+
+// ✅ Use TreeSet for sorted iteration
+Set&lt;String&gt; sorted = new TreeSet&lt;&gt;(set);  // always [a, b, c]</code></pre>
+</div>
+</div>
+
+<!-- ==================== 3. QUEUE IMPLEMENTATIONS ==================== -->
+<div class="section-title" id="sec-queue"><span class="icon">&#128202;</span> Queue &amp; Deque</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── PriorityQueue (min-heap) ──
+Queue&lt;Integer&gt; pq1 = new PriorityQueue&lt;&gt;();                          // min-heap, natural order
+Queue&lt;Integer&gt; pq2 = new PriorityQueue&lt;&gt;(100);                      // initial capacity 100
+Queue&lt;Integer&gt; pq3 = new PriorityQueue&lt;&gt;(Comparator.reverseOrder()); // max-heap
+Queue&lt;int[]&gt;   pq4 = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);   // custom comparator
+Queue&lt;Integer&gt; pq5 = new PriorityQueue&lt;&gt;(existingCollection);       // heapify from collection
+
+// ── ArrayDeque (stack + queue) ──
+Deque&lt;String&gt; dq1 = new ArrayDeque&lt;&gt;();                   // empty, default capacity 16
+Deque&lt;String&gt; dq2 = new ArrayDeque&lt;&gt;(64);                 // empty, initial capacity 64
+Deque&lt;String&gt; dq3 = new ArrayDeque&lt;&gt;(existingCollection); // copy from any Collection
+
+// ── Common patterns ──
+// Use ArrayDeque as a Stack (faster than java.util.Stack)
+Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();   // push(), pop(), peek()
+// Use ArrayDeque as a Queue (faster than LinkedList)
+Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();   // offer(), poll(), peek()</code></pre>
+</div>
+</div>
+
+<p class="section-intro">Queue extends Collection with <b>FIFO ordering</b>. Two API styles: <code>offer</code>/<code>peek</code>/<code>poll</code> return <b>null or false</b> on failure; <code>add</code>/<code>element</code>/<code>remove</code> throw <b>IllegalStateException / NoSuchElementException</b>. Deque extends Queue with <b>double-ended access</b>: <code>offerFirst/Last</code>, <code>peekFirst/Last</code>, <code>pollFirst/Last</code>, plus <code>push</code>/<code>pop</code> for stack usage.</p>
+
+<!-- PriorityQueue vs ArrayDeque -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">PriorityQueue vs ArrayDeque</span>
+  <div class="card-tags"><span class="tag java">Queue</span><span class="tag java">Deque</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>PriorityQueue</th><th>ArrayDeque</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>  <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">scan + sift</span></td>     <td class="tc-n">O(n)<span class="cmt">scan</span></td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">nulls array</span></td>       <td class="tc-n">O(n)<span class="cmt">nulls array</span></td></tr>
+<tr class="grp"><td colspan="4">Queue Operations</td></tr>
+<tr><td>Queue</td><td><code>boolean offer(E e)</code></td>                 <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>   <td class="tc-1">O(1)*<span class="cmt">= offerLast</span></td></tr>
+<tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)<span class="cmt">min element</span></td>      <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
+<tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-logn">O(log n)<span class="cmt">sift down</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
+<tr class="grp"><td colspan="4">Double-Ended (Deque) &mdash; ArrayDeque only</td></tr>
+<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>void push(E e)</code></td>                     <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">= addFirst</span></td></tr>
+<tr><td>Deque</td><td><code>E pop()</code></td>                            <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">= removeFirst</span></td></tr>
+<tr class="grp"><td colspan="4">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-nlogn">O(m log n)<span class="cmt">sift each</span></td> <td class="tc-n">O(m)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                    <td class="tc-n">O(n*m)</td></tr>
+<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">not sorted!</span></td>       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+<div class="note"><b>PriorityQueue</b> &mdash; min-heap by default
+<ul><li>Pass Comparator.reverseOrder() for max-heap</li><li>iterator() does NOT return sorted order &mdash; use poll() loop</li></ul>
+<b>ArrayDeque</b> &mdash; resizable circular array
+<ul><li>Faster than Stack as a stack, faster than LinkedList as a queue</li><li>No null elements</li></ul></div>
+</div>
+</div>
+
+<!-- PriorityQueue vs ArrayDeque — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">PriorityQueue iterator is NOT sorted</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Queue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 3, 2, 4));
+
+// ❌ Iterator does NOT return elements in sorted order
+for (int x : pq) {
+    System.out.print(x + " ");  // e.g. "1 5 3 2 4" — heap array order, NOT sorted!
+}
+
+// ✅ Use poll() loop for sorted order — drains the queue
+while (!pq.isEmpty()) {
+    System.out.print(pq.poll() + " ");  // "1 2 3 4 5"
+}
+
+// ✅ Or copy and sort for non-destructive sorted view
+List&lt;Integer&gt; sorted = new ArrayList&lt;&gt;(pq);
+Collections.sort(sorted);</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Null elements in PriorityQueue &amp; ArrayDeque</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ PriorityQueue rejects null — needs to compare
+Queue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;();
+pq.add(null);    // NullPointerException!
+pq.offer(null);  // NullPointerException!
+
+// ❌ ArrayDeque also rejects null
+Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
+dq.push(null);   // NullPointerException!
+dq.offer(null);  // NullPointerException!
+
+// ⚠ LinkedList is the only Queue/Deque that allows null
+// But null makes poll()/peek() ambiguous (null = empty or null element?)
+Deque&lt;String&gt; ll = new LinkedList&lt;&gt;();
+ll.offer(null);  // OK, but...
+ll.poll();       // null — was the queue empty or did it contain null?</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">offer/poll vs add/remove — exception behavior</span>
+  <span class="severity bug">NoSuchElementException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+
+// ❌ remove() and element() throw on empty queue
+q.remove();   // NoSuchElementException!
+q.element();  // NoSuchElementException!
+
+// ✅ poll() and peek() return null on empty queue
+q.poll();     // null
+q.peek();     // null
+
+// Rule of thumb:
+// add/remove/element — throw exceptions (use for logic errors)
+// offer/poll/peek   — return null/false (use for expected emptiness)
+
+// ⚠ Same pattern for Deque ends
+Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
+dq.removeFirst();  // NoSuchElementException!
+dq.pollFirst();    // null — safe</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">PriorityQueue remove/contains uses equals, not comparator</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// PriorityQueue.remove(Object) and contains(Object) use equals(), NOT the comparator
+// If comparator says two objects are "equal" but equals() disagrees → confusion
+
+Queue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);
+int[] item = {1, 2};
+pq.offer(item);
+pq.remove(new int[]{1, 2});  // false! — arrays use identity equals
+
+// ✅ Keep a reference to the exact object
+pq.remove(item);  // true — same reference
+
+// ✅ For custom objects, ensure equals() is consistent with the comparator</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">java.util.Stack — don&rsquo;t use it</span>
+  <span class="severity tip">Best Practice</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Stack extends Vector — synchronized on every operation, slow
+Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+stack.push(1);
+stack.pop();
+
+// ❌ Stack is a List — allows random access, breaking stack abstraction
+stack.get(0);   // works, but shouldn't for a stack
+stack.add(0, 5); // can insert at arbitrary index
+
+// ✅ Use ArrayDeque as a stack — faster, cleaner API
+Deque&lt;Integer&gt; stack2 = new ArrayDeque&lt;&gt;();
+stack2.push(1);   // addFirst
+stack2.pop();     // removeFirst
+stack2.peek();    // peekFirst</code></pre>
+</div>
+</div>
+
+<!-- ==================== 4. MAP IMPLEMENTATIONS ==================== -->
+<div class="section-title" id="sec-map"><span class="icon">&#128506;</span> Map Implementations</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── HashMap ──
+Map&lt;String, Integer&gt; m1 = new HashMap&lt;&gt;();                     // empty, default capacity 16
+Map&lt;String, Integer&gt; m2 = new HashMap&lt;&gt;(64);                   // empty, initial capacity 64
+Map&lt;String, Integer&gt; m3 = new HashMap&lt;&gt;(existingMap);          // copy from any Map
+
+// ── LinkedHashMap ──
+Map&lt;String, Integer&gt; lm1 = new LinkedHashMap&lt;&gt;();              // insertion-order
+Map&lt;String, Integer&gt; lm2 = new LinkedHashMap&lt;&gt;(16, 0.75f, true); // access-order (LRU)
+
+// ── TreeMap ──
+Map&lt;String, Integer&gt; tm1 = new TreeMap&lt;&gt;();                    // natural key ordering
+Map&lt;String, Integer&gt; tm2 = new TreeMap&lt;&gt;(Comparator.reverseOrder()); // custom comparator
+Map&lt;String, Integer&gt; tm3 = new TreeMap&lt;&gt;(existingMap);         // sorted copy
+
+// ── Common patterns ──
+Map&lt;String, Integer&gt; immut  = Map.of("a", 1, "b", 2);         // immutable (Java 9+), no nulls
+Map&lt;String, Integer&gt; immut2 = Map.ofEntries(                   // immutable, &gt;10 entries
+    Map.entry("a", 1), Map.entry("b", 2));
+Map&lt;String, Integer&gt; copy   = Map.copyOf(existingMap);         // immutable copy (Java 10+)
+Map&lt;String, Integer&gt; mut    = new HashMap&lt;&gt;(Map.of("a", 1));   // mutable copy of immutable
+Map&lt;String, Integer&gt; empty  = Collections.emptyMap();          // empty, immutable (prefer Map.of())
+Map&lt;String, Integer&gt; synced = Collections.synchronizedMap(new HashMap&lt;&gt;()); // thread-safe
+Map&lt;String, List&lt;Integer&gt;&gt; grouped = new HashMap&lt;&gt;();          // computeIfAbsent pattern
+grouped.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(42);</code></pre>
+</div>
+</div>
+
+<p class="section-intro">Map is a <b>separate hierarchy</b> (does not extend Collection). Stores key-value pairs with unique keys. Core ops: <code>put</code>, <code>get</code>, <code>remove</code>, <code>containsKey</code>. NavigableMap adds sorted-key operations: <code>firstKey</code>, <code>floorKey</code>, <code>ceilingKey</code>, range views. Iterate via <code>keySet()</code>, <code>values()</code>, or <code>entrySet()</code> views.</p>
+
+<!-- HashMap vs LinkedHashMap vs TreeMap -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">HashMap vs LinkedHashMap vs TreeMap</span>
+  <div class="card-tags"><span class="tag java">Map</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>HashMap</th><th>LinkedHashMap</th><th>TreeMap</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="5">Basic Operations</td></tr>
+<tr><td>Map</td><td><code>V put(K key, V val)</code></td>                  <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>V get(Object key)</code></td>                    <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)<span class="cmt">moves tail if accessOrder</span></td> <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>V getOrDefault(Object key, V def)</code></td>    <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>V remove(Object key)</code></td>                 <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>boolean containsKey(Object key)</code></td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>boolean containsValue(Object val)</code></td>    <td class="tc-n">O(n)<span class="cmt">scans values</span></td>  <td class="tc-n">O(n)<span class="cmt">scans linked list</span></td> <td class="tc-n">O(n)<span class="cmt">full traversal</span></td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>void clear()</code></td>                         <td class="tc-n">O(n)<span class="cmt">nulls table</span></td>  <td class="tc-n">O(n)</td>      <td class="tc-1">O(1)<span class="cmt">new root</span></td></tr>
+<tr class="grp"><td colspan="5">Compute &amp; Merge</td></tr>
+<tr><td>Map</td><td><code>V putIfAbsent(K key, V val)</code></td>          <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>V computeIfAbsent(K key, Function fn)</code></td><td class="tc-1">O(1)<span class="cmt">+ fn cost</span></td> <td class="tc-1">O(1)<span class="cmt">+ fn cost</span></td> <td class="tc-logn">O(log n)<span class="cmt">+ fn cost</span></td></tr>
+<tr><td>Map</td><td><code>V compute(K key, BiFunction fn)</code></td>     <td class="tc-1">O(1)<span class="cmt">+ fn</span></td> <td class="tc-1">O(1)<span class="cmt">+ fn</span></td> <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
+<tr><td>Map</td><td><code>V computeIfPresent(K, BiFunction fn)</code></td><td class="tc-1">O(1)<span class="cmt">+ fn</span></td> <td class="tc-1">O(1)<span class="cmt">+ fn</span></td> <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
+<tr><td>Map</td><td><code>V merge(K key, V val, BiFunction fn)</code></td> <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>V replace(K key, V val)</code></td>             <td class="tc-1">O(1)</td>      <td class="tc-1">O(1)</td>      <td class="tc-logn">O(log n)</td></tr>
+<tr class="grp"><td colspan="5">Views &amp; Iteration</td></tr>
+<tr><td>Map</td><td><code>Set keySet()</code></td>                         <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Map</td><td><code>Collection values()</code></td>                  <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Map</td><td><code>void forEach(BiConsumer action)</code></td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
+<tr><td>Map</td><td><code>Set entrySet().iterator()</code></td>            <td class="tc-n">O(cap)<span class="cmt">capacity</span></td>    <td class="tc-n">O(n)<span class="cmt">linked list</span></td> <td class="tc-n">O(n)<span class="cmt">in-order</span></td></tr>
+<tr class="grp"><td colspan="5">LinkedHashMap-Specific</td></tr>
+<tr><td>LinkedHashMap</td><td><code>boolean removeEldestEntry(Entry)</code></td> <td class="na">--</td> <td class="tc-1">O(1)<span class="cmt">override for LRU</span></td> <td class="na">--</td></tr>
+<tr class="grp"><td colspan="5">Sorted Access (NavigableMap) &mdash; TreeMap only</td></tr>
+<tr><td>NavigableMap</td><td><code>K firstKey()</code></td>                <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableMap</td><td><code>K lastKey()</code></td>                 <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableMap</td><td><code>K floorKey(K key)</code></td>           <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&le; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>K ceilingKey(K key)</code></td>         <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&ge; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>K lowerKey(K key)</code></td>           <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&lt; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>K higherKey(K key)</code></td>          <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">&gt; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>Entry pollFirstEntry()</code></td>      <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableMap</td><td><code>SortedMap subMap(K, K)</code></td>      <td class="na">--</td>          <td class="na">--</td>          <td class="tc-logn">O(log n)<span class="cmt">view; iter O(k)</span></td></tr>
+<tr class="grp"><td colspan="5">Bulk Operations</td></tr>
+<tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="tc-n">O(m)</td>      <td class="tc-n">O(m)</td>      <td class="tc-nlogn">O(m log n)</td></tr>
+</tbody>
+</table>
+<div class="note"><b>HashMap</b> &mdash; hash table, unordered
+<ul><li>Allows one null key and null values</li><li>Default load factor 0.75, buckets treeify at 8 collisions (Java 8+)</li></ul>
+<b>LinkedHashMap</b> &mdash; insertion-order iteration
+<ul><li>accessOrder=true switches to last-access order</li><li>Override removeEldestEntry() to build an LRU cache</li></ul>
+<b>TreeMap</b> &mdash; red-black tree, sorted keys
+<ul><li>Keys must be Comparable or supply a Comparator</li><li>No null keys (throws NPE)</li></ul></div>
+</div>
+</div>
+
+<!-- HashMap vs LinkedHashMap vs TreeMap — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">HashMap allows null key, TreeMap does not</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// HashMap allows one null key and multiple null values
+Map&lt;String, Integer&gt; hm = new HashMap&lt;&gt;();
+hm.put(null, 42);   // OK
+hm.put("a", null);  // OK
+hm.get(null);       // 42
+
+// ❌ TreeMap rejects null keys — needs to compare via compareTo()
+Map&lt;String, Integer&gt; tm = new TreeMap&lt;&gt;();
+tm.put(null, 42);   // NullPointerException!
+
+// LinkedHashMap behaves like HashMap — null key and null values are allowed
+Map&lt;String, Integer&gt; lhm = new LinkedHashMap&lt;&gt;();
+lhm.put(null, 1);   // OK</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">getOrDefault vs computeIfAbsent — subtle difference</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Map&lt;String, List&lt;Integer&gt;&gt; map = new HashMap&lt;&gt;();
+
+// ❌ getOrDefault returns the default but does NOT store it
+map.getOrDefault("key", new ArrayList&lt;&gt;()).add(1);
+map.containsKey("key");  // false — nothing was stored!
+
+// ✅ computeIfAbsent stores the computed value if absent
+map.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(1);
+map.get("key");  // [1] — stored and accessible
+
+// ⚠ computeIfAbsent does NOT replace existing values
+map.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(2);
+map.get("key");  // [1, 2] — appended to existing list</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ConcurrentModificationException on Map iteration</span>
+  <span class="severity bug">Throws CME</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;(Map.of("a", 1, "b", 2, "c", 3));
+
+// ❌ Modifying map while iterating entrySet/keySet/values
+for (String key : map.keySet()) {
+    if (key.equals("b")) map.remove(key);  // ConcurrentModificationException!
+}
+
+// ✅ Use Iterator.remove()
+Iterator&lt;Map.Entry&lt;String, Integer&gt;&gt; it = map.entrySet().iterator();
+while (it.hasNext()) {
+    if (it.next().getKey().equals("b")) it.remove();
+}
+
+// ✅ Or collect keys first, then remove
+map.keySet().removeIf(k -&gt; k.equals("b"));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Map.of() rejects duplicate keys &amp; nulls</span>
+  <span class="severity bug">IllegalArgumentException / NPE</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Duplicate keys throw at creation
+Map.of("a", 1, "a", 2);  // IllegalArgumentException!
+
+// ❌ Null key or value throws NPE
+Map.of(null, 1);    // NullPointerException!
+Map.of("a", null);  // NullPointerException!
+
+// ❌ Map.of() is immutable — any mutation throws
+Map&lt;String, Integer&gt; m = Map.of("a", 1);
+m.put("b", 2);     // UnsupportedOperationException!
+
+// ✅ Mutable copy
+Map&lt;String, Integer&gt; mut = new HashMap&lt;&gt;(Map.of("a", 1));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">keySet/values/entrySet are live views</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;(Map.of("a", 1, "b", 2, "c", 3));
+Set&lt;String&gt; keys = map.keySet();
+
+// ⚠ Removing from the view removes from the map
+keys.remove("b");
+map.containsKey("b");  // false — removed from map too!
+
+// ⚠ Clearing the view clears the map
+keys.clear();
+map.size();  // 0
+
+// ❌ Adding to keySet is not supported
+keys.add("x");  // UnsupportedOperationException!
+
+// ✅ Copy if you need an independent snapshot
+Set&lt;String&gt; snapshot = new HashSet&lt;&gt;(map.keySet());</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">HashMap key mutation — lost entry</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Same problem as mutable Set elements — mutating a key changes its hash
+List&lt;Integer&gt; key = new ArrayList&lt;&gt;(List.of(1, 2));
+Map&lt;List&lt;Integer&gt;, String&gt; map = new HashMap&lt;&gt;();
+map.put(key, "value");
+map.get(key);    // "value"
+
+// ❌ Mutating the key object changes its hashCode
+key.add(3);
+map.get(key);    // null — can't find it in the new hash bucket
+map.size();      // 1 — entry exists but is unreachable
+
+// ✅ Use immutable keys (String, Integer, List.of, record types)
+Map&lt;List&lt;Integer&gt;, String&gt; safe = new HashMap&lt;&gt;();
+safe.put(List.of(1, 2), "value");  // List.of() is immutable</code></pre>
+</div>
+</div>
+
+<!-- ==================== 6. ENUM COLLECTIONS ==================== -->
+<div class="section-title" id="sec-enum"><span class="icon">&#127183;</span> Enum Collections</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }
+
+// ── EnumSet ──
+EnumSet&lt;Day&gt; none     = EnumSet.noneOf(Day.class);           // empty
+EnumSet&lt;Day&gt; all      = EnumSet.allOf(Day.class);            // all constants
+EnumSet&lt;Day&gt; some     = EnumSet.of(Day.MON, Day.WED);        // specific values
+EnumSet&lt;Day&gt; range    = EnumSet.range(Day.MON, Day.FRI);     // MON through FRI
+EnumSet&lt;Day&gt; weekend  = EnumSet.complementOf(EnumSet.range(Day.MON, Day.FRI)); // SAT, SUN
+
+// ── EnumMap ──
+EnumMap&lt;Day, String&gt; em1 = new EnumMap&lt;&gt;(Day.class);          // empty, must pass key class
+EnumMap&lt;Day, String&gt; em2 = new EnumMap&lt;&gt;(existingEnumMap);    // copy from EnumMap
+EnumMap&lt;Day, String&gt; em3 = new EnumMap&lt;&gt;(existingMap);        // copy from any Map</code></pre>
+</div>
+</div>
+
+<p class="section-intro">Specialized implementations for <b>enum-typed keys</b>. EnumSet uses a bit vector (O(1) set ops via bitwise). EnumMap uses a flat array indexed by <code>ordinal()</code>. Both are faster than their general-purpose counterparts.</p>
+
+<!-- EnumSet vs EnumMap -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">EnumSet vs EnumMap</span>
+  <div class="card-tags"><span class="tag java">Enum Only</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>EnumSet</th><th>EnumMap</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">EnumSet &mdash; Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-1">O(1)<span class="cmt">bit set</span></td>          <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-1">O(1)<span class="cmt">bit clear</span></td>        <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-1">O(1)<span class="cmt">bit test</span></td>         <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)<span class="cmt">popcount</span></td>         <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                           <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-1">O(1)<span class="cmt">zero bits</span></td>          <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                           <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                           <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                        <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise AND</span></td>    <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise</span></td>      <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                           <td class="na">--</td></tr>
+<tr class="grp"><td colspan="4">EnumSet &mdash; Factory Methods</td></tr>
+<tr><td>EnumSet</td><td><code>EnumSet noneOf(Class)</code></td>            <td class="tc-1">O(1)<span class="cmt">factory</span></td>           <td class="na">--</td></tr>
+<tr><td>EnumSet</td><td><code>EnumSet allOf(Class)</code></td>             <td class="tc-1">O(1)<span class="cmt">factory</span></td>           <td class="na">--</td></tr>
+<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>             <td class="tc-n">O(n)<span class="cmt">enum count</span></td>       <td class="na">--</td></tr>
+<tr class="grp"><td colspan="4">EnumMap &mdash; Basic Operations</td></tr>
+<tr><td>Map</td><td><code>V put(K key, V val)</code></td>                  <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">array[ordinal]</span></td></tr>
+<tr><td>Map</td><td><code>V get(Object key)</code></td>                    <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">array[ordinal]</span></td></tr>
+<tr><td>Map</td><td><code>V remove(Object key)</code></td>                 <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>boolean containsKey(Object)</code></td>          <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>boolean containsValue(Object)</code></td>        <td class="na">--</td>   <td class="tc-n">O(n)<span class="cmt">scans array</span></td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>void clear()</code></td>                         <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">nulls array</span></td></tr>
+<tr class="grp"><td colspan="4">EnumMap &mdash; Views &amp; Bulk</td></tr>
+<tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="na">--</td>   <td class="tc-n">O(m)</td></tr>
+<tr><td>Map</td><td><code>Set keySet()</code></td>                         <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Map</td><td><code>Collection values()</code></td>                  <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Map</td><td><code>void forEach(BiConsumer action)</code></td>      <td class="na">--</td>   <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+<div class="note"><b>EnumSet</b> &mdash; backed by bit vector (single long &le;64 enums, or long[])
+<ul><li>Fastest Set implementation &mdash; all core ops are bitwise</li><li>Always use for enum flags instead of HashSet</li></ul>
+<b>EnumMap</b> &mdash; flat array indexed by enum ordinal
+<ul><li>Fastest Map implementation for enum keys</li><li>Iterates in natural enum declaration order</li></ul></div>
+</div>
+</div>
+
+<!-- EnumSet vs EnumMap — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">EnumSet.of() argument trap — wrong overload</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }
+
+// EnumSet.of() has overloads: of(E), of(E,E), of(E,E,E), of(E,E,E,E), of(E,E,E,E,E)
+// and a varargs: of(E first, E... rest)
+
+// ⚠ With a single element, ensure you call of(E), not noneOf + add
+EnumSet&lt;Day&gt; single = EnumSet.of(Day.MON);  // correct
+
+// ❌ allOf() then remove is wasteful for small sets
+EnumSet&lt;Day&gt; weekend = EnumSet.allOf(Day.class);
+weekend.removeAll(EnumSet.range(Day.MON, Day.FRI));
+
+// ✅ Use complementOf() instead
+EnumSet&lt;Day&gt; weekend2 = EnumSet.complementOf(EnumSet.range(Day.MON, Day.FRI));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">EnumSet does not allow null</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">EnumSet&lt;Day&gt; set = EnumSet.noneOf(Day.class);
+
+// ❌ Null is not a valid enum constant
+set.add(null);       // NullPointerException!
+set.contains(null);  // NullPointerException!
+
+// ✅ All enum-based collections reject null
+EnumMap&lt;Day, String&gt; map = new EnumMap&lt;&gt;(Day.class);
+map.put(null, "x");  // NullPointerException!
+// But null VALUES are allowed in EnumMap
+map.put(Day.MON, null);  // OK</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ordinal() is fragile — avoid in logic</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">enum Status { PENDING, ACTIVE, CLOSED }
+
+// ❌ ordinal() changes if enum constants are reordered or added
+int idx = Status.ACTIVE.ordinal();  // 1 — fragile!
+
+// If someone adds NEW_STATUS before ACTIVE, ordinal shifts
+// EnumMap/EnumSet use ordinal() internally, but that's fine —
+// the concern is YOUR code using ordinal() for persistence or logic
+
+// ❌ Don't use ordinal for serialization or database storage
+db.store(status.ordinal());  // breaks if enum changes
+
+// ✅ Use name() or a dedicated field
+db.store(status.name());  // stable across reordering
+
+// ✅ Or add an explicit code field
+enum Status2 {
+    PENDING(0), ACTIVE(1), CLOSED(2);
+    final int code;
+    Status2(int code) { this.code = code; }
+}</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">EnumMap requires explicit Class parameter</span>
+  <span class="severity bug">Compilation Error</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Unlike HashMap, empty EnumMap needs the key class at construction
+EnumMap&lt;Day, String&gt; map = new EnumMap&lt;&gt;();  // won't compile!
+
+// ✅ Must pass the enum class
+EnumMap&lt;Day, String&gt; map2 = new EnumMap&lt;&gt;(Day.class);
+
+// ✅ Or copy from an existing map (infers the type)
+EnumMap&lt;Day, String&gt; copy = new EnumMap&lt;&gt;(existingEnumMap);
+
+// ⚠ Copying from a regular HashMap — must contain at least one entry
+Map&lt;Day, String&gt; hm = new HashMap&lt;&gt;();
+EnumMap&lt;Day, String&gt; fromHm = new EnumMap&lt;&gt;(hm);  // IllegalArgumentException if empty!</code></pre>
+</div>
+</div>
+
+<!-- ==================== 7. CONCURRENT COLLECTIONS ==================== -->
+<div class="section-title" id="sec-concurrent"><span class="icon">&#9889;</span> Concurrent Collections</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ── CopyOnWriteArrayList ──
+List&lt;String&gt; cow = new CopyOnWriteArrayList&lt;&gt;();             // empty
+List&lt;String&gt; cow2 = new CopyOnWriteArrayList&lt;&gt;(existingCollection);
+
+// ── ConcurrentHashMap ──
+ConcurrentMap&lt;String, Integer&gt; chm = new ConcurrentHashMap&lt;&gt;();            // default
+ConcurrentMap&lt;String, Integer&gt; chm2 = new ConcurrentHashMap&lt;&gt;(64);         // initial capacity
+ConcurrentMap&lt;String, Integer&gt; chm3 = new ConcurrentHashMap&lt;&gt;(existingMap);
+
+// ── ConcurrentSkipListMap / ConcurrentSkipListSet ──
+ConcurrentNavigableMap&lt;String, Integer&gt; csm = new ConcurrentSkipListMap&lt;&gt;();
+ConcurrentSkipListSet&lt;String&gt; css = new ConcurrentSkipListSet&lt;&gt;();
+ConcurrentSkipListSet&lt;String&gt; css2 = new ConcurrentSkipListSet&lt;&gt;(Comparator.reverseOrder());
+
+// ── ConcurrentLinkedQueue / ConcurrentLinkedDeque ──
+Queue&lt;String&gt; clq = new ConcurrentLinkedQueue&lt;&gt;();           // lock-free FIFO
+Deque&lt;String&gt; cld = new ConcurrentLinkedDeque&lt;&gt;();           // lock-free double-ended
+
+// ── Blocking Queues ──
+BlockingQueue&lt;String&gt; abq = new ArrayBlockingQueue&lt;&gt;(100);   // fixed capacity, required
+BlockingQueue&lt;String&gt; abq2 = new ArrayBlockingQueue&lt;&gt;(100, true); // fair=true
+BlockingQueue&lt;String&gt; lbq = new LinkedBlockingQueue&lt;&gt;();     // unbounded (Integer.MAX_VALUE)
+BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // bounded</code></pre>
+</div>
+</div>
+
+<p class="section-intro">Thread-safe implementations. <b>Lock-free</b> (CAS-based): ConcurrentLinkedQueue, ConcurrentLinkedDeque, ConcurrentSkipList*. <b>Bucket-locking</b>: ConcurrentHashMap. <b>Blocking</b> (put/take wait): ArrayBlockingQueue, LinkedBlockingQueue. <b>Copy-on-write</b>: CopyOnWriteArrayList (reads lock-free, writes copy the array).</p>
+
+<!-- CopyOnWriteArrayList (standalone - no comparable concurrent List) -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">CopyOnWriteArrayList&lt;E&gt;</span>
+  <div class="card-tags"><span class="tag java">Concurrent List</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>CopyOnWriteArrayList</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-n">O(n)<span class="cmt">copies entire array</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">copies entire array</span></td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)<span class="cmt">lock-free scan</span></td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">copies empty</span></td></tr>
+<tr class="grp"><td colspan="3">Positional Access (List)</td></tr>
+<tr><td>List</td><td><code>E get(int index)</code></td>                    <td class="tc-1">O(1)<span class="cmt">lock-free read</span></td></tr>
+<tr><td>List</td><td><code>E set(int index, E e)</code></td>               <td class="tc-n">O(n)<span class="cmt">copies entire array</span></td></tr>
+<tr><td>List</td><td><code>E remove(int index)</code></td>                 <td class="tc-n">O(n)<span class="cmt">copies entire array</span></td></tr>
+<tr class="grp"><td colspan="3">CopyOnWriteArrayList-Specific</td></tr>
+<tr><td>COWArrayList</td><td><code>boolean addIfAbsent(E e)</code></td>    <td class="tc-n">O(n)<span class="cmt">scan + copy</span></td></tr>
+<tr class="grp"><td colspan="3">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(n+m)<span class="cmt">copy</span></td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)<span class="cmt">copy</span></td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)<span class="cmt">copy</span></td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td></tr>
+<tr class="grp"><td colspan="3">Conversion &amp; Traversal</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>             <td class="tc-1">O(1)<span class="cmt">snapshot; never throws CME</span></td></tr>
+<tr class="grp"><td colspan="3">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)<span class="cmt">copy</span></td></tr>
+</tbody>
+</table>
+<div class="note"><b>CopyOnWriteArrayList</b> &mdash; thread-safe via copy-on-write
+<ul><li>Reads are lock-free, writes copy the entire backing array</li><li>Best for read-heavy, write-rare scenarios (e.g. listener lists)</li><li>Iterator is a snapshot at creation time &mdash; never throws ConcurrentModificationException</li></ul></div>
+</div>
+</div>
+
+<!-- ConcurrentHashMap vs ConcurrentSkipListMap -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ConcurrentHashMap vs ConcurrentSkipListMap</span>
+  <div class="card-tags"><span class="tag java">Concurrent Map</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>ConcurrentHashMap</th><th>ConcurrentSkipListMap</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Basic Operations</td></tr>
+<tr><td>Map</td><td><code>V put(K key, V val)</code></td>                  <td class="tc-1">O(1)<span class="cmt">bucket lock</span></td>      <td class="tc-logn">O(log n)<span class="cmt">lock-free CAS</span></td></tr>
+<tr><td>Map</td><td><code>V get(Object key)</code></td>                    <td class="tc-1">O(1)<span class="cmt">lock-free</span></td>         <td class="tc-logn">O(log n)<span class="cmt">lock-free</span></td></tr>
+<tr><td>Map</td><td><code>V remove(Object key)</code></td>                 <td class="tc-1">O(1)</td>                                           <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Map</td><td><code>boolean containsKey(Object)</code></td>          <td class="tc-1">O(1)</td>                                           <td class="tc-logn">O(log n)</td></tr>
+<tr class="grp"><td colspan="4">Atomic Compute &amp; Merge</td></tr>
+<tr><td>ConcurrentMap</td><td><code>V putIfAbsent(K, V)</code></td>        <td class="tc-1">O(1)<span class="cmt">atomic</span></td>            <td class="tc-logn">O(log n)<span class="cmt">atomic</span></td></tr>
+<tr><td>ConcurrentMap</td><td><code>V computeIfAbsent(K, fn)</code></td>   <td class="tc-1">O(1)<span class="cmt">atomic; + fn</span></td>     <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
+<tr><td>ConcurrentMap</td><td><code>V merge(K, V, fn)</code></td>          <td class="tc-1">O(1)<span class="cmt">atomic</span></td>            <td class="tc-logn">O(log n)</td></tr>
+<tr class="grp"><td colspan="4">Size &amp; Metadata</td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-n">O(n)<span class="cmt">use mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Map</td><td><code>void clear()</code></td>                         <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="tc-n">O(m)</td>                                           <td class="tc-nlogn">O(m log n)</td></tr>
+<tr><td>Map</td><td><code>V replace(K key, V val)</code></td>             <td class="tc-1">O(1)</td>                                           <td class="tc-logn">O(log n)</td></tr>
+<tr class="grp"><td colspan="4">Views &amp; Iteration</td></tr>
+<tr><td>Map</td><td><code>Set keySet()</code></td>                         <td class="tc-1">O(1)<span class="cmt">view</span></td>              <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Map</td><td><code>void forEach(BiConsumer action)</code></td>      <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="4">ConcurrentHashMap-Specific</td></tr>
+<tr><td>CHM</td><td><code>long mappingCount()</code></td>                  <td class="tc-1">O(1)</td>                                           <td class="na">--</td></tr>
+<tr class="grp"><td colspan="4">Sorted Access (NavigableMap) &mdash; SkipListMap only</td></tr>
+<tr><td>NavigableMap</td><td><code>K firstKey()</code></td>                <td class="na">--</td>                                               <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableMap</td><td><code>K lastKey()</code></td>                 <td class="na">--</td>                                               <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableMap</td><td><code>K floorKey(K key)</code></td>           <td class="na">--</td>                                               <td class="tc-logn">O(log n)<span class="cmt">&le; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>K ceilingKey(K key)</code></td>         <td class="na">--</td>                                               <td class="tc-logn">O(log n)<span class="cmt">&ge; key</span></td></tr>
+<tr><td>NavigableMap</td><td><code>SortedMap subMap(K, K)</code></td>      <td class="na">--</td>                                               <td class="tc-logn">O(log n)<span class="cmt">view; iter O(k)</span></td></tr>
+</tbody>
+</table>
+<div class="note"><b>ConcurrentHashMap</b> &mdash; hash table with bucket-level locking
+<ul><li>No null keys or values</li><li>Reads lock-free (volatile), writes lock only affected bucket</li><li>Use compute*/merge for atomic read-modify-write patterns</li></ul>
+<b>ConcurrentSkipListMap</b> &mdash; skip list, sorted keys
+<ul><li>Lock-free reads and writes via CAS</li><li>O(log n) expected for all ops, sorted key iteration</li><li>Use instead of synchronized TreeMap</li></ul></div>
+</div>
+</div>
+
+<!-- ConcurrentLinkedQueue vs ConcurrentLinkedDeque -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ConcurrentLinkedQueue vs ConcurrentLinkedDeque</span>
+  <div class="card-tags"><span class="tag java">Lock-Free</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>ConcurrentLinkedQueue</th><th>ConcurrentLinkedDeque</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Queue Operations</td></tr>
+<tr><td>Queue</td><td><code>boolean offer(E e)</code></td>                 <td class="tc-1">O(1)<span class="cmt">CAS</span></td>             <td class="tc-1">O(1)<span class="cmt">= offerLast</span></td></tr>
+<tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)</td>                                          <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
+<tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-1">O(1)</td>                                          <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
+<tr class="grp"><td colspan="4">Double-Ended (Deque) &mdash; ConcurrentLinkedDeque only</td></tr>
+<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
+<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
+<tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-n">O(n)<span class="cmt">use isEmpty()</span></td>    <td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>             <td class="tc-1">O(1)</td>                                          <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                          <td class="tc-n">O(m)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                       <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                   <td class="tc-n">O(n*m)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">weakly consistent</span></td><td class="tc-1">O(1)<span class="cmt">weakly consistent</span></td></tr>
+</tbody>
+</table>
+<div class="note"><b>ConcurrentLinkedQueue</b> &mdash; lock-free FIFO queue via CAS
+<ul><li>No null elements</li><li>size() is O(n) traversal &mdash; prefer isEmpty()</li></ul>
+<b>ConcurrentLinkedDeque</b> &mdash; lock-free double-ended queue via CAS
+<ul><li>No null elements</li><li>Access from both ends concurrently</li></ul></div>
+</div>
+</div>
+
+<!-- ArrayBlockingQueue vs LinkedBlockingQueue -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ArrayBlockingQueue vs LinkedBlockingQueue</span>
+  <div class="card-tags"><span class="tag java">Blocking Queue</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>ArrayBlockingQueue</th><th>LinkedBlockingQueue</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Blocking Operations</td></tr>
+<tr><td>BlockingQueue</td><td><code>void put(E e)</code></td>              <td class="tc-1">O(1)<span class="cmt">blocks if full</span></td>       <td class="tc-1">O(1)<span class="cmt">blocks if full</span></td></tr>
+<tr><td>BlockingQueue</td><td><code>E take()</code></td>                   <td class="tc-1">O(1)<span class="cmt">blocks if empty</span></td>      <td class="tc-1">O(1)<span class="cmt">blocks if empty</span></td></tr>
+<tr class="grp"><td colspan="4">Queue Operations</td></tr>
+<tr><td>Queue</td><td><code>boolean offer(E e)</code></td>                 <td class="tc-1">O(1)<span class="cmt">false if full</span></td>        <td class="tc-1">O(1)<span class="cmt">false if full</span></td></tr>
+<tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-1">O(1)</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)<span class="cmt">under lock</span></td>           <td class="tc-n">O(n)<span class="cmt">under locks</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">under lock</span></td>           <td class="tc-n">O(n)<span class="cmt">under locks</span></td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>                                              <td class="tc-1">O(1)<span class="cmt">atomic counter</span></td></tr>
+<tr class="grp"><td colspan="4">Capacity</td></tr>
+<tr><td>BlockingQueue</td><td><code>int remainingCapacity()</code></td>    <td class="tc-1">O(1)</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>BlockingQueue</td><td><code>int drainTo(Collection c)</code></td>  <td class="tc-n">O(n)<span class="cmt">bulk transfer</span></td>       <td class="tc-n">O(n)<span class="cmt">bulk transfer</span></td></tr>
+<tr class="grp"><td colspan="4">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">under lock</span></td>           <td class="tc-n">O(n)<span class="cmt">under locks</span></td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)<span class="cmt">under lock</span></td>           <td class="tc-n">O(n)<span class="cmt">under locks</span></td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                              <td class="tc-n">O(m)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                       <td class="tc-n">O(n*m)</td></tr>
+<tr class="grp"><td colspan="4">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                              <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">weakly consistent</span></td>   <td class="tc-1">O(1)<span class="cmt">weakly consistent</span></td></tr>
+</tbody>
+</table>
+<div class="note"><b>ArrayBlockingQueue</b> &mdash; fixed-capacity circular array
+<ul><li>Single ReentrantLock for both ends</li><li>fair=true grants FIFO access to waiting threads (at throughput cost)</li></ul>
+<b>LinkedBlockingQueue</b> &mdash; linked nodes, optionally bounded
+<ul><li>Separate locks for head and tail &mdash; higher throughput</li><li>Default capacity Integer.MAX_VALUE (effectively unbounded)</li></ul></div>
+</div>
+</div>
+
+<!-- ConcurrentSkipListSet (standalone - no comparable concurrent Set) -->
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ConcurrentSkipListSet&lt;E&gt;</span>
+  <div class="card-tags"><span class="tag java">Concurrent Sorted Set</span></div>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>From</th><th>Method</th><th>ConcurrentSkipListSet</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-logn">O(log n)<span class="cmt">lock-free CAS</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-logn">O(log n)<span class="cmt">lock-free read</span></td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-nlogn">O(m log n)</td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-nlogn">O(m log n)</td></tr>
+<tr class="grp"><td colspan="3">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Conversion &amp; Traversal</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">weakly consistent</span></td></tr>
+<tr class="grp"><td colspan="3">Sorted Access (NavigableSet)</td></tr>
+<tr><td>NavigableSet</td><td><code>E first()</code></td>                   <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>E last()</code></td>                    <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>E floor(E e)</code></td>                <td class="tc-logn">O(log n)<span class="cmt">&le; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E ceiling(E e)</code></td>              <td class="tc-logn">O(log n)<span class="cmt">&ge; e</span></td></tr>
+<tr><td>NavigableSet</td><td><code>E pollFirst()</code></td>               <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>E pollLast()</code></td>                <td class="tc-logn">O(log n)</td></tr>
+<tr><td>NavigableSet</td><td><code>SortedSet subSet(E, E)</code></td>      <td class="tc-logn">O(log n)<span class="cmt">view; iter O(k)</span></td></tr>
+</tbody>
+</table>
+<div class="note"><b>ConcurrentSkipListSet</b> &mdash; backed by ConcurrentSkipListMap
+<ul><li>Lock-free reads and writes, O(log n) expected</li><li>Sorted iteration, thread-safe alternative to synchronized TreeSet</li></ul></div>
+</div>
+</div>
+
+<!-- Concurrent Collections — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ConcurrentHashMap rejects null keys and values</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Unlike HashMap, ConcurrentHashMap does not allow null
+ConcurrentMap&lt;String, Integer&gt; chm = new ConcurrentHashMap&lt;&gt;();
+chm.put(null, 1);    // NullPointerException!
+chm.put("a", null);  // NullPointerException!
+
+// Why? null is ambiguous in concurrent context:
+// get(key) returning null could mean "not found" or "value is null"
+
+// ✅ Use a sentinel value instead of null
+private static final Integer ABSENT = Integer.MIN_VALUE;
+chm.put("a", ABSENT);
+
+// ⚠ Same restriction for ConcurrentSkipListMap, ConcurrentLinkedQueue, etc.</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ConcurrentHashMap size() is approximate</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">ConcurrentMap&lt;String, Integer&gt; chm = new ConcurrentHashMap&lt;&gt;();
+
+// ⚠ size() returns int — can overflow for maps with &gt; Integer.MAX_VALUE entries
+chm.size();  // may return Integer.MAX_VALUE for huge maps
+
+// ✅ Use mappingCount() — returns long, more accurate
+long count = ((ConcurrentHashMap&lt;String, Integer&gt;) chm).mappingCount();
+
+// ⚠ Both are still estimates in concurrent environment
+// Another thread may add/remove entries between your check and action
+
+// ❌ Classic check-then-act race
+if (!chm.containsKey("k")) {
+    chm.put("k", 1);  // another thread may have inserted between check and put
+}
+
+// ✅ Use atomic operations instead
+chm.putIfAbsent("k", 1);
+chm.computeIfAbsent("k", k -&gt; expensiveCompute());</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Collections.synchronizedList — iterator not synchronized</span>
+  <span class="severity bug">ConcurrentModificationException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;String&gt; syncList = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+// Individual operations are thread-safe
+syncList.add("a");  // OK
+syncList.get(0);    // OK
+
+// ❌ But iteration is NOT automatically synchronized
+for (String s : syncList) {  // may throw ConcurrentModificationException!
+    process(s);
+}
+
+// ✅ Must manually synchronize on the list during iteration
+synchronized (syncList) {
+    for (String s : syncList) {
+        process(s);
+    }
+}
+
+// ✅ Or use CopyOnWriteArrayList for read-heavy workloads
+List&lt;String&gt; cowList = new CopyOnWriteArrayList&lt;&gt;();
+for (String s : cowList) { process(s); }  // snapshot — always safe</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">CopyOnWriteArrayList — write cost trap</span>
+  <span class="severity subtle">Performance</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">List&lt;String&gt; cow = new CopyOnWriteArrayList&lt;&gt;();
+
+// ⚠ Every write copies the ENTIRE backing array
+// Adding n elements one-by-one is O(n²)
+for (int i = 0; i &lt; 10_000; i++) {
+    cow.add("item" + i);  // each add copies the whole array!
+}
+
+// ✅ Use addAll() for bulk inserts — single copy
+cow.addAll(largeCollection);
+
+// ✅ Or build with a regular list first, then convert
+List&lt;String&gt; temp = new ArrayList&lt;&gt;();
+for (int i = 0; i &lt; 10_000; i++) temp.add("item" + i);
+cow = new CopyOnWriteArrayList&lt;&gt;(temp);
+
+// Best for: listener lists, config snapshots — read-heavy, write-rare</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">BlockingQueue — put/take block indefinitely</span>
+  <span class="severity subtle">Hangs Forever</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">BlockingQueue&lt;String&gt; bq = new ArrayBlockingQueue&lt;&gt;(1);
+bq.put("a");
+
+// ❌ Queue is full — put() blocks the calling thread forever
+bq.put("b");  // HANGS — waiting for space
+
+// ✅ Use offer() with timeout instead
+boolean added = bq.offer("b", 5, TimeUnit.SECONDS);  // waits up to 5s
+
+// ❌ take() on empty queue blocks forever too
+BlockingQueue&lt;String&gt; empty = new ArrayBlockingQueue&lt;&gt;(10);
+empty.take();  // HANGS — waiting for an element
+
+// ✅ Use poll() with timeout
+String item = empty.poll(5, TimeUnit.SECONDS);  // null after 5s</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">ConcurrentLinkedQueue size() is O(n)</span>
+  <span class="severity subtle">Performance</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Queue&lt;String&gt; clq = new ConcurrentLinkedQueue&lt;&gt;();
+
+// ❌ size() traverses the entire linked list — O(n)!
+if (clq.size() == 0) { ... }  // slow for large queues
+for (int i = 0; i &lt; clq.size(); i++) { ... }  // O(n) per call!
+
+// ✅ Use isEmpty() — O(1) fast check
+if (clq.isEmpty()) { ... }
+
+// ⚠ Same applies to ConcurrentLinkedDeque
+// Both are lock-free but don't maintain a count for concurrency reasons</code></pre>
+</div>
+</div>
+
+<!-- ==================== 8. UTILITY CLASSES ==================== -->
+<div class="section-title" id="sec-utilities"><span class="icon">&#128295;</span> Utility Methods</div>
+
+<!-- Collections -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Collections</span>
+  <div class="card-tags"><span class="tag java">Static Utility</span></div>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Sorting &amp; Ordering
+void     sort(List&lt;T&gt; list)
+void     sort(List&lt;T&gt; list, Comparator&lt;? super T&gt; c)
+void     reverse(List&lt;?&gt; list)
+void     shuffle(List&lt;?&gt; list)
+void     swap(List&lt;?&gt; list, int i, int j)
+
+// Searching
+int      binarySearch(List&lt;? extends Comparable&lt;? super T&gt;&gt; list, T key)
+T        min(Collection&lt;? extends T&gt; coll)
+T        max(Collection&lt;? extends T&gt; coll)
+int      frequency(Collection&lt;?&gt; c, Object o)
+boolean  disjoint(Collection&lt;?&gt; c1, Collection&lt;?&gt; c2)</code></pre>
+</div>
+</div>
+
+</div><!-- end cards-grid -->
