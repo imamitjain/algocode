@@ -541,8 +541,8 @@ Math.floorMod(-1, 5);  // 4 ✓</code></pre>
 </div>
 </div>
 
-<!-- ==================== WHY Object NOT E ==================== -->
-<div class="section-title" id="sec-why-object"><span class="icon">&#128269;</span> Gotchas: Object params, Primitives &amp; Autoboxing</div>
+<!-- ==================== COMMON GOTCHAS ==================== -->
+<div class="section-title" id="sec-why-object"><span class="icon">&#128269;</span> Common Gotchas</div>
 
 <div class="card" style="grid-column:1/-1">
 <div class="card-body">
@@ -572,6 +572,37 @@ a == b;                                // true  — cached, same object
 Integer x = 128, y = 128;
 x == y;                                // false — different objects!
 x.equals(y);                           // true  — always use .equals()</code></pre>
+
+<div class="note"><b>LinkedList: List + Queue + Deque &mdash; triple <code>remove()</code> overload</b>
+<ul><li><code>remove()</code> (Queue) removes <b>head</b></li><li><code>remove(Object)</code> (Collection) removes by <b>value</b></li><li><code>remove(int)</code> (List) removes by <b>index</b></li></ul>
+Declare as the narrowest type you need (<code>Queue</code> or <code>Deque</code>) to avoid overload surprises.</div>
+<pre><code class="language-java">// All three overloads visible on concrete LinkedList type
+LinkedList&lt;Integer&gt; ll = new LinkedList&lt;&gt;(List.of(10, 20, 30));
+ll.remove();                     // Queue.remove()   — removes head (10)
+ll.remove(Integer.valueOf(30));  // Collection.remove(Object) — removes value 30
+ll.remove(0);                    // List.remove(int)  — removes at index 0
+
+// ✅ Narrow the type to limit which overloads are visible
+Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();  // only Queue + Collection methods
+Deque&lt;Integer&gt; d = new LinkedList&lt;&gt;();  // only Deque + Queue + Collection methods</code></pre>
+
+<div class="note"><b>TreeSet / TreeMap: <code>equals()</code> vs <code>compareTo()</code> disagreement</b>
+<ul><li>TreeSet/TreeMap use <code>compareTo()</code> (or the Comparator) for <b>all</b> operations: <code>add</code>, <code>contains</code>, <code>remove</code>, and dedup</li><li>If <code>compareTo()</code> returns 0 but <code>equals()</code> returns false, TreeSet treats them as duplicates even though they aren&rsquo;t &ldquo;equal&rdquo;</li><li>HashSet uses <code>equals()</code> + <code>hashCode()</code> &mdash; same objects may behave differently in a TreeSet vs HashSet</li></ul></div>
+<pre><code class="language-java">// Case-insensitive comparator: "A" and "a" compare as 0
+TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);
+ts.add("A");
+ts.add("a");
+ts.size();          // 1 — "a" treated as duplicate of "A" by compareTo
+ts.contains("a");   // true — compareTo matches
+
+// But equals() disagrees:
+"A".equals("a");    // false!
+
+// ⚠ Same objects in a HashSet — different result
+HashSet&lt;String&gt; hs = new HashSet&lt;&gt;();
+hs.add("A");
+hs.add("a");
+hs.size();          // 2 — "A" and "a" are NOT equal by equals()</code></pre>
 </div>
 </div>
 
@@ -1067,6 +1098,11 @@ Deque&lt;String&gt; dq1 = new ArrayDeque&lt;&gt;();                   // empty, 
 Deque&lt;String&gt; dq2 = new ArrayDeque&lt;&gt;(64);                 // empty, initial capacity 64
 Deque&lt;String&gt; dq3 = new ArrayDeque&lt;&gt;(existingCollection); // copy from any Collection
 
+// ── LinkedList (as Queue / Deque) ──
+Queue&lt;String&gt; lq1 = new LinkedList&lt;&gt;();                    // empty queue
+Deque&lt;String&gt; ld1 = new LinkedList&lt;&gt;();                    // empty deque
+Deque&lt;String&gt; ld2 = new LinkedList&lt;&gt;(existingCollection);  // copy from any Collection
+
 // ── Common patterns ──
 // Use ArrayDeque as a Stack (faster than java.util.Stack)
 Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();   // push(), pop(), peek()
@@ -1077,56 +1113,58 @@ Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();   // offer(), poll(), pee
 
 <p class="section-intro">Queue extends Collection with <b>FIFO ordering</b>. Two API styles: <code>offer</code>/<code>peek</code>/<code>poll</code> return <b>null or false</b> on failure; <code>add</code>/<code>element</code>/<code>remove</code> throw <b>IllegalStateException / NoSuchElementException</b>. Deque extends Queue with <b>double-ended access</b>: <code>offerFirst/Last</code>, <code>peekFirst/Last</code>, <code>pollFirst/Last</code>, plus <code>push</code>/<code>pop</code> for stack usage.</p>
 
-<!-- PriorityQueue vs ArrayDeque -->
+<!-- PriorityQueue vs ArrayDeque vs LinkedList -->
 <div class="card" style="grid-column:1/-1">
 <div class="card-header">
-  <span class="card-title">PriorityQueue vs ArrayDeque</span>
-  <div class="card-tags"><span class="tag java">Queue</span><span class="tag java">Deque</span></div>
+  <span class="card-title">PriorityQueue vs ArrayDeque vs LinkedList</span>
+  <div class="card-tags"><span class="tag java">Queue</span><span class="tag java">Deque</span><span class="tag java">LinkedList</span></div>
 </div>
 <div class="card-body">
 <table class="ctable ctable-cmp">
-<thead><tr><th>From</th><th>Method</th><th>PriorityQueue</th><th>ArrayDeque</th></tr></thead>
+<thead><tr><th>From</th><th>Method</th><th>PriorityQueue</th><th>ArrayDeque</th><th>LinkedList</th></tr></thead>
 <tbody>
-<tr class="grp"><td colspan="4">Basic Operations</td></tr>
-<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>  <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
-<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">scan + sift</span></td>     <td class="tc-n">O(n)<span class="cmt">scan</span></td></tr>
-<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td></tr>
-<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
-<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
-<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">nulls array</span></td>       <td class="tc-n">O(n)<span class="cmt">nulls array</span></td></tr>
-<tr class="grp"><td colspan="4">Queue Operations</td></tr>
-<tr><td>Queue</td><td><code>boolean offer(E e)</code></td>                 <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>   <td class="tc-1">O(1)*<span class="cmt">= offerLast</span></td></tr>
-<tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)<span class="cmt">min element</span></td>      <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
-<tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-logn">O(log n)<span class="cmt">sift down</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
-<tr class="grp"><td colspan="4">Double-Ended (Deque) &mdash; ArrayDeque only</td></tr>
-<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
-<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
-<tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
-<tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
-<tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
-<tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
-<tr><td>Deque</td><td><code>void push(E e)</code></td>                     <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">= addFirst</span></td></tr>
-<tr><td>Deque</td><td><code>E pop()</code></td>                            <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">= removeFirst</span></td></tr>
-<tr class="grp"><td colspan="4">Bulk Operations</td></tr>
-<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-nlogn">O(m log n)<span class="cmt">sift each</span></td> <td class="tc-n">O(m)</td></tr>
-<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td></tr>
-<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td></tr>
-<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                    <td class="tc-n">O(n*m)</td></tr>
-<tr class="grp"><td colspan="4">Conversion &amp; Traversal</td></tr>
-<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
-<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">not sorted!</span></td>       <td class="tc-1">O(1)</td></tr>
-<tr class="grp"><td colspan="4">Advanced</td></tr>
-<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="5">Basic Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean add(E e)</code></td>              <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>  <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)<span class="cmt">append tail</span></td></tr>
+<tr><td>Collection</td><td><code>boolean remove(Object o)</code></td>      <td class="tc-n">O(n)<span class="cmt">scan + sift</span></td>     <td class="tc-n">O(n)<span class="cmt">scan</span></td>         <td class="tc-n">O(n)<span class="cmt">scan</span></td></tr>
+<tr><td>Collection</td><td><code>boolean contains(Object o)</code></td>    <td class="tc-n">O(n)</td>                                          <td class="tc-n">O(n)</td>                                      <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>int size()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>boolean isEmpty()</code></td>            <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Collection</td><td><code>void clear()</code></td>                 <td class="tc-n">O(n)<span class="cmt">nulls array</span></td>       <td class="tc-n">O(n)<span class="cmt">nulls array</span></td>  <td class="tc-n">O(n)<span class="cmt">unlinks all</span></td></tr>
+<tr class="grp"><td colspan="5">Queue Operations</td></tr>
+<tr><td>Queue</td><td><code>boolean offer(E e)</code></td>                 <td class="tc-logn">O(log n)<span class="cmt">sift up</span></td>   <td class="tc-1">O(1)*<span class="cmt">= offerLast</span></td> <td class="tc-1">O(1)<span class="cmt">= offerLast</span></td></tr>
+<tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)<span class="cmt">min element</span></td>      <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
+<tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-logn">O(log n)<span class="cmt">sift down</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
+<tr class="grp"><td colspan="5">Double-Ended (Deque) &mdash; ArrayDeque &amp; LinkedList</td></tr>
+<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>void push(E e)</code></td>                     <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">= addFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= addFirst</span></td></tr>
+<tr><td>Deque</td><td><code>E pop()</code></td>                            <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">= removeFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= removeFirst</span></td></tr>
+<tr class="grp"><td colspan="5">Bulk Operations</td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-nlogn">O(m log n)<span class="cmt">sift each</span></td> <td class="tc-n">O(m)</td>                                   <td class="tc-n">O(m)<span class="cmt">append each</span></td></tr>
+<tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td>                                      <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                        <td class="tc-n">O(n)</td>                                      <td class="tc-n">O(n)</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                    <td class="tc-n">O(n*m)</td>                                    <td class="tc-n">O(n*m)</td></tr>
+<tr class="grp"><td colspan="5">Conversion &amp; Traversal</td></tr>
+<tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td>                                      <td class="tc-n">O(n)</td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">not sorted!</span></td>       <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="5">Advanced</td></tr>
+<tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td>                                      <td class="tc-n">O(n)</td></tr>
 </tbody>
 </table>
 <div class="note"><b>PriorityQueue</b> &mdash; min-heap by default
 <ul><li>Pass Comparator.reverseOrder() for max-heap</li><li>iterator() does NOT return sorted order &mdash; use poll() loop</li></ul>
 <b>ArrayDeque</b> &mdash; resizable circular array
-<ul><li>Faster than Stack as a stack, faster than LinkedList as a queue</li><li>No null elements</li></ul></div>
+<ul><li>Faster than Stack as a stack, faster than LinkedList as a queue</li><li>No null elements</li></ul>
+<b>LinkedList</b> &mdash; doubly-linked list, implements List + Deque
+<ul><li>O(1) head/tail ops but higher per-element overhead (node objects, cache misses)</li><li>Only Queue/Deque impl that allows null elements</li></ul></div>
 </div>
 </div>
 
-<!-- PriorityQueue vs ArrayDeque — Edge Cases -->
+<!-- PriorityQueue vs ArrayDeque vs LinkedList — Edge Cases -->
 <div class="card">
 <div class="card-header">
   <span class="card-title">PriorityQueue iterator is NOT sorted</span>
@@ -1220,6 +1258,54 @@ pq.remove(new int[]{1, 2});  // false! — arrays use identity equals
 pq.remove(item);  // true — same reference
 
 // ✅ For custom objects, ensure equals() is consistent with the comparator</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LinkedList as Queue/Deque — prefer ArrayDeque</span>
+  <span class="severity tip">Best Practice</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ LinkedList as Queue — works, but wasteful
+Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+q.offer(1);  // allocates a Node object (prev + next + item = 24+ bytes overhead)
+q.offer(2);  // another Node — scattered in heap, poor cache locality
+
+// ✅ ArrayDeque — flat array, cache-friendly, no per-element allocation
+Queue&lt;Integer&gt; q2 = new ArrayDeque&lt;&gt;();
+q2.offer(1); // stored directly in internal Object[]
+q2.offer(2); // adjacent in memory
+
+// When to still use LinkedList as Deque:
+// 1. You need null elements (ArrayDeque rejects null)
+// 2. You also need List operations (get/set by index) on the same object
+// 3. You need stable iterators during structural modification via ListIterator</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LinkedList.remove() — Queue vs Collection overload</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Typed as LinkedList, not Queue — all three remove() overloads are visible
+LinkedList&lt;Integer&gt; ll = new LinkedList&lt;&gt;(List.of(10, 20, 30));
+
+// remove() with no args — Queue.remove(), removes HEAD
+ll.remove();       // removes 10, list = [20, 30]
+
+// remove(Object) — Collection.remove(Object), removes first occurrence
+ll.remove(Integer.valueOf(30));  // list = [20]
+
+// ⚠ remove(int index) — List.remove(int), removes by INDEX
+ll.remove(0);      // removes 20 (element at index 0)
+
+// Trap: autoboxing decides which overload is called
+LinkedList&lt;Integer&gt; nums = new LinkedList&lt;&gt;(List.of(0, 1, 2));
+nums.remove(0);                  // List.remove(int) — removes element at index 0
+nums.remove(Integer.valueOf(0)); // Collection.remove(Object) — removes value 0</code></pre>
 </div>
 </div>
 
