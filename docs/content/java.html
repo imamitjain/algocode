@@ -199,6 +199,46 @@ System.out.println(Arrays.deepToString(grid));  // [[1, 2], [3, 4]]</code></pre>
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Shallow copy trap &mdash; copyOf, clone, fill on Object arrays</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Primitive arrays (int[], char[]) — safe, values are copied
+int[] orig = {1, 2, 3};
+int[] copy = orig.clone();
+copy[0] = 99;
+orig[0];  // 1 — unaffected ✅
+
+// ❌ Object arrays (int[][], String[]) — shallow copy, references shared
+int[][] matrix = {{1, 2}, {3, 4}};
+int[][] copy2 = matrix.clone();              // shallow!
+int[][] copy3 = Arrays.copyOf(matrix, matrix.length); // also shallow!
+
+copy2[0][0] = 99;
+matrix[0][0];  // 99! — both point to the same inner int[]
+
+// ❌ Arrays.fill() with object — every slot gets the SAME reference
+int[][] grid = new int[3][];
+int[] row = {0, 0, 0};
+Arrays.fill(grid, row);
+
+grid[0][0] = 5;
+grid[1][0];  // 5! — all slots share one row object
+grid[2][0];  // 5!
+
+// ✅ Deep copy — allocate each row independently
+int[][] deep = new int[matrix.length][];
+for (int i = 0; i &lt; matrix.length; i++) {
+    deep[i] = matrix[i].clone();
+}
+
+// ✅ Fill with independent rows
+int[][] grid2 = new int[3][3]; // each row is a separate new int[3]</code></pre>
+</div>
+</div>
+
 <!-- ==================== STRING ==================== -->
 <div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String, StringBuilder &amp; Character</div>
 <p class="section-intro">Strings are <b>immutable</b> in Java &mdash; every modification creates a new object. Use <code>StringBuilder</code> for mutable sequences (loops, concatenation). <code>String</code> is backed by a <code>char[]</code> (Java 8) or <code>byte[]</code> (Java 9+ compact strings).</p>
