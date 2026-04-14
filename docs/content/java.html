@@ -683,24 +683,6 @@ ll.remove(0);                    // List.remove(int)  — removes at index 0
 // ✅ Narrow the type to limit which overloads are visible
 Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();  // only Queue + Collection methods
 Deque&lt;Integer&gt; d = new LinkedList&lt;&gt;();  // only Deque + Queue + Collection methods</code></pre>
-
-<div class="note"><b>TreeSet / TreeMap: <code>equals()</code> vs <code>compareTo()</code> disagreement</b>
-<ul><li>TreeSet/TreeMap use <code>compareTo()</code> (or the Comparator) for <b>all</b> operations: <code>add</code>, <code>contains</code>, <code>remove</code>, and dedup</li><li>If <code>compareTo()</code> returns 0 but <code>equals()</code> returns false, TreeSet treats them as duplicates even though they aren&rsquo;t &ldquo;equal&rdquo;</li><li>HashSet uses <code>equals()</code> + <code>hashCode()</code> &mdash; same objects may behave differently in a TreeSet vs HashSet</li></ul></div>
-<pre><code class="language-java">// Case-insensitive comparator: "A" and "a" compare as 0
-TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);
-ts.add("A");
-ts.add("a");
-ts.size();          // 1 — "a" treated as duplicate of "A" by compareTo
-ts.contains("a");   // true — compareTo matches
-
-// But equals() disagrees:
-"A".equals("a");    // false!
-
-// ⚠ Same objects in a HashSet — different result
-HashSet&lt;String&gt; hs = new HashSet&lt;&gt;();
-hs.add("A");
-hs.add("a");
-hs.size();          // 2 — "A" and "a" are NOT equal by equals()</code></pre>
 </div>
 </div>
 
@@ -789,6 +771,83 @@ new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(b, a))
 
 // TreeMap with reverse key order
 new TreeMap&lt;&gt;((a, b) -&gt; Integer.compare(b, a))</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">compareTo() == 0 means duplicate in TreeSet / TreeMap</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Case-insensitive comparator: "A" and "a" compare as 0
+TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);
+ts.add("A");
+ts.add("a");
+ts.size();          // 1 — "a" treated as duplicate of "A" by compareTo
+ts.contains("a");   // true — compareTo matches
+
+// But equals() disagrees:
+"A".equals("a");    // false!
+
+// ⚠ Same objects in a HashSet — different result
+HashSet&lt;String&gt; hs = new HashSet&lt;&gt;();
+hs.add("A");
+hs.add("a");
+hs.size();          // 2 — "A" and "a" are NOT equal by equals()
+
+// TreeSet/TreeMap use compareTo() for EVERYTHING — add, contains, remove, dedup
+// HashSet uses equals() + hashCode()
+// Same objects can behave differently across the two</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Inconsistent Comparator across operations</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">Integer[] arr = {5, 3, 1, 4, 2};
+
+// Sort descending
+Arrays.sort(arr, (a, b) -&gt; Integer.compare(b, a));  // [5, 4, 3, 2, 1]
+
+// ❌ binarySearch with no Comparator — assumes ascending order
+Arrays.binarySearch(arr, 3);  // undefined! may return negative (not found)
+
+// ❌ binarySearch with a DIFFERENT Comparator — also undefined
+Arrays.binarySearch(arr, 3, (a, b) -&gt; Integer.compare(a, b));  // wrong order!
+
+// ✅ binarySearch must use the SAME Comparator used for sorting
+Comparator&lt;Integer&gt; desc = (a, b) -&gt; Integer.compare(b, a);
+Arrays.sort(arr, desc);
+Arrays.binarySearch(arr, 3, desc);  // correct
+
+// Same rule applies to Collections.binarySearch(List, key, Comparator)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Comparator with null elements</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Most Comparators throw NPE on null
+List&lt;String&gt; list = new ArrayList&lt;&gt;(Arrays.asList("b", null, "a"));
+list.sort(Comparator.naturalOrder());  // NullPointerException!
+
+// ✅ Wrap with nullsFirst/nullsLast for null-safe sorting
+list.sort(Comparator.nullsFirst(Comparator.naturalOrder()));   // [null, "a", "b"]
+list.sort(Comparator.nullsLast(Comparator.naturalOrder()));    // ["a", "b", null]
+
+// ⚠ TreeSet/TreeMap with null is still undefined — avoid entirely
+// Even with nullsFirst comparator, behavior is JVM-dependent
+TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(Comparator.nullsFirst(Comparator.naturalOrder()));
+ts.add(null);  // may work on some JVMs, not guaranteed
+
+// ✅ Filter nulls before inserting into TreeSet/TreeMap</code></pre>
 </div>
 </div>
 
