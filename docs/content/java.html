@@ -239,6 +239,32 @@ int[][] grid2 = new int[3][3]; // each row is a separate new int[3]</code></pre>
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Arrays.sort() stability &mdash; primitives vs objects</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Primitives: dual-pivot quicksort — NOT stable (equal elements may reorder)
+int[] nums = {3, 1, 2};
+Arrays.sort(nums);  // fast, but relative order of equal elements is undefined
+
+// Objects: TimSort — STABLE (equal elements keep original order)
+Integer[] boxed = {3, 1, 2};
+Arrays.sort(boxed);  // stable — equal elements preserve insertion order
+
+// ⚠ Practical trap: sorting int[][] by first element
+int[][] intervals = {{1, 10}, {1, 5}, {2, 3}};
+Arrays.sort(intervals, (a, b) -&gt; a[0] - b[0]);
+// Stable — {1,10} and {1,5} keep original order (Comparator triggers TimSort)
+
+// ❌ If you sort a primitive array and depend on order of equal elements,
+//    results are unpredictable — quicksort may rearrange them
+
+// Collections.sort() and List.sort() always use TimSort — always stable</code></pre>
+</div>
+</div>
+
 <!-- ==================== STRING ==================== -->
 <div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String, StringBuilder &amp; Character</div>
 <p class="section-intro">Strings are <b>immutable</b> in Java &mdash; every modification creates a new object. Use <code>StringBuilder</code> for mutable sequences (loops, concatenation). <code>String</code> is backed by a <code>char[]</code> (Java 8) or <code>byte[]</code> (Java 9+ compact strings).</p>
@@ -461,6 +487,38 @@ int mod = ((a % n) + n) % n;
 // ✅ Or use Math.floorMod() (Java 8+)
 Math.floorMod(-7, 3);  // 2 ✓
 Math.floorMod(-1, 5);  // 4 ✓</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String == vs .equals() &mdash; string pool trap</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// String literals are interned in the string pool — same reference
+String a = "hello";
+String b = "hello";
+a == b;       // true — both point to the same pooled object
+a.equals(b);  // true
+
+// ❌ new String() creates a separate heap object — different reference
+String c = new String("hello");
+a == c;       // false — pool vs heap!
+a.equals(c);  // true — same content
+
+// intern() returns the pool reference for the string's content
+String d = c.intern();
+a == d;       // true — intern() returned the pooled "hello"
+
+// ❌ Compile-time constants are pooled, runtime strings are not
+String e = "hel" + "lo";    // pooled — compiler folds constant expressions
+a == e;                      // true
+String f = "hel";
+String g = f + "lo";        // NOT pooled — runtime concatenation
+a == g;                      // false!
+
+// ✅ Always use .equals() for string comparison — never ==</code></pre>
 </div>
 </div>
 
