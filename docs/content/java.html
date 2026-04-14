@@ -704,6 +704,94 @@ hs.size();          // 2 — "A" and "a" are NOT equal by equals()</code></pre>
 </div>
 </div>
 
+<!-- ==================== COMPARATOR & COMPARABLE ==================== -->
+<div class="section-title" id="sec-comparator"><span class="icon">&#9878;</span> Comparator &amp; Comparable</div>
+
+<p class="section-intro"><code>Comparable</code> is implemented <b>by the class itself</b> to define its natural ordering &mdash; the object knows how to compare itself. <code>Comparator</code> is an <b>external</b> strategy passed from outside &mdash; the caller decides the ordering without modifying the class.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Ordering Reference</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Constructor accepts Comparator (ordering at creation time)</b>
+<ul>
+<li><code>TreeSet()</code> &rarr; elements must implement <code>Comparable</code> | <code>TreeSet(Comparator)</code> &rarr; custom ordering</li>
+<li><code>TreeMap()</code> &rarr; keys must implement <code>Comparable</code> | <code>TreeMap(Comparator)</code> &rarr; custom key ordering</li>
+<li><code>PriorityQueue()</code> &rarr; min-heap via <code>Comparable</code> | <code>PriorityQueue(Comparator)</code> &rarr; custom priority</li>
+<li><code>ConcurrentSkipListSet()</code> &rarr; elements must implement <code>Comparable</code> | <code>ConcurrentSkipListSet(Comparator)</code> &rarr; custom ordering</li>
+<li><code>ConcurrentSkipListMap()</code> &rarr; keys must implement <code>Comparable</code> | <code>ConcurrentSkipListMap(Comparator)</code> &rarr; custom key ordering</li>
+</ul>
+<b>Methods that accept Comparator (ordering at call time)</b>
+<ul>
+<li><code>Arrays.sort(T[], Comparator)</code> &mdash; Object arrays only, TimSort (stable)</li>
+<li><code>List.sort(Comparator)</code> &mdash; Java 8+, preferred over Collections.sort()</li>
+<li><code>Collections.sort(List, Comparator)</code> &mdash; older style, delegates to List.sort()</li>
+<li><code>Arrays.binarySearch(T[], T, Comparator)</code> &mdash; must match the sort order</li>
+<li><code>Collections.min/max(Collection, Comparator)</code> &mdash; custom min/max</li>
+</ul>
+<b>Don&rsquo;t use ordering</b> (use <code>hashCode</code>/<code>equals</code> instead)
+<ul><li>HashMap, LinkedHashMap, HashSet, LinkedHashSet, EnumSet, EnumMap, ArrayList, LinkedList, ArrayDeque</li></ul>
+</div>
+<pre><code class="language-java">// Comparator.compare(a, b) return value determines order:
+//   negative &rarr; a comes FIRST  (a &lt; b)
+//   zero     &rarr; a and b are EQUAL in ordering
+//   positive &rarr; b comes FIRST  (a &gt; b)
+// Think of it as: compare(a, b) = a - b (conceptually, never actually subtract!)
+// If result is negative, a is "smaller" &rarr; a goes first in ascending order
+
+// &mdash; Comparator&lt;T&gt; &mdash; functional interface &mdash;
+@FunctionalInterface
+public interface Comparator&lt;T&gt; {
+    int compare(T o1, T o2);
+}
+Comparator.reverseOrder()                        // reverse of natural order
+
+// this.compareTo(other) return value determines order:
+//   negative &rarr; this comes FIRST  (this &lt; other)
+//   zero     &rarr; this and other are EQUAL in ordering
+//   positive &rarr; other comes FIRST (this &gt; other)
+
+// &mdash; Comparable&lt;T&gt; &mdash; implemented by the class itself &mdash;
+public interface Comparable&lt;T&gt; {
+    int compareTo(T o);
+}
+
+// &mdash; Safe primitive comparison (never overflow, unlike a - b) &mdash;
+Integer.compare(a, b)         // int
+Long.compare(a, b)            // long
+Double.compare(a, b)          // double (handles NaN, -0.0)
+Float.compare(a, b)           // float  (handles NaN, -0.0)
+Short.compare(a, b)           // short
+Byte.compare(a, b)            // byte
+Character.compare(a, b)       // char
+Boolean.compare(a, b)         // boolean (false &lt; true)
+
+// &mdash; Common Comparator examples &mdash;
+// Ascending by int value
+(a, b) -&gt; Integer.compare(a, b)
+
+// Descending by int value
+(a, b) -&gt; Integer.compare(b, a)
+
+// Sort int[][] by first element ascending
+(a, b) -&gt; Integer.compare(a[0], b[0])
+
+// Sort int[][] by first element ascending, break ties by second descending
+(a, b) -&gt; a[0] != b[0] ? Integer.compare(a[0], b[0]) : Integer.compare(b[1], a[1])
+
+// Sort by string field ascending
+(a, b) -&gt; a.name.compareTo(b.name)
+
+// Max-heap PriorityQueue
+new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(b, a))
+
+// TreeMap with reverse key order
+new TreeMap&lt;&gt;((a, b) -&gt; Integer.compare(b, a))</code></pre>
+</div>
+</div>
+
 <!-- ==================== 1. LIST IMPLEMENTATIONS ==================== -->
 <div class="section-title" id="sec-list"><span class="icon">&#128218;</span> List Implementations</div>
 
