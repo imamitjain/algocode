@@ -233,7 +233,7 @@ for (int x : arr) safeSum += x;           // 3000000000L ✓</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Math.pow precision &mdash; integer cast off-by-one</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ⚠ Math.pow returns double &mdash; ~15-17 significant digits
@@ -260,7 +260,7 @@ static long intPow(long base, int exp) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Math.sqrt imprecision &mdash; perfect square check</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ⚠ Defensive pattern: cast-to-int + square check is usually fine,
@@ -394,7 +394,7 @@ Math.toIntExact(2_500_000_000L);  // ArithmeticException!
 <div class="card">
 <div class="card-header">
   <span class="card-title">char arithmetic &mdash; no letter wraparound</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// char is unsigned 16-bit (0..65535) &mdash; arithmetic promotes to int
@@ -500,7 +500,7 @@ for (int l = 0, r = s.length() - 1; l &lt; r; ) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">getNumericValue returns hex value for letters</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ getNumericValue interprets letters as hex digits
@@ -518,7 +518,7 @@ Character.getNumericValue('$');    // -1 &mdash; non-alphanumeric
 <div class="card">
 <div class="card-header">
   <span class="card-title">isDigit / isLetter include non-ASCII Unicode</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ⚠ Character.isDigit includes Arabic-Indic, Devanagari, etc.
@@ -667,7 +667,7 @@ for (int sub = mask; sub &gt; 0; sub = (sub - 1) &amp; mask) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">&gt;&gt; vs &gt;&gt;&gt; &mdash; arithmetic vs logical shift</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// &gt;&gt; preserves sign bit (arithmetic shift)
@@ -952,7 +952,7 @@ int mid = (lo + hi) &gt;&gt;&gt; 1;  // treats as unsigned, no overflow</code></
 <div class="card">
 <div class="card-header">
   <span class="card-title">Array printing — toString vs deepToString</span>
-  <span class="severity subtle">Subtle</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">int[] arr = {1, 2, 3};
@@ -1016,7 +1016,7 @@ int[][] grid2 = new int[3][3]; // each row is a separate new int[3]</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Arrays.sort() stability &mdash; primitives vs objects</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// Primitives: dual-pivot quicksort — NOT stable (equal elements may reorder)
@@ -1150,7 +1150,7 @@ sb.toString();                         // O(n) → String</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">String concatenation in loop — O(n&sup2;)</span>
-  <span class="severity subtle">Performance</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Each += creates a new String object — O(n²) total
@@ -1198,7 +1198,7 @@ String csv = String.join(",", list);</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">charAt() and substring() bounds</span>
-  <span class="severity bug">StringIndexOutOfBoundsException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">String s = "hello";
@@ -1221,7 +1221,7 @@ s.substring(6);     // StringIndexOutOfBoundsException!</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">parseInt / valueOf — parsing traps</span>
-  <span class="severity bug">NumberFormatException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Throws NumberFormatException
@@ -1245,7 +1245,7 @@ Integer.valueOf("128").equals(Integer.valueOf("128")); // true</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Negative modulo for circular indexing</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// Java's % keeps sign of dividend (same as Go)
@@ -1297,7 +1297,7 @@ a == g;                      // false!
 </div>
 
 <!-- ==================== INTERFACE HIERARCHY ==================== -->
-<div class="section-title" id="sec-hierarchy"><span class="icon">&#128466;</span> Interface &amp; Inheritance Hierarchy</div>
+<div class="section-title" id="sec-hierarchy"><span class="icon">&#128466;</span> Interface &amp; Inheritance Hierarchy <span class="severity completeness">For Completeness</span></div>
 
 <!-- Visual tree diagram (SVG) -->
 <div class="card hierarchy-card">
@@ -1580,7 +1580,7 @@ hs.size();          // 2 — "A" and "a" are NOT equal by equals()
 <div class="card">
 <div class="card-header">
   <span class="card-title">Inconsistent Comparator across operations</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Integer[] arr = {5, 3, 1, 4, 2};
@@ -1606,7 +1606,7 @@ Arrays.binarySearch(arr, 3, desc);  // correct
 <div class="card">
 <div class="card-header">
   <span class="card-title">Comparator with null elements</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Most Comparators throw NPE on null
@@ -1714,7 +1714,7 @@ List&lt;Integer&gt; synced  = Collections.synchronizedList(new ArrayList&lt;&gt;
 <div class="card">
 <div class="card-header">
   <span class="card-title">ConcurrentModificationException — remove during iteration</span>
-  <span class="severity bug">Throws CME</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Modifying list inside for-each throws ConcurrentModificationException
@@ -1737,7 +1737,7 @@ list.removeIf(s -&gt; s.equals("b"));</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">remove(int) vs remove(Object) on List&lt;Integer&gt;</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(10, 20, 30));
@@ -1756,7 +1756,7 @@ list.remove(Integer.valueOf(10));  // removes value 10 → [30]</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Arrays.asList() returns fixed-size list</span>
-  <span class="severity bug">UnsupportedOperationException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Cannot add or remove — backed by the original array
@@ -1780,7 +1780,7 @@ List&lt;Integer&gt; nums = IntStream.of(arr).boxed().toList();</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">List.of() is immutable &amp; rejects null</span>
-  <span class="severity bug">UnsupportedOperationException / NPE</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Any mutation throws UnsupportedOperationException
@@ -1802,7 +1802,7 @@ List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "b", "c"));
 <div class="card">
 <div class="card-header">
   <span class="card-title">subList() is a live view, not a copy</span>
-  <span class="severity subtle">Throws CME</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(1, 2, 3, 4, 5));
@@ -1823,7 +1823,7 @@ List&lt;Integer&gt; safe = new ArrayList&lt;&gt;(list.subList(1, 4));</code></pr
 <div class="card">
 <div class="card-header">
   <span class="card-title">LinkedList get(i) in a loop — O(n&sup2;) trap</span>
-  <span class="severity subtle">Performance</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">LinkedList&lt;Integer&gt; list = new LinkedList&lt;&gt;();
@@ -1846,7 +1846,7 @@ for (int val : list) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">ArrayList capacity &ne; size</span>
-  <span class="severity subtle">IndexOutOfBoundsException</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Capacity is internal buffer size, NOT the number of elements
@@ -1868,7 +1868,7 @@ list2.ensureCapacity(10000);  // pre-allocate, size still 0</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">toArray() returns Object[], not T[]</span>
-  <span class="severity subtle">ClassCastException</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">List&lt;String&gt; list = List.of("a", "b", "c");
@@ -2022,7 +2022,7 @@ set.size();         // 1 — element is stuck, unreachable
 <div class="card">
 <div class="card-header">
   <span class="card-title">TreeSet with uncomparable elements</span>
-  <span class="severity bug">ClassCastException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Elements must implement Comparable OR supply a Comparator
@@ -2040,7 +2040,7 @@ Set&lt;int[]&gt; set2 = new TreeSet&lt;&gt;(Arrays::compare);
 <div class="card">
 <div class="card-header">
   <span class="card-title">TreeSet vs HashSet — null handling</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// HashSet allows one null
@@ -2061,7 +2061,7 @@ tree2.add(null);    // OK &mdash; comparator handles null ordering</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Set.of() rejects duplicates at creation</span>
-  <span class="severity bug">IllegalArgumentException</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Unlike HashSet, Set.of() throws on duplicate elements
@@ -2078,7 +2078,7 @@ Set&lt;String&gt; safe = new HashSet&lt;&gt;(possiblyDuplicateList);</code></pre
 <div class="card">
 <div class="card-header">
   <span class="card-title">HashSet iteration order is not stable</span>
-  <span class="severity subtle">Subtle</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Set&lt;String&gt; set = new HashSet&lt;&gt;();
@@ -2188,7 +2188,7 @@ Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();   // offer(), poll(), pee
 <div class="card">
 <div class="card-header">
   <span class="card-title">PriorityQueue iterator is NOT sorted</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Queue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 3, 2, 4));
@@ -2212,7 +2212,7 @@ Collections.sort(sorted);</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Null elements in PriorityQueue &amp; ArrayDeque</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ PriorityQueue rejects null — needs to compare
@@ -2236,7 +2236,7 @@ ll.poll();       // null — was the queue empty or did it contain null?</code><
 <div class="card">
 <div class="card-header">
   <span class="card-title">offer/poll vs add/remove — exception behavior</span>
-  <span class="severity bug">NoSuchElementException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
@@ -2263,7 +2263,7 @@ dq.pollFirst();    // null — safe</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">PriorityQueue remove/contains uses equals, not comparator</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// PriorityQueue.remove(Object) and contains(Object) use equals(), NOT the comparator
@@ -2284,7 +2284,7 @@ pq.remove(item);  // true — same reference
 <div class="card">
 <div class="card-header">
   <span class="card-title">LinkedList as Queue/Deque — prefer ArrayDeque</span>
-  <span class="severity tip">Best Practice</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ LinkedList as Queue — works, but wasteful
@@ -2307,7 +2307,7 @@ q2.offer(2); // adjacent in memory
 <div class="card">
 <div class="card-header">
   <span class="card-title">LinkedList.remove() — Queue vs Collection overload</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// Typed as LinkedList, not Queue — all three remove() overloads are visible
@@ -2332,7 +2332,7 @@ nums.remove(Integer.valueOf(0)); // Collection.remove(Object) — removes value 
 <div class="card">
 <div class="card-header">
   <span class="card-title">java.util.Stack — don&rsquo;t use it</span>
-  <span class="severity tip">Best Practice</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Stack extends Vector — synchronized on every operation, slow
@@ -2449,7 +2449,7 @@ grouped.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(42);</code><
 <div class="card">
 <div class="card-header">
   <span class="card-title">HashMap allows null key, TreeMap does not</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// HashMap allows one null key and multiple null values
@@ -2471,7 +2471,7 @@ lhm.put(null, 1);   // OK</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">getOrDefault vs computeIfAbsent — subtle difference</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Map&lt;String, List&lt;Integer&gt;&gt; map = new HashMap&lt;&gt;();
@@ -2493,7 +2493,7 @@ map.get("key");  // [1, 2] — appended to existing list</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">ConcurrentModificationException on Map iteration</span>
-  <span class="severity bug">Throws CME</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;(Map.of("a", 1, "b", 2, "c", 3));
@@ -2517,7 +2517,7 @@ map.keySet().removeIf(k -&gt; k.equals("b"));</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Map.of() rejects duplicate keys &amp; nulls</span>
-  <span class="severity bug">IllegalArgumentException / NPE</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Duplicate keys throw at creation
@@ -2539,7 +2539,7 @@ Map&lt;String, Integer&gt; mut = new HashMap&lt;&gt;(Map.of("a", 1));</code></pr
 <div class="card">
 <div class="card-header">
   <span class="card-title">keySet/values/entrySet are live views</span>
-  <span class="severity subtle">Subtle</span>
+  <span class="severity completeness">For Completeness</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;(Map.of("a", 1, "b", 2, "c", 3));
@@ -2585,7 +2585,7 @@ safe.put(List.of(1, 2), "value");  // List.of() is immutable</code></pre>
 </div>
 
 <!-- ==================== 6. ENUM COLLECTIONS ==================== -->
-<div class="section-title" id="sec-enum"><span class="icon">&#127183;</span> Enum Collections</div>
+<div class="section-title" id="sec-enum"><span class="icon">&#127183;</span> Enum Collections <span class="severity completeness">For Completeness</span></div>
 
 <div class="card" style="grid-column:1/-1">
 <div class="card-header">
@@ -2688,7 +2688,7 @@ EnumSet&lt;Day&gt; weekend2 = EnumSet.complementOf(EnumSet.range(Day.MON, Day.FR
 <div class="card">
 <div class="card-header">
   <span class="card-title">EnumSet does not allow null</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">EnumSet&lt;Day&gt; set = EnumSet.noneOf(Day.class);
@@ -2708,7 +2708,7 @@ map.put(Day.MON, null);  // OK</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">ordinal() is fragile — avoid in logic</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">enum Status { PENDING, ACTIVE, CLOSED }
@@ -2738,7 +2738,7 @@ enum Status2 {
 <div class="card">
 <div class="card-header">
   <span class="card-title">EnumMap requires explicit Class parameter</span>
-  <span class="severity bug">Compilation Error</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Unlike HashMap, empty EnumMap needs the key class at construction
@@ -2757,7 +2757,7 @@ EnumMap&lt;Day, String&gt; fromHm = new EnumMap&lt;&gt;(hm);  // IllegalArgument
 </div>
 
 <!-- ==================== 7. CONCURRENT COLLECTIONS ==================== -->
-<div class="section-title" id="sec-concurrent"><span class="icon">&#9889;</span> Concurrent Collections</div>
+<div class="section-title" id="sec-concurrent"><span class="icon">&#9889;</span> Concurrent Collections <span class="severity completeness">For Completeness</span></div>
 
 <div class="card" style="grid-column:1/-1">
 <div class="card-header">
@@ -3013,7 +3013,7 @@ BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // boun
 <div class="card">
 <div class="card-header">
   <span class="card-title">ConcurrentHashMap rejects null keys and values</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Unlike HashMap, ConcurrentHashMap does not allow null
@@ -3035,7 +3035,7 @@ chm.put("a", ABSENT);
 <div class="card">
 <div class="card-header">
   <span class="card-title">ConcurrentHashMap size() is approximate</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">ConcurrentMap&lt;String, Integer&gt; chm = new ConcurrentHashMap&lt;&gt;();
@@ -3063,7 +3063,7 @@ chm.computeIfAbsent("k", k -&gt; expensiveCompute());</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Collections.synchronizedList — iterator not synchronized</span>
-  <span class="severity bug">ConcurrentModificationException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">List&lt;String&gt; syncList = Collections.synchronizedList(new ArrayList&lt;&gt;());
@@ -3093,7 +3093,7 @@ for (String s : cowList) { process(s); }  // snapshot — always safe</code></pr
 <div class="card">
 <div class="card-header">
   <span class="card-title">CopyOnWriteArrayList — write cost trap</span>
-  <span class="severity subtle">Performance</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">List&lt;String&gt; cow = new CopyOnWriteArrayList&lt;&gt;();
@@ -3119,7 +3119,7 @@ cow = new CopyOnWriteArrayList&lt;&gt;(temp);
 <div class="card">
 <div class="card-header">
   <span class="card-title">BlockingQueue — put/take block indefinitely</span>
-  <span class="severity subtle">Hangs Forever</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">BlockingQueue&lt;String&gt; bq = new ArrayBlockingQueue&lt;&gt;(1);
@@ -3143,7 +3143,7 @@ String item = empty.poll(5, TimeUnit.SECONDS);  // null after 5s</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">ConcurrentLinkedQueue size() is O(n)</span>
-  <span class="severity subtle">Performance</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">Queue&lt;String&gt; clq = new ConcurrentLinkedQueue&lt;&gt;();
@@ -3161,7 +3161,7 @@ if (clq.isEmpty()) { ... }
 </div>
 
 <!-- ==================== 8. UTILITY CLASSES ==================== -->
-<div class="section-title" id="sec-utilities"><span class="icon">&#128295;</span> Utility Methods</div>
+<div class="section-title" id="sec-utilities"><span class="icon">&#128295;</span> Utility Methods <span class="severity completeness">For Completeness</span></div>
 
 <!-- Collections -->
 <div class="card">
@@ -3310,7 +3310,7 @@ void dfs(int[][] grid, boolean[][] vis, int r, int c) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Jagged array NPE &mdash; grid[i] may be null</span>
-  <span class="severity bug">NullPointerException</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Rows not initialized in jagged array
@@ -3334,7 +3334,7 @@ jagged2[1].length;                  // 3 ✓</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">grid.length vs grid[0].length &mdash; dimension swap</span>
-  <span class="severity subtle">ArrayIndexOutOfBoundsException</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-java">// For a 2x5 grid (2 rows, 5 columns):

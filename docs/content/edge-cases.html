@@ -6,7 +6,7 @@
 <div class="card">
 <div class="card-header">
   <span class="card-title">Addition overflow — silent wrap</span>
-  <span class="severity bug">Silent Wrap</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ Go wraps silently — no panic, no error!
@@ -25,7 +25,7 @@ if a &gt; math.MaxInt - b {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Multiplication overflow</span>
-  <span class="severity bug">Silent Wrap</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ int32 values multiplied may overflow int
@@ -59,7 +59,7 @@ mid := lo + (hi-lo)/2
 <div class="card">
 <div class="card-header">
   <span class="card-title">MinInt negation trap</span>
-  <span class="severity bug">Silent Wrap</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ⚠ -math.MinInt64 == math.MinInt64 (wraps!)
@@ -111,7 +111,7 @@ if dist[u] != INF &amp;&amp; dist[u]+w &lt; dist[v] {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Empty array / nil slice</span>
-  <span class="severity bug">Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ✅ Guard before any logic
@@ -157,7 +157,7 @@ if s == "" {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Linked list nil guard</span>
-  <span class="severity bug">Nil Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ✅ Guard before any logic
@@ -185,7 +185,7 @@ return dummy.Next</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Tree nil guard</span>
-  <span class="severity bug">Nil Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ✅ DFS base case — always first line
@@ -329,7 +329,7 @@ maxSoFar, curr := nums[0], nums[0]
 <div class="card">
 <div class="card-header">
   <span class="card-title">Not rotated (sorted) array — still works</span>
-  <span class="severity tip">Correct by Design</span>
+  <span class="severity tip">Best Practice</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Sorted array = rotation by 0
@@ -351,7 +351,7 @@ if nums[i] &gt; 0 {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Window size k &gt; n</span>
-  <span class="severity bug">Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">if k &gt; len(nums) {
@@ -372,7 +372,7 @@ if len(p) &gt; len(s) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">All/no chars satisfy — result init</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Min Window Substring: no valid window → return ""
@@ -394,7 +394,7 @@ if minLen &gt; len(s) {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Matches counter — boundary cross</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Sliding window with "formed" counter for Min Window Substring
@@ -420,7 +420,7 @@ if window[lc] &lt; need[lc] {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Infinite loop: lo = mid</span>
-  <span class="severity bug">Hangs Forever</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ No progress when lo=0, hi=1: mid=0, lo stays 0
@@ -443,7 +443,7 @@ lo = mid + 1
 <div class="card">
 <div class="card-header">
   <span class="card-title">First/last occurrence — don't return early</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// First occurrence: keep searching LEFT when found
@@ -482,7 +482,7 @@ hi = sum(weights)  // ship everything in one day
 <div class="card">
 <div class="card-header">
   <span class="card-title">Fast/slow nil check order</span>
-  <span class="severity bug">Nil Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ Panic when list has even length (fast.Next == nil)
@@ -504,7 +504,7 @@ for fast != nil &amp;&amp; fast.Next != nil {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Reverse: save next before overwriting</span>
-  <span class="severity bug">Lost Pointer</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ curr.Next overwritten, rest of list lost
@@ -576,7 +576,7 @@ return ptr  // cycle entry point</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Skewed tree → stack overflow</span>
-  <span class="severity bug">Stack Overflow</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Skewed tree (n=10^5 nodes all left): recursion depth = n
@@ -645,7 +645,7 @@ rightGain := max(0, maxGain(n.Right))</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">LCA — p is ancestor of q</span>
-  <span class="severity tip">Correct by Design</span>
+  <span class="severity tip">Best Practice</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Standard algorithm handles this correctly
@@ -670,7 +670,7 @@ return right</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Disconnected graph — incomplete BFS</span>
-  <span class="severity bug">Missed Nodes</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ Only visits component containing node 0
@@ -709,7 +709,7 @@ if dist[dst] == INF {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Undirected DFS — parent ≠ back-edge</span>
-  <span class="severity subtle">False Cycle</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ Treats parent edge as cycle → false positive
@@ -733,7 +733,7 @@ if visited[neighbor] { return true }  // real cycle
 <div class="card">
 <div class="card-header">
   <span class="card-title">Pop/peek on empty — panic</span>
-  <span class="severity bug">Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ Panics: index out of range
@@ -755,7 +755,7 @@ if len(queue) &gt; 0 {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Leftover elements after loop — monotonic</span>
-  <span class="severity subtle">Wrong Answer</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Monotonic stack: after loop, remaining elements have
@@ -776,7 +776,7 @@ heights = append(heights, 0)
 <div class="card">
 <div class="card-header">
   <span class="card-title">Wrong base case / index-0 crash</span>
-  <span class="severity bug">Panic</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Climbing Stairs: n=1 → dp[i-2] accesses dp[-1]
@@ -838,7 +838,7 @@ for _, item := range items {
 <div class="card">
 <div class="card-header">
   <span class="card-title">Must snapshot the list</span>
-  <span class="severity bug">All Results Same</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ All results point to same backing array
@@ -857,7 +857,7 @@ result = append(result, cp)
 <div class="card">
 <div class="card-header">
   <span class="card-title">Duplicate skip: i &gt; start, not i &gt; 0</span>
-  <span class="severity bug">Missing Results</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// ❌ i &gt; 0: skips valid combinations (too aggressive)
@@ -881,7 +881,7 @@ sort.Ints(nums)</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">String equality — Go vs Java</span>
-  <span class="severity tip">Go Advantage</span>
+  <span class="severity tip">Best Practice</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// In Go, == on strings is VALUE comparison ✅
@@ -965,7 +965,7 @@ return n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Off-by-one errors</span>
-  <span class="severity bug">Most Common</span>
+  <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// Subarray length: right - left + 1
@@ -1031,7 +1031,7 @@ return dp[amount]</code></pre>
 <div class="card">
 <div class="card-header">
   <span class="card-title">Map modification during iteration</span>
-  <span class="severity subtle">Non-deterministic</span>
+  <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
 <pre><code class="language-go">// In Go, modifying a map while iterating is ALLOWED

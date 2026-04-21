@@ -13,8 +13,10 @@
 .severity.bug { background: #3d1010; color: var(--danger); }
 .severity.subtle { background: #3d2e00; color: var(--warn); }
 .severity.tip { background: #0d2d1a; color: var(--success); }
+.severity.completeness { background: #1a2233; color: var(--accent); }
 
 /* ---- Light theme ---- */
 [data-theme="light"] .severity.bug { background: #ffebe9; color: var(--danger); }
 [data-theme="light"] .severity.subtle { background: #fff8c5; color: var(--warn); }
 [data-theme="light"] .severity.tip { background: #dafbe1; color: var(--success); }
+[data-theme="light"] .severity.completeness { background: #dbeafe; color: #1e40af; }
