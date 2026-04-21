@@ -292,6 +292,212 @@ if (dist[u] != INF &amp;&amp; dist[u] + w &lt; dist[v]) {
 </div>
 </div>
 
+<!-- ==================== BIT MANIPULATION ==================== -->
+<div class="section-title" id="sec-bits"><span class="icon">&#9889;</span> Bit Manipulation</div>
+<p class="section-intro">Bitwise operators work on <code>int</code> (32-bit) and <code>long</code> (64-bit) primitives. Java provides two right-shift operators: <code>&gt;&gt;</code> (arithmetic, preserves sign) and <code>&gt;&gt;&gt;</code> (logical, fills with 0). <code>Integer</code> and <code>Long</code> have O(1) intrinsic methods for popcount, leading/trailing zeros, and more.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Operators</b> &mdash; <code>&amp;</code> AND, <code>|</code> OR, <code>^</code> XOR, <code>~</code> NOT, <code>&lt;&lt;</code> left shift, <code>&gt;&gt;</code> arithmetic right shift, <code>&gt;&gt;&gt;</code> unsigned right shift.
+<ul>
+<li><code>^</code> is XOR in Java (not exponentiation like Python). Use <code>Math.pow()</code> for powers.</li>
+<li><code>&gt;&gt;</code> preserves sign bit (fills with 1 for negatives). <code>&gt;&gt;&gt;</code> always fills with 0.</li>
+</ul>
+<b>Built-in intrinsics</b> &mdash; all O(1), JVM-optimized to single CPU instructions.
+<ul>
+<li><code>Integer.bitCount()</code>, <code>highestOneBit()</code>, <code>lowestOneBit()</code>, <code>numberOfTrailingZeros()</code>, <code>numberOfLeadingZeros()</code>, <code>reverse()</code></li>
+<li>Same methods exist on <code>Long</code> for 64-bit values.</li>
+</ul>
+<b><code>1 &lt;&lt; i</code> vs <code>1L &lt;&lt; i</code></b> &mdash; shift on <code>int</code> literal is 32-bit. For bit positions &ge; 31, use <code>1L &lt;&lt; i</code> to avoid overflow.
+<ul>
+<li><code>1 &lt;&lt; 32</code> is <code>1</code> (shift amount is mod 32 for int!), not 2<sup>32</sup>.</li>
+</ul>
+<b>XOR self-cancel</b> &mdash; <code>a ^ a == 0</code>, <code>a ^ 0 == a</code>. Foundation for Single Number and pair-cancellation problems.
+<br><br><b>Bitmask for n items</b> &mdash; <code>(1 &lt;&lt; n) - 1</code> creates an n-bit mask of all 1s.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Check / Set / Clear / Toggle</td></tr>
+<tr><td>Check bit i</td><td><code>(n &gt;&gt; i) &amp; 1</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Set bit i</td><td><code>n | (1 &lt;&lt; i)</code></td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Clear bit i</td><td><code>n &amp; ~(1 &lt;&lt; i)</code></td>                                    <td class="tc-1">O(1)</td></tr>
+<tr><td>Toggle bit i</td><td><code>n ^ (1 &lt;&lt; i)</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Lowest Set Bit</td></tr>
+<tr><td>Isolate lowest</td><td><code>n &amp; -n</code></td>                                           <td class="tc-1">O(1)<span class="cmt">rightmost 1-bit</span></td></tr>
+<tr><td>Clear lowest</td><td><code>n &amp; (n - 1)</code></td>                                        <td class="tc-1">O(1)<span class="cmt">Kernighan&rsquo;s trick</span></td></tr>
+<tr class="grp"><td colspan="3">Built-in (Integer / Long)</td></tr>
+<tr><td>Popcount</td><td><code>int Integer.bitCount(int n)</code></td>                               <td class="tc-1">O(1)<span class="cmt">CPU intrinsic</span></td></tr>
+<tr><td>Highest one bit</td><td><code>int Integer.highestOneBit(int n)</code></td>                    <td class="tc-1">O(1)</td></tr>
+<tr><td>Lowest one bit</td><td><code>int Integer.lowestOneBit(int n)</code></td>                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Trailing zeros</td><td><code>int Integer.numberOfTrailingZeros(int n)</code></td>             <td class="tc-1">O(1)</td></tr>
+<tr><td>Leading zeros</td><td><code>int Integer.numberOfLeadingZeros(int n)</code></td>               <td class="tc-1">O(1)</td></tr>
+<tr><td>Reverse bits</td><td><code>int Integer.reverse(int n)</code></td>                             <td class="tc-1">O(1)</td></tr>
+<tr><td>Reverse bytes</td><td><code>int Integer.reverseBytes(int n)</code></td>                       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Shifts</td></tr>
+<tr><td>Left shift</td><td><code>n &lt;&lt; k</code></td>                                             <td class="tc-1">O(1)<span class="cmt">n &times; 2<sup>k</sup></span></td></tr>
+<tr><td>Arithmetic right</td><td><code>n &gt;&gt; k</code></td>                                      <td class="tc-1">O(1)<span class="cmt">signed, keeps sign</span></td></tr>
+<tr><td>Unsigned right</td><td><code>n &gt;&gt;&gt; k</code></td>                                    <td class="tc-1">O(1)<span class="cmt">fills with 0</span></td></tr>
+<tr class="grp"><td colspan="3">Conversion</td></tr>
+<tr><td>To binary string</td><td><code>String Integer.toBinaryString(int n)</code></td>               <td class="tc-1">O(32)</td></tr>
+<tr><td>To hex string</td><td><code>String Integer.toHexString(int n)</code></td>                     <td class="tc-1">O(8)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Bit Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// n = 10 (binary: 1010)
+
+// &mdash; Check, Set, Clear, Toggle (0-indexed from right) &mdash;
+(10 &gt;&gt; 1) &amp; 1;                  // 1   &mdash; bit 1 is set
+(10 &gt;&gt; 2) &amp; 1;                  // 0   &mdash; bit 2 is not set
+10 | (1 &lt;&lt; 2);                  // 14  (1110) &mdash; set bit 2
+10 &amp; ~(1 &lt;&lt; 1);                 // 8   (1000) &mdash; clear bit 1
+10 ^ (1 &lt;&lt; 0);                  // 11  (1011) &mdash; toggle bit 0
+
+// &mdash; Lowest Set Bit &amp; Kernighan&rsquo;s &mdash;
+12 &amp; -12;                       // 4   (1100 &amp; 0100) &mdash; isolate rightmost 1
+12 &amp; (12 - 1);                  // 8   (1100 &amp; 1011) &mdash; clear lowest set bit
+10 &amp; (10 - 1);                  // 8   (1010 &amp; 1001) &mdash; clear lowest set bit
+
+// &mdash; Power of 2 Check &mdash;
+8 &gt; 0 &amp;&amp; (8 &amp; 7) == 0;         // true  &mdash; 8 is 2^3
+6 &gt; 0 &amp;&amp; (6 &amp; 5) == 0;         // false &mdash; 6 is not a power of 2
+0 &gt; 0 &amp;&amp; (0 &amp; -1) == 0;        // false &mdash; guard against 0
+
+// &mdash; Built-in Methods (all O(1) intrinsics) &mdash;
+Integer.bitCount(10);                 // 2   &mdash; 1010 has two 1-bits
+Integer.highestOneBit(10);            // 8   &mdash; highest bit: 1000
+Integer.lowestOneBit(10);             // 2   &mdash; lowest bit:  0010
+Integer.numberOfTrailingZeros(10);    // 1   &mdash; one trailing 0
+Integer.numberOfLeadingZeros(10);     // 28  &mdash; 28 leading zeros (32-bit)
+Integer.reverse(10);                  // 1342177280 &mdash; reverse all 32 bits
+Integer.toBinaryString(10);           // "1010"
+
+// &mdash; Shifts &mdash;
+5 &lt;&lt; 3;                         // 40  &mdash; 5 &times; 2^3
+40 &gt;&gt; 3;                        // 5   &mdash; 40 &divide; 2^3 (arithmetic, keeps sign)
+-1 &gt;&gt; 1;                        // -1  &mdash; sign bit preserved
+-1 &gt;&gt;&gt; 1;                       // 2147483647 &mdash; unsigned shift, fills with 0
+
+// &mdash; Even / Odd &mdash;
+(4 &amp; 1) == 0;                   // true  &mdash; 4 is even
+(7 &amp; 1) == 1;                   // true  &mdash; 7 is odd
+
+// &mdash; XOR Rules &mdash;
+5 ^ 0;                          // 5   &mdash; identity
+5 ^ 5;                          // 0   &mdash; self-cancel
+3 ^ 7 ^ 3;                     // 7   &mdash; associative cancel (Single Number)
+
+// &mdash; Bitmask &mdash;
+(1 &lt;&lt; 4) - 1;                   // 15  (0b1111) &mdash; 4-bit mask
+
+// &mdash; Count set bits (Kernighan&rsquo;s) O(k) where k = number of 1-bits &mdash;
+int count = 0;
+int n = 10;                     // 1010
+while (n != 0) { n &amp;= n - 1; count++; }
+// count = 2
+
+// &mdash; Subset Enumeration (mask = 0b1010 = 10) &mdash;
+// Iterates: 10(1010), 8(1000), 2(0010) then stops; handle 0 separately
+int mask = 10;
+for (int sub = mask; sub &gt; 0; sub = (sub - 1) &amp; mask) {
+    // process sub
+}</code></pre>
+</div>
+</div>
+
+<!-- Bit Manipulation — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">&gt;&gt; vs &gt;&gt;&gt; &mdash; arithmetic vs logical shift</span>
+  <span class="severity subtle">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// &gt;&gt; preserves sign bit (arithmetic shift)
+-1 &gt;&gt; 1;                   // -1  &mdash; sign bit propagated
+-8 &gt;&gt; 2;                   // -2  &mdash; arithmetic divide by 4
+
+// &gt;&gt;&gt; fills with 0 (logical shift)
+-1 &gt;&gt;&gt; 1;                  // 2147483647 (Integer.MAX_VALUE)
+-8 &gt;&gt;&gt; 2;                  // 1073741822
+
+// ❌ Using &gt;&gt; for unsigned midpoint
+int mid = (lo + hi) &gt;&gt; 1;        // WRONG for negative (lo + hi)
+
+// ✅ Use &gt;&gt;&gt; for safe unsigned midpoint
+int mid = (lo + hi) &gt;&gt;&gt; 1;       // correct even if sum is negative
+
+// ⚠ Integer.bitCount() on negative numbers works correctly
+Integer.bitCount(-1);              // 32 &mdash; all bits set
+Integer.bitCount(-2);              // 31 &mdash; treats as unsigned 32-bit</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Power-of-2 check &mdash; n=0 false positive</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ 0 passes the bit test but is NOT a power of 2
+(0 &amp; (0 - 1)) == 0;          // true &mdash; but 0 is not a power of 2!
+(-16 &amp; (-16 - 1)) == 0;      // false &mdash; but -16 shouldn&rsquo;t pass either
+
+// ✅ Must guard: n &gt; 0
+boolean isPow2 = n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;
+
+// Examples:
+8 &gt; 0 &amp;&amp; (8 &amp; 7) == 0;       // true  &mdash; 8 = 2^3 ✓
+6 &gt; 0 &amp;&amp; (6 &amp; 5) == 0;       // false &mdash; 6 is not a power of 2 ✓
+1 &gt; 0 &amp;&amp; (1 &amp; 0) == 0;       // true  &mdash; 1 = 2^0 ✓
+0 &gt; 0 &amp;&amp; (0 &amp; -1) == 0;      // false &mdash; 0 rejected ✓</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">1 &lt;&lt; 31 overflows int &mdash; use 1L for long shifts</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ 1 &lt;&lt; 31 sets the sign bit → Integer.MIN_VALUE
+1 &lt;&lt; 31;                      // -2147483648 (Integer.MIN_VALUE!)
+1 &lt;&lt; 32;                      // 1 &mdash; shift wraps mod 32 for int!
+1 &lt;&lt; 33;                      // 2 &mdash; same as 1 &lt;&lt; 1
+
+// ✅ Use 1L for 64-bit shifts
+1L &lt;&lt; 31;                     // 2147483648L ✓
+1L &lt;&lt; 32;                     // 4294967296L ✓
+1L &lt;&lt; 63;                     // Long.MIN_VALUE &mdash; same sign-bit issue at 64
+
+// ⚠ Common trap: bitmask for &gt; 30 items
+int mask30 = (1 &lt;&lt; 30) - 1;   // OK  &mdash; 1073741823
+int mask31 = (1 &lt;&lt; 31) - 1;   // 2147483647 (Integer.MAX_VALUE) &mdash; works but risky
+int mask32 = (1 &lt;&lt; 32) - 1;   // 0! &mdash; 1 &lt;&lt; 32 wraps to 1, minus 1 = 0
+
+// ✅ Use long for large bitmasks
+long mask40 = (1L &lt;&lt; 40) - 1; // correct 40-bit mask</code></pre>
+</div>
+</div>
+
 <!-- ==================== 0. ARRAYS ==================== -->
 <div class="section-title" id="sec-arrays"><span class="icon">&#128220;</span> Arrays (Primitive &amp; Object)</div>
 <p class="section-intro">Arrays are <b>fixed-size, contiguous memory</b> blocks. Not part of the Collections framework but the foundation for ArrayList, ArrayDeque, PriorityQueue, and HashMap internals. All access is O(1) by index; no resizing, no generics for primitives.</p>
