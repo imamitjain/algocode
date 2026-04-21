@@ -498,6 +498,43 @@ long mask40 = (1L &lt;&lt; 40) - 1; // correct 40-bit mask</code></pre>
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bit-level character tricks</span>
+  <span class="severity tip">Best Practice</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ASCII: 'A'=65(1000001), 'a'=97(1100001) &mdash; differ only in bit 5
+// ' ' = 32 = 0b0010_0000,  '_' = 95 = 0b0101_1111
+
+// Force lowercase (set bit 5)
+(char)('A' | ' ');                  // 'a'
+(char)('a' | ' ');                  // 'a' &mdash; already lowercase, no change
+
+// Force uppercase (clear bit 5)
+(char)('a' &amp; '_');                  // 'A'
+(char)('A' &amp; '_');                  // 'A' &mdash; already uppercase, no change
+
+// Toggle case (flip bit 5)
+(char)('A' ^ ' ');                  // 'a'
+(char)('a' ^ ' ');                  // 'A'
+
+// ⚠ Only works for ASCII letters A-Z / a-z
+// Digits and symbols give wrong results:
+(char)('1' | ' ');                  // '1' &mdash; happens to be same (lucky)
+(char)('#' | ' ');                  // '#' &mdash; wrong if you expected letter
+
+// ✅ Use Character.toLowerCase/toUpperCase for safety
+Character.toLowerCase('A');         // 'a' &mdash; Unicode-safe
+Character.toUpperCase('a');         // 'A'
+
+// Vowel check (case-insensitive via lowercase trick)
+char lower = (char)(c | ' ');
+boolean isVowel = lower == 'a' || lower == 'e' || lower == 'i'
+               || lower == 'o' || lower == 'u';</code></pre>
+</div>
+</div>
+
 <!-- ==================== 0. ARRAYS ==================== -->
 <div class="section-title" id="sec-arrays"><span class="icon">&#128220;</span> Arrays (Primitive &amp; Object)</div>
 <p class="section-intro">Arrays are <b>fixed-size, contiguous memory</b> blocks. Not part of the Collections framework but the foundation for ArrayList, ArrayDeque, PriorityQueue, and HashMap internals. All access is O(1) by index; no resizing, no generics for primitives.</p>
