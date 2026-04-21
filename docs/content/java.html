@@ -2909,4 +2909,177 @@ boolean  disjoint(Collection&lt;?&gt; c1, Collection&lt;?&gt; c2)</code></pre>
 </div>
 </div>
 
+<!-- ==================== GRID / MATRIX UTILITIES ==================== -->
+<div class="section-title" id="sec-grid"><span class="icon">&#128306;</span> Grid / Matrix Utilities</div>
+<p class="section-intro">Common patterns for 2D grid problems: neighbor traversal via direction arrays, index conversion between 2D and 1D, in-place transforms (transpose, rotate), and spiral/diagonal properties. All transforms are O(m&times;n) or O(n&sup2;).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Direction arrays</b> &mdash; use <code>int[] dr, dc</code> for 4-directional or 8-directional neighbor traversal. Keeps code clean and avoids writing 4&ndash;8 separate if-blocks.
+<ul>
+<li>4-dir: <code>{-1,0,1,0}</code> and <code>{0,1,0,-1}</code> &mdash; up, right, down, left.</li>
+<li>8-dir: add diagonals &mdash; 8 pairs total.</li>
+</ul>
+<b>Always bounds-check</b> &mdash; <code>nr &gt;= 0 &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; cols</code> before accessing <code>grid[nr][nc]</code>.
+<br><br><b>2D &harr; 1D index</b> &mdash; <code>(r, c)</code> maps to <code>r * cols + c</code>. Reverse: <code>r = idx / cols</code>, <code>c = idx % cols</code>. Useful for Union-Find on grids.
+<br><br><b>Transpose</b> &mdash; swap <code>[i][j]</code> and <code>[j][i]</code>. In-place only for square matrices.
+<br><br><b>Rotate 90&deg; CW</b> &mdash; transpose + reverse each row. <b>CCW</b> &mdash; transpose + reverse each column.
+<br><br><b>Diagonal properties</b> &mdash; <code>r - c</code> is constant along <code>\</code> diagonals. <code>r + c</code> is constant along <code>/</code> anti-diagonals. Use as map keys for N-Queens, diagonal traversal.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Directions, Bounds Check &amp; Index Conversion</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// &mdash; 4-directional (up, right, down, left) &mdash;
+int[] dr = {-1, 0, 1, 0};
+int[] dc = { 0, 1, 0,-1};
+
+// &mdash; 8-directional (includes diagonals) &mdash;
+int[] dr8 = {-1,-1,-1, 0, 0, 1, 1, 1};
+int[] dc8 = {-1, 0, 1,-1, 1,-1, 0, 1};
+
+// &mdash; Neighbor loop with bounds check &mdash;
+int rows = grid.length, cols = grid[0].length;
+for (int d = 0; d &lt; 4; d++) {
+    int nr = r + dr[d], nc = c + dc[d];
+    if (nr &gt;= 0 &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; cols) {
+        // valid neighbor at (nr, nc)
+    }
+}
+
+// &mdash; InBounds helper &mdash;
+static boolean inBounds(int r, int c, int rows, int cols) {
+    return r &gt;= 0 &amp;&amp; r &lt; rows &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; cols;
+}
+
+// &mdash; 2D &harr; 1D index (3&times;4 grid, 0-based) &mdash;
+int idx = 1 * 4 + 2;               // (r=1, c=2) &rarr; 6
+int r2  = 6 / 4;                   // 1
+int c2  = 6 % 4;                   // 2
+
+// Useful for Union-Find on grids: parent[r * cols + c]</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Transpose, Rotate, Spiral &amp; Diagonals</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// &mdash; Transpose (square n&times;n, in-place) &mdash;
+// [[1,2,3],[4,5,6],[7,8,9]] &rarr; [[1,4,7],[2,5,8],[3,6,9]]
+for (int i = 0; i &lt; n; i++) {
+    for (int j = i + 1; j &lt; n; j++) {
+        int tmp = mat[i][j];
+        mat[i][j] = mat[j][i];
+        mat[j][i] = tmp;
+    }
+}
+
+// &mdash; Rotate 90&deg; CW = transpose + reverse each row &mdash;
+// [[1,2,3],[4,5,6],[7,8,9]] &rarr; transpose &rarr; reverse rows &rarr; [[7,4,1],[8,5,2],[9,6,3]]
+// Rotate 90&deg; CCW = transpose + reverse each column
+
+// &mdash; Reverse a row in-place &mdash;
+for (int l = 0, r = n - 1; l &lt; r; l++, r--) {
+    int tmp = mat[row][l];
+    mat[row][l] = mat[row][r];
+    mat[row][r] = tmp;
+}
+
+// &mdash; Spiral traversal (m&times;n) &mdash;
+// [[1,2,3],[4,5,6],[7,8,9]] &rarr; 1,2,3,6,9,8,7,4,5
+int top = 0, bot = m - 1, left = 0, right = n - 1;
+List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
+while (top &lt;= bot &amp;&amp; left &lt;= right) {
+    for (int c = left; c &lt;= right; c++) result.add(mat[top][c]);     // &rarr; top row
+    top++;
+    for (int r = top; r &lt;= bot; r++) result.add(mat[r][right]);      // &darr; right col
+    right--;
+    if (top &lt;= bot) {
+        for (int c = right; c &gt;= left; c--) result.add(mat[bot][c]); // &larr; bottom row
+        bot--;
+    }
+    if (left &lt;= right) {
+        for (int r = bot; r &gt;= top; r--) result.add(mat[r][left]);   // &uarr; left col
+        left++;
+    }
+}
+
+// &mdash; Diagonal properties &mdash;
+// Same \ diagonal:      r - c is constant    (0,0) and (1,1) both have r-c = 0
+// Same / anti-diagonal: r + c is constant    (0,2) and (1,1) both have r+c = 2
+
+// &mdash; Grid DFS (4-directional) &mdash;
+void dfs(int[][] grid, boolean[][] vis, int r, int c) {
+    if (r &lt; 0 || r &gt;= grid.length || c &lt; 0 || c &gt;= grid[0].length || vis[r][c]) return;
+    vis[r][c] = true;
+    for (int d = 0; d &lt; 4; d++) {
+        dfs(grid, vis, r + dr[d], c + dc[d]);
+    }
+}</code></pre>
+</div>
+</div>
+
+<!-- Grid / Matrix — Edge Cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Jagged array NPE &mdash; grid[i] may be null</span>
+  <span class="severity bug">NullPointerException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ❌ Rows not initialized in jagged array
+int[][] jagged = new int[3][];      // rows are null!
+jagged[0].length;                   // NullPointerException!
+jagged[0][0] = 1;                   // NullPointerException!
+
+// ✅ new int[3][4] initializes all rows automatically
+int[][] grid = new int[3][4];       // 3 rows, each is int[4]
+grid[0].length;                     // 4 ✓
+
+// ✅ For jagged arrays, initialize each row
+int[][] jagged2 = new int[3][];
+jagged2[0] = new int[]{1, 2};
+jagged2[1] = new int[]{3, 4, 5};
+jagged2[2] = new int[]{6};
+jagged2[1].length;                  // 3 ✓</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">grid.length vs grid[0].length &mdash; dimension swap</span>
+  <span class="severity subtle">ArrayIndexOutOfBoundsException</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// For a 2x5 grid (2 rows, 5 columns):
+int[][] grid = new int[2][5];
+grid.length;                        // 2 &mdash; rows (m)
+grid[0].length;                     // 5 &mdash; columns (n)
+
+// ❌ Swapping dimensions on non-square grids
+int rows = grid[0].length;          // WRONG &mdash; this is columns!
+int cols = grid.length;             // WRONG &mdash; this is rows!
+grid[3][1] = 1;                     // ArrayIndexOutOfBoundsException!
+
+// ✅ Correct
+int rows2 = grid.length;            // 2
+int cols2 = grid[0].length;         // 5
+
+// ⚠ Always guard against empty grid
+if (grid.length == 0 || grid[0].length == 0) return;
+
+// ⚠ grid[0].length assumes all rows have same length
+// Safe for int[m][n], but NOT for jagged arrays</code></pre>
+</div>
+</div>
+
 </div><!-- end cards-grid -->
