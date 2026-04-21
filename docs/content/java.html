@@ -51,7 +51,7 @@
 <tr><td>Ceiling</td><td><code>double Math.ceil(double a)</code></td>                      <td class="tc-1">O(1)<span class="cmt">toward +&infin;</span></td></tr>
 <tr><td>Round</td><td><code>long Math.round(double a)</code></td>                         <td class="tc-1">O(1)<span class="cmt">nearest</span></td></tr>
 <tr><td>Floor div</td><td><code>int Math.floorDiv(int a, int b)</code></td>               <td class="tc-1">O(1)<span class="cmt">toward &minus;&infin;</span></td></tr>
-<tr><td>Floor mod</td><td><code>int Math.floorMod(int a, int b)</code></td>               <td class="tc-1">O(1)<span class="cmt">always &ge; 0</span></td></tr>
+<tr><td>Floor mod</td><td><code>int Math.floorMod(int a, int b)</code></td>               <td class="tc-1">O(1)<span class="cmt">non-negative when b &gt; 0</span></td></tr>
 <tr class="grp"><td colspan="3">Logarithms</td></tr>
 <tr><td>Natural log</td><td><code>double Math.log(double a)</code></td>                   <td class="tc-1">O(1)<span class="cmt">base e</span></td></tr>
 <tr><td>Log base 10</td><td><code>double Math.log10(double a)</code></td>                 <td class="tc-1">O(1)</td></tr>
@@ -130,8 +130,17 @@ static int gcd(int a, int b) {
 }
 
 // LCM &mdash; divide first to avoid overflow
+static long gcdLong(long a, long b) {
+    while (b != 0) {
+        long t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
 static long lcm(long a, long b) {
-    return a / gcd((int) a, (int) b) * b;
+    return a / gcdLong(a, b) * b;
 }
 
 // isPrime &mdash; trial division O(&radic;n)
@@ -254,10 +263,11 @@ static long intPow(long base, int exp) {
   <span class="severity subtle">Wrong Answer</span>
 </div>
 <div class="card-body">
-<pre><code class="language-java">// ❌ (int) Math.sqrt(n) can be off by 1 due to floating-point
+<pre><code class="language-java">// ⚠ Defensive pattern: cast-to-int + square check is usually fine,
+// but checking sq and sq+1 avoids off-by-one surprises from floating-point rounding.
 int n = 2147395600;
-int sq = (int) Math.sqrt(n);       // may give 46339 instead of 46340!
-sq * sq == n;                      // false &mdash; wrong answer!
+int sq = (int) Math.sqrt(n);       // 46340 for this input
+sq * sq == n;                      // true
 
 // ✅ Check both sq and sq+1
 int sq2 = (int) Math.sqrt(n);
@@ -816,7 +826,7 @@ String s3 = new String(charArray);                 // from char[]
 String s4 = String.format("Hi %s, age %d", "Jo", 25); // formatted
 
 // ── StringBuilder (mutable, not thread-safe) ──
-StringBuilder sb = new StringBuilder();            // empty, default capacity 16
+StringBuilder sb = new StringBuilder("hello");     // from String
 StringBuilder sb2 = new StringBuilder(100);        // initial capacity
 StringBuilder sb3 = new StringBuilder("hello");    // from String
 sb.append("world").append(42).insert(5, " ");      // chaining: "hello world42"
@@ -1311,7 +1321,7 @@ new TreeMap&lt;&gt;((a, b) -&gt; Integer.compare(b, a))</code></pre>
 
 <div class="card">
 <div class="card-header">
-  <span class="card-title">compareTo() == 0 means duplicate in TreeSet / TreeMap</span>
+  <span class="card-title">Configured ordering == 0 means duplicate in TreeSet / TreeMap</span>
   <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
@@ -1319,8 +1329,8 @@ new TreeMap&lt;&gt;((a, b) -&gt; Integer.compare(b, a))</code></pre>
 TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);
 ts.add("A");
 ts.add("a");
-ts.size();          // 1 — "a" treated as duplicate of "A" by compareTo
-ts.contains("a");   // true — compareTo matches
+ts.size();          // 1 — "a" treated as duplicate of "A" by Comparator.compare(...)
+ts.contains("a");   // true — Comparator.compare(...) matches
 
 // But equals() disagrees:
 "A".equals("a");    // false!
@@ -1331,7 +1341,8 @@ hs.add("A");
 hs.add("a");
 hs.size();          // 2 — "A" and "a" are NOT equal by equals()
 
-// TreeSet/TreeMap use compareTo() for EVERYTHING — add, contains, remove, dedup
+// TreeSet/TreeMap use the configured ordering for EVERYTHING:
+// Comparator.compare(...) if supplied, otherwise natural ordering / compareTo()
 // HashSet uses equals() + hashCode()
 // Same objects can behave differently across the two</code></pre>
 </div>
@@ -1377,12 +1388,12 @@ list.sort(Comparator.naturalOrder());  // NullPointerException!
 list.sort(Comparator.nullsFirst(Comparator.naturalOrder()));   // [null, "a", "b"]
 list.sort(Comparator.nullsLast(Comparator.naturalOrder()));    // ["a", "b", null]
 
-// ⚠ TreeSet/TreeMap with null is still undefined — avoid entirely
-// Even with nullsFirst comparator, behavior is JVM-dependent
+// ⚠ TreeSet/TreeMap reject null by default with natural ordering
+// ✅ With a null-aware Comparator, null can be ordered explicitly
 TreeSet&lt;String&gt; ts = new TreeSet&lt;&gt;(Comparator.nullsFirst(Comparator.naturalOrder()));
-ts.add(null);  // may work on some JVMs, not guaranteed
+ts.add(null);  // OK — comparator defines null ordering
 
-// ✅ Filter nulls before inserting into TreeSet/TreeMap</code></pre>
+// ✅ If you are not using a null-aware comparator, filter nulls first</code></pre>
 </div>
 </div>
 
@@ -1714,7 +1725,7 @@ Set&lt;Integer&gt; synced = Collections.synchronizedSet(new HashSet&lt;&gt;()); 
 <tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(m)</td> <td class="tc-n">O(m)</td>      <td class="tc-nlogn">O(m log n)</td></tr>
 <tr class="grp"><td colspan="5">Conversion &amp; Traversal</td></tr>
 <tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
-<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>             <td class="tc-n">O(cap)<span class="cmt">capacity</span></td> <td class="tc-n">O(n)<span class="cmt">linked list</span></td> <td class="tc-n">O(n)<span class="cmt">in-order</span></td></tr>
+<tr><td>Iterable</td><td><code>Iterator iterator()</code></td>             <td class="tc-1">O(1)<span class="cmt">traverse: O(capacity)</span></td> <td class="tc-1">O(1)<span class="cmt">traverse: O(n)</span></td> <td class="tc-1">O(1)<span class="cmt">traverse: O(n) in-order</span></td></tr>
 <tr class="grp"><td colspan="5">Advanced</td></tr>
 <tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
 </tbody>
@@ -1814,7 +1825,7 @@ tree.add(null);  // NullPointerException!
 // ❌ Even with a custom comparator that handles null:
 // First element added may succeed, but behavior is undefined
 Set&lt;String&gt; tree2 = new TreeSet&lt;&gt;(Comparator.nullsFirst(Comparator.naturalOrder()));
-tree2.add(null);    // works in some JVMs, not guaranteed</code></pre>
+tree2.add(null);    // OK &mdash; comparator handles null ordering</code></pre>
 </div>
 </div>
 
@@ -1870,7 +1881,7 @@ Set&lt;String&gt; sorted = new TreeSet&lt;&gt;(set);  // always [a, b, c]</code>
 Queue&lt;Integer&gt; pq1 = new PriorityQueue&lt;&gt;();                          // min-heap, natural order
 Queue&lt;Integer&gt; pq2 = new PriorityQueue&lt;&gt;(100);                      // initial capacity 100
 Queue&lt;Integer&gt; pq3 = new PriorityQueue&lt;&gt;(Comparator.reverseOrder()); // max-heap
-Queue&lt;int[]&gt;   pq4 = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);   // custom comparator
+Queue&lt;int[]&gt;   pq4 = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[0], b[0])); // custom comparator
 Queue&lt;Integer&gt; pq5 = new PriorityQueue&lt;&gt;(existingCollection);       // heapify from collection
 
 // ── ArrayDeque (stack + queue) ──
@@ -2029,7 +2040,7 @@ dq.pollFirst();    // null — safe</code></pre>
 <pre><code class="language-java">// PriorityQueue.remove(Object) and contains(Object) use equals(), NOT the comparator
 // If comparator says two objects are "equal" but equals() disagrees → confusion
 
-Queue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]);
+Queue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[0], b[0]));
 int[] item = {1, 2};
 pq.offer(item);
 pq.remove(new int[]{1, 2});  // false! — arrays use identity equals
@@ -2180,7 +2191,7 @@ grouped.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(42);</code><
 <tr><td>Map</td><td><code>Set keySet()</code></td>                         <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
 <tr><td>Map</td><td><code>Collection values()</code></td>                  <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td> <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
 <tr><td>Map</td><td><code>void forEach(BiConsumer action)</code></td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td>      <td class="tc-n">O(n)</td></tr>
-<tr><td>Map</td><td><code>Set entrySet().iterator()</code></td>            <td class="tc-n">O(cap)<span class="cmt">capacity</span></td>    <td class="tc-n">O(n)<span class="cmt">linked list</span></td> <td class="tc-n">O(n)<span class="cmt">in-order</span></td></tr>
+<tr><td>Map</td><td><code>Set entrySet().iterator()</code></td>            <td class="tc-1">O(1)<span class="cmt">traverse: O(capacity)</span></td>    <td class="tc-1">O(1)<span class="cmt">traverse: O(n)</span></td> <td class="tc-1">O(1)<span class="cmt">traverse: O(n) in-order</span></td></tr>
 <tr class="grp"><td colspan="5">LinkedHashMap-Specific</td></tr>
 <tr><td>LinkedHashMap</td><td><code>boolean removeEldestEntry(Entry)</code></td> <td class="na">--</td> <td class="tc-1">O(1)<span class="cmt">override for LRU</span></td> <td class="na">--</td></tr>
 <tr class="grp"><td colspan="5">Sorted Access (NavigableMap) &mdash; TreeMap only</td></tr>
@@ -2201,7 +2212,7 @@ grouped.computeIfAbsent("key", k -&gt; new ArrayList&lt;&gt;()).add(42);</code><
 <b>LinkedHashMap</b> &mdash; insertion-order iteration
 <ul><li>accessOrder=true switches to last-access order</li><li>Override removeEldestEntry() to build an LRU cache</li></ul>
 <b>TreeMap</b> &mdash; red-black tree, sorted keys
-<ul><li>Keys must be Comparable or supply a Comparator</li><li>No null keys (throws NPE)</li></ul></div>
+<ul><li>Keys must be Comparable or supply a Comparator</li><li>Null keys are rejected by natural ordering; a null-aware Comparator can define support explicitly</li></ul></div>
 </div>
 </div>
 
@@ -2612,7 +2623,7 @@ BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // boun
 <tr><td>ConcurrentMap</td><td><code>V computeIfAbsent(K, fn)</code></td>   <td class="tc-1">O(1)<span class="cmt">atomic; + fn</span></td>     <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
 <tr><td>ConcurrentMap</td><td><code>V merge(K, V, fn)</code></td>          <td class="tc-1">O(1)<span class="cmt">atomic</span></td>            <td class="tc-logn">O(log n)</td></tr>
 <tr class="grp"><td colspan="4">Size &amp; Metadata</td></tr>
-<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-n">O(n)<span class="cmt">use mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-1">O(1)<span class="cmt">capped at MAX_VALUE; prefer mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
 <tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
 <tr><td>Map</td><td><code>void clear()</code></td>                         <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
 <tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="tc-n">O(m)</td>                                           <td class="tc-nlogn">O(m log n)</td></tr>
@@ -2803,10 +2814,10 @@ chm.put("a", ABSENT);
 // ⚠ size() returns int — can overflow for maps with &gt; Integer.MAX_VALUE entries
 chm.size();  // may return Integer.MAX_VALUE for huge maps
 
-// ✅ Use mappingCount() — returns long, more accurate
+// ✅ Use mappingCount() — returns long and avoids int overflow
 long count = ((ConcurrentHashMap&lt;String, Integer&gt;) chm).mappingCount();
 
-// ⚠ Both are still estimates in concurrent environment
+// ⚠ Both can become stale immediately in concurrent code
 // Another thread may add/remove entries between your check and action
 
 // ❌ Classic check-then-act race
@@ -2832,8 +2843,8 @@ chm.computeIfAbsent("k", k -&gt; expensiveCompute());</code></pre>
 syncList.add("a");  // OK
 syncList.get(0);    // OK
 
-// ❌ But iteration is NOT automatically synchronized
-for (String s : syncList) {  // may throw ConcurrentModificationException!
+// ❌ But iteration is NOT automatically synchronized against concurrent modification
+for (String s : syncList) {  // may throw ConcurrentModificationException if another thread mutates concurrently
     process(s);
 }
 
