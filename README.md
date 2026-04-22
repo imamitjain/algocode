@@ -1,12 +1,12 @@
 # AlgoCode
 
-Quick-reference site covering Java collections, Go DSA tricks, edge cases, and Go vs C++ comparisons.
+Quick-reference site for DSA and language idioms across Java, Go, C++, and Python.
 
 **Live site:** https://imamitjain.github.io/algocode/
 
 ## What's Covered
 
-- **Java** — Collections & data structures cheatsheet with interface hierarchy, time complexity comparison tables, String/Array operations, and concurrency.
-- **Code Tricks** — 46 cards across 15 categories covering idiomatic Go patterns, data structure tricks, and algorithmic techniques.
-- **Edge Cases** — 48 cards across 14 categories highlighting subtle Go behaviors, common pitfalls, and gotchas.
-- **Go vs C++** — 90+ side-by-side comparisons across 13 categories for developers transitioning between the two languages.
+- **Java** — 109 cards across 17 categories covering collections, data structures, interface hierarchy, time complexity tables, String/Array operations, and concurrency.
+- **Golang** — 72 cards across 21 categories covering idiomatic Go patterns, data structure tricks, algorithmic techniques, edge cases, and pitfalls.
+- **C++** — 66 cards across 14 categories covering STL containers, math utilities, bit manipulation, sorting, searching, and algorithm patterns.
+- **Python3** — 63 cards across 16 categories covering built-in data structures, comprehensions, sorting, searching, and Pythonic idioms.
