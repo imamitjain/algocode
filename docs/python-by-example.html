@@ -12,136 +12,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-<style>
-:root {
-  --bg: #0d1117; --surface: #161b22; --surface2: #1c2333;
-  --border: #30363d; --text: #e6edf3; --text2: #8b949e;
-  --accent: #00add8; --accent2: #79d4fd; --radius: 8px;
-  --sidebar-w: 260px;
-}
-[data-theme="light"] {
-  --bg: #f6f8fa; --surface: #ffffff; --surface2: #eef1f5;
-  --border: #d0d7de; --text: #1f2328; --text2: #656d76;
-  --accent: #00add8; --accent2: #0550ae;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.6;
-}
-a { color: var(--accent2); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* --- Header --- */
-.top-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 12px 24px; display: flex; align-items: center; gap: 16px;
-  position: sticky; top: 0; z-index: 100;
-}
-.logo { font-size: 1.3rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.logo span { color: var(--text); }
-.top-bar .subtitle { color: var(--text2); font-size: 0.85rem; }
-.top-bar .home-link {
-  margin-left: auto; font-size: 0.82rem; color: var(--text2);
-  padding: 5px 12px; border: 1px solid var(--border); border-radius: var(--radius);
-}
-.top-bar .home-link:hover { color: var(--text); background: var(--surface2); text-decoration: none; }
-.theme-toggle {
-  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
-  background: transparent; color: var(--text2); cursor: pointer; font-size: 1.1rem;
-  display: flex; align-items: center; justify-content: center;
-}
-.theme-toggle:hover { background: var(--surface2); color: var(--text); }
-
-/* --- Layout --- */
-.layout { display: flex; min-height: calc(100vh - 53px); }
-
-/* --- Sidebar --- */
-.sidebar {
-  width: var(--sidebar-w); flex-shrink: 0; background: var(--surface);
-  border-right: 1px solid var(--border); padding: 16px 0;
-  position: sticky; top: 53px; height: calc(100vh - 53px);
-  overflow-y: auto; font-size: 0.8rem;
-}
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.sidebar .group-label {
-  padding: 10px 18px 4px; font-size: 0.65rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent2);
-}
-.sidebar a {
-  display: block; padding: 3px 18px 3px 24px; color: var(--text2);
-  text-decoration: none; transition: all 0.1s;
-}
-.sidebar a:hover { color: var(--text); background: var(--surface2); text-decoration: none; }
-.sidebar a.active { color: var(--accent); font-weight: 600; }
-
-/* --- Main --- */
-.main { flex: 1; max-width: 960px; padding: 0 0 80px; }
-
-/* --- Example section --- */
-.example {
-  border-bottom: 1px solid var(--border); padding: 32px 32px 24px;
-  scroll-margin-top: 70px;
-}
-.example h2 {
-  font-size: 1.15rem; font-weight: 700; color: var(--accent2);
-  margin-bottom: 4px;
-}
-.example .lead { color: var(--text2); font-size: 0.84rem; margin-bottom: 16px; }
-.example-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
-  margin-bottom: 2px; align-items: stretch;
-}
-.example-row .docs {
-  padding: 10px 16px 10px 0; font-size: 0.82rem; color: var(--text2); line-height: 1.6;
-  border-right: 2px solid var(--border); display: flex; align-items: center;
-}
-.example-row .docs b { color: var(--text); }
-.example-row .docs code {
-  font-size: 0.78rem; background: var(--surface2); padding: 1px 5px;
-  border-radius: 3px; color: var(--text);
-}
-.example-row .code { padding: 0 0 0 16px; display: flex; align-items: stretch; }
-.example-row .code pre {
-  margin: 0; flex: 1; font-size: 0.8rem; border-radius: 6px; overflow-x: auto;
-}
-.example-row .code pre code.hljs {
-  background: #0d1117; border: 1px solid var(--border);
-  border-radius: 6px; padding: 10px 14px; display: block; height: 100%;
-}
-[data-theme="light"] .example-row .code pre code.hljs { background: #f6f8fa; }
-
-.example-row.full { grid-template-columns: 1fr; }
-.example-row.full .code { padding: 0; }
-
-/* Output row */
-.example-row .output {
-  padding: 0 0 0 16px; display: flex; align-items: stretch;
-}
-.example-row .output pre {
-  margin: 0; flex: 1; font-size: 0.78rem; border-radius: 6px;
-  background: #1a1f2e; border: 1px solid var(--border); padding: 10px 14px;
-  color: var(--text2); overflow-x: auto;
-}
-[data-theme="light"] .example-row .output pre { background: #eef1f5; }
-
-/* --- Footer --- */
-.footer {
-  text-align: center; padding: 20px; color: var(--text2); font-size: 0.78rem;
-  border-top: 1px solid var(--border);
-}
-
-/* --- Responsive --- */
-@media (max-width: 900px) {
-  .sidebar { display: none; }
-  .example-row { grid-template-columns: 1fr; }
-  .example-row .docs { border-right: none; border-bottom: 1px solid var(--border); padding: 8px 0; }
-  .example-row .code { padding: 8px 0 0; }
-  .example-row .output { padding: 8px 0 0; }
-  .example { padding: 24px 16px 20px; }
-}
-</style>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/severity.css">
 <script>
 (function() {
   var s = localStorage.getItem('theme') || 'dark';
@@ -155,245 +28,240 @@ a:hover { text-decoration: underline; }
 </head>
 <body>
 
-<div class="top-bar">
-  <span class="logo">Python<span> by Example</span></span>
-  <span class="subtitle">Core language concepts not in the DSA cheatsheet</span>
-  <a class="home-link" href="index.html">&#8592; AlgoCode</a>
-  <button class="theme-toggle" id="themeToggle" title="Toggle theme"></button>
+<div class="header">
+  <span class="logo"><span class="logo-text">Python<span> by Example</span></span></span>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search classes, decorators, generators...">
+  </div>
+  <a href="index.html" class="tab-btn" style="margin-left:auto">&#8592; AlgoCode</a>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme"></button>
 </div>
 
-<div class="layout">
-<nav class="sidebar" id="sidebar">
-  <div class="group-label">Functions &amp; Closures</div>
-  <a href="#unpacking">Unpacking &amp; Starred Expressions</a>
-  <a href="#lambda">Lambda &amp; Higher-Order Functions</a>
-  <a href="#closures">Closures &amp; Scoping</a>
-  <a href="#decorators">Decorators</a>
-  <div class="group-label">Iteration</div>
-  <a href="#comprehensions">Comprehensions</a>
-  <a href="#iterators">Iterators</a>
-  <a href="#generators">Generators</a>
-  <div class="group-label">OOP</div>
-  <a href="#classes">Classes &amp; OOP</a>
-  <a href="#inheritance">Inheritance &amp; MRO</a>
-  <a href="#magic">Magic Methods</a>
-  <a href="#properties">Properties</a>
-  <a href="#dataclasses">Dataclasses</a>
-  <a href="#abc">Abstract Base Classes</a>
-  <a href="#enums">Enums</a>
-  <a href="#slots">Slots</a>
-  <div class="group-label">Type System</div>
-  <a href="#typehints">Type Hints</a>
-  <div class="group-label">Error Handling &amp; Resources</div>
-  <a href="#exceptions">Exception Handling</a>
-  <a href="#context">Context Managers</a>
-  <div class="group-label">Modern Python</div>
-  <a href="#walrus">Walrus Operator</a>
-  <a href="#match">Match / Case</a>
-  <a href="#async">Async / Await</a>
-  <div class="group-label">Standard Library</div>
-  <a href="#regex">Regular Expressions</a>
-  <a href="#collections">Collections Module</a>
-</nav>
+<div class="nav-bar" id="navLinks"></div>
 
+<div id="content">
 <div class="main">
+<div class="cards-grid">
 
-<!-- ============================================================ -->
-<div class="example" id="unpacking">
-<h2>Unpacking &amp; Starred Expressions</h2>
-<p class="lead">Python can destructure any iterable into individual variables. The <code>*</code> operator collects remainders.</p>
+<!-- ==================== UNPACKING ==================== -->
+<div class="section-title" id="sec-unpacking"><span class="icon">&#128230;</span> Unpacking &amp; Starred Expressions</div>
+<p class="section-intro">Python destructures any iterable into variables. <code>*</code> collects remainders into a list. <code>*args</code>/<code>**kwargs</code> capture variable positional/keyword arguments.</p>
 
-<div class="example-row">
-  <div class="docs">Basic unpacking works with any iterable — tuples, lists, strings, ranges.</div>
-  <div class="code"><pre><code class="language-python">a, b, c = (1, 2, 3)
-x, y = [10, 20]
-first, second, third = "abc"
-
-# Swap without a temp variable
-a, b = b, a</code></pre></div>
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Basic unpacking</b> &mdash; works with tuples, lists, strings, ranges, any iterable.
+<br><br><b>Starred expression</b> &mdash; <code>*rest</code> collects leftover elements into a list. Only one <code>*var</code> per assignment.
+<br><br><b><code>*args</code></b> collects extra positional arguments as a tuple; <b><code>**kwargs</code></b> collects extra keyword arguments as a dict.
+<br><br><b>Splat operator</b> &mdash; <code>*iterable</code> unpacks into function calls; <code>**dict</code> unpacks keyword arguments.
+<br><br><b>Nested unpacking</b> &mdash; destructures inner structures: <code>(a, b), (c, d) = (1, 2), (3, 4)</code>.
+</div>
+</div>
 </div>
 
-<div class="example-row">
-  <div class="docs"><b>Starred expressions</b> collect the leftover elements into a list. Only one <code>*var</code> per assignment.</div>
-  <div class="code"><pre><code class="language-python">first, *rest = [1, 2, 3, 4, 5]
-# first = 1, rest = [2, 3, 4, 5]
-
-first, *mid, last = [1, 2, 3, 4, 5]
-# first = 1, mid = [2, 3, 4], last = 5
-
-*head, tail = range(5)
-# head = [0, 1, 2, 3], tail = 4</code></pre></div>
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Unpacking Patterns</span>
 </div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic unpacking &mdash;
+a, b, c = (1, 2, 3)               # a=1, b=2, c=3
+x, y = [10, 20]                   # works with lists
+first, second, third = "abc"      # works with strings
+a, b = b, a                       # swap without temp
 
-<div class="example-row">
-  <div class="docs"><b><code>*args</code></b> collects positional arguments into a tuple. <b><code>**kwargs</code></b> collects keyword arguments into a dict.</div>
-  <div class="code"><pre><code class="language-python">def func(*args, **kwargs):
-    print(args)    # (1, 2, 3)
-    print(kwargs)  # {'x': 10, 'y': 20}
+# &mdash; Starred expressions &mdash;
+first, *rest = [1, 2, 3, 4, 5]    # first=1, rest=[2,3,4,5]
+first, *mid, last = [1, 2, 3, 4]  # first=1, mid=[2,3], last=4
+*head, tail = range(5)             # head=[0,1,2,3], tail=4
+
+# &mdash; *args and **kwargs &mdash;
+def func(*args, **kwargs):
+    print(args)                    # (1, 2, 3)
+    print(kwargs)                  # {'x': 10, 'y': 20}
 
 func(1, 2, 3, x=10, y=20)
 
-# Splat operator unpacks into function calls
+# &mdash; Splat in function calls &mdash;
 nums = [1, 2, 3]
 opts = {"sep": "-", "end": "\n"}
-print(*nums, **opts)  # 1-2-3</code></pre></div>
-</div>
+print(*nums, **opts)               # 1-2-3
 
-<div class="example-row">
-  <div class="docs"><b>Nested unpacking</b> destructures inner structures in one step.</div>
-  <div class="code"><pre><code class="language-python"># Nested tuples
-(a, b), (c, d) = (1, 2), (3, 4)
+# &mdash; Nested unpacking &mdash;
+(a, b), (c, d) = (1, 2), (3, 4)   # a=1, b=2, c=3, d=4
 
-# Common pattern: enumerate + unpacking
-pairs = [(1, "a"), (2, "b"), (3, "c")]
+pairs = [(1, "a"), (2, "b")]
 for i, (num, letter) in enumerate(pairs):
-    print(i, num, letter)</code></pre></div>
+    print(i, num, letter)          # 0 1 a, 1 2 b</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="lambda">
-<h2>Lambda &amp; Higher-Order Functions</h2>
-<p class="lead">Lambdas are anonymous single-expression functions. Higher-order functions take or return functions.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Unpacking mismatch &mdash; ValueError</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Too few / too many values raises ValueError
+a, b = [1, 2, 3]                  # ValueError: too many values
+a, b, c = [1, 2]                  # ValueError: not enough values
 
-<div class="example-row">
-  <div class="docs"><b><code>lambda</code></b> creates a small anonymous function. The body is a single expression (no statements).</div>
-  <div class="code"><pre><code class="language-python">square = lambda x: x ** 2
+# &#x2705; Use starred expression to absorb extras
+a, *_ = [1, 2, 3]                 # a=1, _ discarded</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable default in function args</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Default list/dict is shared across ALL calls
+def append(val, lst=[]):
+    lst.append(val)
+    return lst
+append(1)                          # [1]
+append(2)                          # [1, 2]  &larr; same list!
+
+# &#x2705; Use None sentinel
+def append(val, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(val)
+    return lst</code></pre>
+</div>
+</div>
+
+<!-- ==================== LAMBDA ==================== -->
+<div class="section-title" id="sec-lambda"><span class="icon">&#9889;</span> Lambda &amp; Higher-Order Functions</div>
+<p class="section-intro">Lambdas are anonymous single-expression functions. <code>map</code>, <code>filter</code>, <code>reduce</code> take functions as arguments. For sort keys and inline callbacks, see the <b>Sort &amp; Comparators</b> section in the main Python3 tab.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Lambda, map, filter, reduce</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Lambda &mdash; single expression, no statements
+square = lambda x: x ** 2
 add = lambda a, b: a + b
+square(5)                              # 25
+add(3, 4)                             # 7
 
-square(5)       # 25
-add(3, 4)       # 7
+# &mdash; map(fn, iterable) &mdash; lazy iterator
+list(map(lambda x: x**2, [1,2,3,4])) # [1, 4, 9, 16]
+list(map(str, [1, 2, 3]))            # ['1', '2', '3']
+# Prefer comprehension: [x**2 for x in nums]
 
-# Commonly used inline as a sort key
-pairs = [(1, "b"), (2, "a"), (3, "c")]
-pairs.sort(key=lambda p: p[1])
-# [(2, 'a'), (1, 'b'), (3, 'c')]</code></pre></div>
-</div>
+# &mdash; filter(fn, iterable) &mdash; keeps truthy results
+list(filter(lambda x: x % 2 == 0, range(10)))
+                                      # [0, 2, 4, 6, 8]
+# Prefer comprehension: [x for x in range(10) if x % 2 == 0]
 
-<div class="example-row">
-  <div class="docs"><b><code>map(fn, iterable)</code></b> applies a function to every element. Returns a lazy iterator.</div>
-  <div class="code"><pre><code class="language-python">nums = [1, 2, 3, 4]
-squared = list(map(lambda x: x**2, nums))
-# [1, 4, 9, 16]
-
-# Often replaced by a comprehension:
-squared = [x**2 for x in nums]</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b><code>filter(fn, iterable)</code></b> keeps elements where <code>fn</code> returns truthy.</div>
-  <div class="code"><pre><code class="language-python">nums = [1, 2, 3, 4, 5, 6]
-evens = list(filter(lambda x: x % 2 == 0, nums))
-# [2, 4, 6]
-
-# Comprehension equivalent:
-evens = [x for x in nums if x % 2 == 0]</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b><code>functools.reduce</code></b> folds an iterable into a single value by applying a binary function cumulatively.</div>
-  <div class="code"><pre><code class="language-python">from functools import reduce
-
-product = reduce(lambda a, b: a * b, [1, 2, 3, 4])
-# ((1*2)*3)*4 = 24
-
-# With initial value
-total = reduce(lambda a, b: a + b, [1, 2, 3], 100)
-# 106</code></pre></div>
+# &mdash; functools.reduce &mdash; folds into single value
+from functools import reduce
+reduce(lambda a, b: a * b, [1,2,3,4]) # 24  ((1*2)*3)*4
+reduce(lambda a, b: a + b, [1,2,3], 100)
+                                      # 106  (100+1+2+3)</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="closures">
-<h2>Closures &amp; Scoping</h2>
-<p class="lead">Python follows the LEGB rule: Local, Enclosing, Global, Built-in. Closures capture variables from enclosing scopes.</p>
+<!-- ==================== CLOSURES ==================== -->
+<div class="section-title" id="sec-closures"><span class="icon">&#128274;</span> Closures &amp; Scoping</div>
+<p class="section-intro">Python resolves names using the <b>LEGB rule</b>: Local &rarr; Enclosing &rarr; Global &rarr; Built-in. Closures capture variables from enclosing scopes by <b>reference</b>, not by value.</p>
 
-<div class="example-row">
-  <div class="docs"><b>LEGB</b> — Python resolves names by searching Local scope first, then Enclosing function scopes, then Global (module), then Built-in.</div>
-  <div class="code"><pre><code class="language-python">x = "global"
-
-def outer():
-    x = "enclosing"
-    def inner():
-        x = "local"
-        print(x)       # "local"
-    inner()
-    print(x)           # "enclosing"
-
-outer()
-print(x)               # "global"</code></pre></div>
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>LEGB</b> &mdash; Local scope (inside current function), Enclosing scope (outer function), Global scope (module level), Built-in scope (<code>len</code>, <code>print</code>, etc.).
+<br><br><b>Closure</b> &mdash; an inner function that remembers variables from its enclosing scope even after the outer function returns.
+<br><br><b><code>nonlocal</code></b> &mdash; allows an inner function to rebind a variable in the enclosing scope. Without it, assignment creates a new local.
+<br><br><b><code>global</code></b> &mdash; allows a function to rebind a module-level variable.
+<br><br><b>Late binding</b> &mdash; closures capture the variable <i>reference</i>, not the value. All lambdas in a loop share the final loop variable.
+</div>
+</div>
 </div>
 
-<div class="example-row">
-  <div class="docs">A <b>closure</b> is an inner function that remembers variables from its enclosing scope even after the outer function has returned.</div>
-  <div class="code"><pre><code class="language-python">def make_multiplier(factor):
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Closures &amp; nonlocal</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Closure: inner function remembers enclosing variables &mdash;
+def make_multiplier(factor):
     def multiply(x):
-        return x * factor   # captures 'factor'
+        return x * factor         # captures 'factor' by reference
     return multiply
 
 double = make_multiplier(2)
 triple = make_multiplier(3)
-double(5)    # 10
-triple(5)    # 15</code></pre></div>
-</div>
+double(5)                          # 10
+triple(5)                          # 15
 
-<div class="example-row">
-  <div class="docs"><b><code>nonlocal</code></b> lets an inner function rebind a variable in the enclosing scope. <b><code>global</code></b> does the same for module-level variables.</div>
-  <div class="code"><pre><code class="language-python">def counter():
+# &mdash; nonlocal: rebind enclosing variable &mdash;
+def counter():
     count = 0
     def increment():
-        nonlocal count    # without this, assigning count
-        count += 1        # would create a new local
+        nonlocal count             # without this, count += 1 fails
+        count += 1
         return count
     return increment
 
 c = counter()
-c()    # 1
-c()    # 2
-c()    # 3</code></pre></div>
+c()                                # 1
+c()                                # 2
+c()                                # 3</code></pre>
+</div>
 </div>
 
-<div class="example-row">
-  <div class="docs"><b>Late binding gotcha</b> — closures capture the variable by reference, not its value at creation time.</div>
-  <div class="code"><pre><code class="language-python">funcs = [lambda: i for i in range(3)]
-[f() for f in funcs]    # [2, 2, 2]  -- all see final i
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Late binding &mdash; closures in loops</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; All lambdas see the final value of i
+funcs = [lambda: i for i in range(3)]
+[f() for f in funcs]               # [2, 2, 2]
 
-# Fix: default argument captures current value
+# &#x2705; Default argument captures current value
 funcs = [lambda i=i: i for i in range(3)]
-[f() for f in funcs]    # [0, 1, 2]</code></pre></div>
+[f() for f in funcs]               # [0, 1, 2]</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="decorators">
-<h2>Decorators</h2>
-<p class="lead">A decorator is a function that takes a function (or class) and returns a modified version. The <code>@</code> syntax is sugar for <code>fn = decorator(fn)</code>.</p>
+<!-- ==================== DECORATORS ==================== -->
+<div class="section-title" id="sec-decorators"><span class="icon">&#127873;</span> Decorators</div>
+<p class="section-intro">A decorator takes a function (or class) and returns a modified version. <code>@decorator</code> is syntactic sugar for <code>fn = decorator(fn)</code>. Always use <code>@functools.wraps</code> to preserve the original function&rsquo;s name and docstring.</p>
 
-<div class="example-row">
-  <div class="docs">A basic decorator wraps a function. Use <b><code>functools.wraps</code></b> to preserve the original function's name and docstring.</div>
-  <div class="code"><pre><code class="language-python">from functools import wraps
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Decorator Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">from functools import wraps
 
+# &mdash; Basic decorator &mdash;
 def log_calls(func):
-    @wraps(func)
+    @wraps(func)                       # preserves func.__name__, __doc__
     def wrapper(*args, **kwargs):
         print(f"Calling {func.__name__}")
-        result = func(*args, **kwargs)
-        print(f"Returned {result}")
-        return result
+        return func(*args, **kwargs)
     return wrapper
 
 @log_calls
 def add(a, b):
     return a + b
+add(3, 4)                              # prints "Calling add", returns 7
 
-add(3, 4)
-# Calling add
-# Returned 7</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Decorator with arguments</b> requires an extra nesting level — a factory that returns the actual decorator.</div>
-  <div class="code"><pre><code class="language-python">def repeat(n):
+# &mdash; Decorator with arguments (extra nesting) &mdash;
+def repeat(n):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -406,16 +274,10 @@ add(3, 4)
 @repeat(3)
 def greet(name):
     print(f"Hello {name}")
+greet("World")                         # prints 3 times
 
-greet("World")
-# Hello World  (printed 3 times)</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs">Common built-in decorators: <b><code>@staticmethod</code></b>, <b><code>@classmethod</code></b>, <b><code>@property</code></b>, <b><code>@functools.lru_cache</code></b>, <b><code>@dataclasses.dataclass</code></b>.</div>
-  <div class="code"><pre><code class="language-python">import time
-from functools import wraps
-
+# &mdash; Timer decorator &mdash;
+import time
 def timer(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -426,208 +288,158 @@ def timer(func):
         return result
     return wrapper
 
+# &mdash; Stacking (applied bottom-up) &mdash;
+@log_calls
 @timer
-def slow():
-    time.sleep(1)
-
-slow()  # slow took 1.0012s</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Stacking decorators</b> — applied bottom-up. The bottommost decorator wraps first, outermost wraps last.</div>
-  <div class="code"><pre><code class="language-python">@log_calls
-@timer
-def process():
-    pass
-
-# Equivalent to:
-# process = log_calls(timer(process))</code></pre></div>
+def process(): pass
+# Equivalent to: process = log_calls(timer(process))</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="comprehensions">
-<h2>Comprehensions</h2>
-<p class="lead">Concise syntax for building lists, dicts, sets, and generators from iterables.</p>
-
-<div class="example-row">
-  <div class="docs"><b>List comprehension</b> with optional condition filter. More readable than <code>map</code>+<code>filter</code> for simple cases.</div>
-  <div class="code"><pre><code class="language-python"># Basic
-squares = [x**2 for x in range(10)]
-
-# With filter
-evens = [x for x in range(20) if x % 2 == 0]
-
-# With transform + filter
-upper = [s.upper() for s in words if len(s) > 3]</code></pre></div>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Missing @wraps &mdash; metadata lost</span>
+  <span class="severity subtle">Subtle</span>
 </div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Without @wraps, the decorated function loses its identity
+def bad_decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
-<div class="example-row">
-  <div class="docs"><b>Dict and set comprehensions</b> use curly braces. Dict uses <code>key: value</code>; set has values only.</div>
-  <div class="code"><pre><code class="language-python"># Dict comprehension
-word_len = {w: len(w) for w in ["hi", "hello", "hey"]}
-# {'hi': 2, 'hello': 5, 'hey': 3}
+@bad_decorator
+def my_func(): pass
+my_func.__name__                       # 'wrapper'  &larr; wrong!
 
-# Invert a dict
-inv = {v: k for k, v in word_len.items()}
-
-# Set comprehension
-unique_lens = {len(w) for w in ["hi", "hello", "hey"]}
-# {2, 3, 5}</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Nested comprehensions</b> — the loop order reads left to right, same as nested for-loops.</div>
-  <div class="code"><pre><code class="language-python"># Flatten a 2D list
-matrix = [[1, 2], [3, 4], [5, 6]]
-flat = [x for row in matrix for x in row]
-# [1, 2, 3, 4, 5, 6]
-
-# Equivalent:
-# for row in matrix:
-#     for x in row:
-#         flat.append(x)
-
-# Cartesian product
-pairs = [(x, y) for x in [1,2] for y in ['a','b']]
-# [(1,'a'), (1,'b'), (2,'a'), (2,'b')]</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Generator expression</b> uses parentheses instead of brackets. Lazy — produces values one at a time without storing the full list.</div>
-  <div class="code"><pre><code class="language-python"># Generator expression (lazy)
-total = sum(x**2 for x in range(1000000))
-
-# No extra list in memory — values generated on demand
-any(len(w) > 10 for w in words)
-",".join(str(x) for x in nums)</code></pre></div>
+# &#x2705; @wraps copies name, docstring, module
+from functools import wraps
+def good_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="iterators">
-<h2>Iterators</h2>
-<p class="lead">An iterator is any object implementing <code>__iter__</code> (returns self) and <code>__next__</code> (returns next value or raises <code>StopIteration</code>).</p>
+<!-- ==================== ITERATORS & GENERATORS ==================== -->
+<div class="section-title" id="sec-itergen"><span class="icon">&#128260;</span> Iterators &amp; Generators</div>
+<p class="section-intro">An <b>iterator</b> implements <code>__iter__</code> + <code>__next__</code>. A <b>generator</b> is a function that uses <code>yield</code> to produce values lazily, pausing between each. Generators are iterators. Use generator expressions <code>(x for x in ...)</code> for memory-efficient pipelines.</p>
 
-<div class="example-row">
-  <div class="docs">The <code>for</code> loop calls <code>iter()</code> on the iterable, then repeatedly calls <code>next()</code> until <code>StopIteration</code>.</div>
-  <div class="code"><pre><code class="language-python">nums = [1, 2, 3]
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Iterator protocol</b> &mdash; <code>__iter__</code> returns self; <code>__next__</code> returns the next value or raises <code>StopIteration</code>.
+<br><br><b>Iterable vs Iterator</b> &mdash; a list is iterable (<code>__iter__</code> returns a fresh iterator each time). An iterator is consumed after one pass.
+<br><br><b><code>yield</code></b> &mdash; turns a function into a generator. Each <code>next()</code> runs until the next <code>yield</code>, then pauses.
+<br><br><b><code>yield from</code></b> &mdash; delegates to another iterator. Flattens nested generation.
+<br><br><b><code>send()</code></b> &mdash; pushes a value into a paused generator; the sent value becomes the result of the <code>yield</code> expression.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Iterator Protocol &amp; Custom Iterator</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Manual iteration &mdash;
+nums = [1, 2, 3]
 it = iter(nums)
+next(it)                               # 1
+next(it)                               # 2
+next(it)                               # 3
+# next(it)                             # StopIteration
 
-next(it)   # 1
-next(it)   # 2
-next(it)   # 3
-next(it)   # raises StopIteration</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs">A <b>custom iterator</b> class implementing the protocol. The class is both iterable and iterator.</div>
-  <div class="code"><pre><code class="language-python">class Countdown:
+# &mdash; Custom iterator class &mdash;
+class Countdown:
     def __init__(self, start):
         self.current = start
-
     def __iter__(self):
         return self
-
     def __next__(self):
-        if self.current <= 0:
+        if self.current &lt;= 0:
             raise StopIteration
         val = self.current
         self.current -= 1
         return val
 
-list(Countdown(5))   # [5, 4, 3, 2, 1]</code></pre></div>
-</div>
+list(Countdown(5))                     # [5, 4, 3, 2, 1]
 
-<div class="example-row">
-  <div class="docs"><b>Iterable vs Iterator:</b> An iterable has <code>__iter__</code> that returns a (fresh) iterator. An iterator has both <code>__iter__</code> (returns self) and <code>__next__</code>. Lists are iterable but not iterators.</div>
-  <div class="code"><pre><code class="language-python"># list is iterable — iter() gives a new iterator each time
-nums = [1, 2, 3]
-for x in nums:   # works repeatedly
-    pass
-
-# An iterator is consumed — only one pass
-it = iter(nums)
-list(it)   # [1, 2, 3]
-list(it)   # []  — exhausted</code></pre></div>
+# &mdash; Iterators are consumed &mdash;
+it = iter([1, 2, 3])
+list(it)                               # [1, 2, 3]
+list(it)                               # []  &larr; exhausted</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="generators">
-<h2>Generators</h2>
-<p class="lead">A generator is a function that uses <code>yield</code> to produce a sequence of values lazily, pausing between each.</p>
-
-<div class="example-row">
-  <div class="docs">Each call to <code>next()</code> runs the function until the next <code>yield</code>, then pauses. State is preserved between calls.</div>
-  <div class="code"><pre><code class="language-python">def countdown(n):
-    while n > 0:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Generators, yield from &amp; send</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic generator &mdash;
+def countdown(n):
+    while n &gt; 0:
         yield n
         n -= 1
 
-gen = countdown(3)
-next(gen)   # 3
-next(gen)   # 2
-next(gen)   # 1
-next(gen)   # StopIteration
+list(countdown(5))                     # [5, 4, 3, 2, 1]
 
-# Generators are iterators — work in for loops
-for x in countdown(5):
-    print(x)  # 5, 4, 3, 2, 1</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Infinite generators</b> — produce values forever. Combine with <code>islice</code> or a manual <code>break</code>.</div>
-  <div class="code"><pre><code class="language-python">def fibonacci():
+# &mdash; Infinite generator with islice &mdash;
+def fibonacci():
     a, b = 0, 1
     while True:
         yield a
         a, b = b, a + b
 
 from itertools import islice
-list(islice(fibonacci(), 8))
-# [0, 1, 1, 2, 3, 5, 8, 13]</code></pre></div>
-</div>
+list(islice(fibonacci(), 8))           # [0, 1, 1, 2, 3, 5, 8, 13]
 
-<div class="example-row">
-  <div class="docs"><b><code>yield from</code></b> delegates to another generator. Flattens nested generation and simplifies recursive generators.</div>
-  <div class="code"><pre><code class="language-python">def flatten(nested):
+# &mdash; yield from (delegate to sub-generator) &mdash;
+def flatten(nested):
     for item in nested:
         if isinstance(item, list):
-            yield from flatten(item)
+            yield from flatten(item)   # delegates recursively
         else:
             yield item
 
-list(flatten([1, [2, [3, 4], 5], 6]))
-# [1, 2, 3, 4, 5, 6]</code></pre></div>
-</div>
+list(flatten([1, [2, [3, 4], 5], 6])) # [1, 2, 3, 4, 5, 6]
 
-<div class="example-row">
-  <div class="docs"><b><code>send()</code></b> pushes a value into a paused generator. The sent value becomes the result of the <code>yield</code> expression.</div>
-  <div class="code"><pre><code class="language-python">def accumulator():
+# &mdash; Generator expression (lazy, no list in memory) &mdash;
+total = sum(x**2 for x in range(1_000_000))
+any(len(w) &gt; 10 for w in words)
+
+# &mdash; send() &mdash; push value into generator &mdash;
+def accumulator():
     total = 0
     while True:
         value = yield total
         total += value
 
 acc = accumulator()
-next(acc)          # 0  (prime the generator)
-acc.send(10)       # 10
-acc.send(20)       # 30
-acc.send(5)        # 35</code></pre></div>
+next(acc)                              # 0   (prime the generator)
+acc.send(10)                           # 10
+acc.send(20)                           # 30</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="classes">
-<h2>Classes &amp; OOP</h2>
-<p class="lead">Classes bundle data (attributes) and behavior (methods). Python classes are dynamic — attributes can be added at runtime.</p>
+<!-- ==================== CLASSES ==================== -->
+<div class="section-title" id="sec-classes"><span class="icon">&#128736;</span> Classes &amp; OOP</div>
+<p class="section-intro">Classes bundle data and behavior. <code>__init__</code> is the initializer. <code>self</code> is the instance, passed explicitly as the first argument. Python classes are dynamic &mdash; attributes can be added at runtime.</p>
 
-<div class="example-row">
-  <div class="docs"><b><code>__init__</code></b> is the initializer (not constructor). <code>self</code> is the instance, passed explicitly as the first argument to every method.</div>
-  <div class="code"><pre><code class="language-python">class Point:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Class Basics, classmethod, staticmethod</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic class &mdash;
+class Point:
     def __init__(self, x, y):
-        self.x = x    # instance attribute
+        self.x = x                     # instance attribute
         self.y = y
 
     def distance(self, other):
@@ -636,60 +448,69 @@ acc.send(5)        # 35</code></pre></div>
 
 p = Point(3, 4)
 q = Point(0, 0)
-p.distance(q)   # 5.0</code></pre></div>
-</div>
+p.distance(q)                          # 5.0
 
-<div class="example-row">
-  <div class="docs"><b>Class vs instance attributes.</b> Class attributes are shared; instance attributes are per-object. Mutable class attributes are a common trap.</div>
-  <div class="code"><pre><code class="language-python">class Dog:
-    species = "Canis familiaris"   # class attribute (shared)
-
+# &mdash; Class vs instance attributes &mdash;
+class Dog:
+    species = "Canis familiaris"        # class attr (shared)
     def __init__(self, name):
-        self.name = name           # instance attribute
+        self.name = name               # instance attr (per-object)
 
-a = Dog("Rex")
-b = Dog("Buddy")
-a.species        # "Canis familiaris"
-Dog.species      # "Canis familiaris"
+Dog.species                            # "Canis familiaris"
 
-# Mutable class attr trap:
-class Bad:
-    items = []   # shared across ALL instances
-    def add(self, x):
-        self.items.append(x)  # mutates the shared list</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b><code>@classmethod</code></b> receives the class as first arg (<code>cls</code>). Used for alternative constructors. <b><code>@staticmethod</code></b> receives neither — it's just a namespaced function.</div>
-  <div class="code"><pre><code class="language-python">class Date:
+# &mdash; @classmethod (alternative constructor) &mdash;
+class Date:
     def __init__(self, year, month, day):
-        self.year = year
-        self.month = month
-        self.day = day
+        self.year, self.month, self.day = year, month, day
 
     @classmethod
-    def from_string(cls, s):
+    def from_string(cls, s):           # receives class, not instance
         y, m, d = map(int, s.split("-"))
         return cls(y, m, d)
 
     @staticmethod
-    def is_valid(s):
-        parts = s.split("-")
-        return len(parts) == 3
+    def is_valid(s):                   # no cls or self
+        return len(s.split("-")) == 3
 
-Date.from_string("2024-01-15")  # Date(2024, 1, 15)
-Date.is_valid("2024-01-15")     # True</code></pre></div>
+Date.from_string("2024-01-15")        # Date(2024, 1, 15)
+Date.is_valid("2024-01-15")           # True</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="inheritance">
-<h2>Inheritance &amp; MRO</h2>
-<p class="lead">Python supports single and multiple inheritance. The Method Resolution Order (MRO) determines which class's method is called.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable class attribute &mdash; shared across instances</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Mutable class attr is shared by ALL instances
+class Bad:
+    items = []
+    def add(self, x):
+        self.items.append(x)      # mutates the shared list
 
-<div class="example-row">
-  <div class="docs"><b><code>super()</code></b> calls the next class in the MRO. Always use it instead of hardcoding the parent class name.</div>
-  <div class="code"><pre><code class="language-python">class Animal:
+a, b = Bad(), Bad()
+a.add(1)
+b.items                            # [1]  &larr; b sees a's data!
+
+# &#x2705; Initialize in __init__
+class Good:
+    def __init__(self):
+        self.items = []            # each instance gets its own</code></pre>
+</div>
+</div>
+
+<!-- ==================== INHERITANCE ==================== -->
+<div class="section-title" id="sec-inherit"><span class="icon">&#128200;</span> Inheritance &amp; MRO</div>
+<p class="section-intro">Python supports single and multiple inheritance. The <b>Method Resolution Order</b> (MRO) uses C3 linearization &mdash; left-to-right, depth-first, no duplication. Always use <code>super()</code> instead of hardcoding parent names.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Inheritance, super() &amp; MRO</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Single inheritance &mdash;
+class Animal:
     def __init__(self, name):
         self.name = name
     def speak(self):
@@ -697,107 +518,84 @@ Date.is_valid("2024-01-15")     # True</code></pre></div>
 
 class Dog(Animal):
     def __init__(self, name, breed):
-        super().__init__(name)  # call Animal.__init__
+        super().__init__(name)         # call parent __init__
         self.breed = breed
     def speak(self):
         return "Woof!"
 
 d = Dog("Rex", "Lab")
-d.name       # "Rex"
-d.speak()    # "Woof!"
-isinstance(d, Animal)  # True</code></pre></div>
-</div>
+d.name                                 # "Rex"
+d.speak()                              # "Woof!"
+isinstance(d, Animal)                  # True
 
-<div class="example-row">
-  <div class="docs"><b>Multiple inheritance</b> — Python uses C3 linearization. The MRO is left-to-right, depth-first, but respects the order and avoids duplication.</div>
-  <div class="code"><pre><code class="language-python">class A:
+# &mdash; Multiple inheritance &amp; MRO &mdash;
+class A:
     def who(self): return "A"
-
 class B(A):
     def who(self): return "B"
-
 class C(A):
     def who(self): return "C"
-
 class D(B, C):
     pass
 
-D().who()     # "B"  — B comes before C in MRO
-D.__mro__
-# (D, B, C, A, object)</code></pre></div>
-</div>
+D().who()                              # "B"  (B before C in MRO)
+D.__mro__                              # (D, B, C, A, object)
 
-<div class="example-row">
-  <div class="docs"><b>Diamond problem</b> — with cooperative <code>super()</code>, each class in the MRO is called exactly once.</div>
-  <div class="code"><pre><code class="language-python">class Base:
-    def __init__(self):
-        print("Base")
-
+# &mdash; Diamond problem: cooperative super() &mdash;
+class Base:
+    def __init__(self): print("Base")
 class Left(Base):
     def __init__(self):
-        print("Left")
-        super().__init__()
-
+        print("Left"); super().__init__()
 class Right(Base):
     def __init__(self):
-        print("Right")
-        super().__init__()
-
+        print("Right"); super().__init__()
 class Child(Left, Right):
     def __init__(self):
-        print("Child")
-        super().__init__()
+        print("Child"); super().__init__()
 
-Child()
-# Child -> Left -> Right -> Base (each once)</code></pre></div>
+Child()         # Child &rarr; Left &rarr; Right &rarr; Base (each once)</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="magic">
-<h2>Magic Methods</h2>
-<p class="lead">Dunder (double-underscore) methods let your classes hook into Python's built-in operations: printing, comparison, arithmetic, indexing, etc.</p>
+<!-- ==================== MAGIC METHODS ==================== -->
+<div class="section-title" id="sec-magic"><span class="icon">&#9997;&#65039;</span> Magic Methods</div>
+<p class="section-intro">Dunder methods hook into Python&rsquo;s built-in operations: printing, comparison, arithmetic, indexing, hashing. Implement them to make custom classes work with <code>print</code>, <code>==</code>, <code>+</code>, <code>in</code>, <code>len</code>, <code>sorted</code>, etc.</p>
 
-<div class="example-row">
-  <div class="docs"><b><code>__str__</code></b> is for human-readable output (<code>print</code>, <code>str()</code>). <b><code>__repr__</code></b> is for unambiguous, debug output (<code>repr()</code>, interactive shell).</div>
-  <div class="code"><pre><code class="language-python">class Point:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">__repr__, __str__, Comparison &amp; Arithmetic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; __repr__ vs __str__ &mdash;
+class Point:
     def __init__(self, x, y):
         self.x, self.y = x, y
-
-    def __repr__(self):
+    def __repr__(self):                # unambiguous, for debugging
         return f"Point({self.x}, {self.y})"
-
-    def __str__(self):
+    def __str__(self):                 # human-readable, for print()
         return f"({self.x}, {self.y})"
 
 p = Point(3, 4)
-print(p)        # (3, 4)      — calls __str__
-repr(p)         # Point(3, 4) — calls __repr__
-[p]             # [Point(3, 4)] — containers use __repr__</code></pre></div>
-</div>
+print(p)                               # (3, 4)       &larr; __str__
+repr(p)                                # Point(3, 4)  &larr; __repr__
+[p]                                    # [Point(3, 4)]&larr; containers use __repr__
 
-<div class="example-row">
-  <div class="docs"><b>Comparison</b> operators. Implement <b><code>__eq__</code></b> and <b><code>__lt__</code></b>, then use <code>@functools.total_ordering</code> to auto-generate the rest.</div>
-  <div class="code"><pre><code class="language-python">from functools import total_ordering
+# &mdash; Comparison: __eq__ + @total_ordering &mdash;
+from functools import total_ordering
 
 @total_ordering
 class Temp:
-    def __init__(self, value):
-        self.value = value
-    def __eq__(self, other):
-        return self.value == other.value
-    def __lt__(self, other):
-        return self.value < other.value
+    def __init__(self, val): self.val = val
+    def __eq__(self, other): return self.val == other.val
+    def __lt__(self, other): return self.val &lt; other.val
 
-Temp(30) < Temp(40)    # True
-Temp(30) >= Temp(20)   # True (auto-generated)</code></pre></div>
-</div>
+Temp(30) &lt; Temp(40)                    # True
+Temp(30) &gt;= Temp(20)                   # True (auto-generated)
 
-<div class="example-row">
-  <div class="docs"><b>Arithmetic</b> operators let instances work with <code>+</code>, <code>-</code>, <code>*</code>, etc.</div>
-  <div class="code"><pre><code class="language-python">class Vec:
-    def __init__(self, x, y):
-        self.x, self.y = x, y
+# &mdash; Arithmetic: __add__, __mul__ &mdash;
+class Vec:
+    def __init__(self, x, y): self.x, self.y = x, y
     def __add__(self, other):
         return Vec(self.x + other.x, self.y + other.y)
     def __mul__(self, scalar):
@@ -805,13 +603,17 @@ Temp(30) >= Temp(20)   # True (auto-generated)</code></pre></div>
     def __repr__(self):
         return f"Vec({self.x}, {self.y})"
 
-Vec(1, 2) + Vec(3, 4)   # Vec(4, 6)
-Vec(1, 2) * 3            # Vec(3, 6)</code></pre></div>
+Vec(1, 2) + Vec(3, 4)                 # Vec(4, 6)
+Vec(1, 2) * 3                         # Vec(3, 6)</code></pre>
+</div>
 </div>
 
-<div class="example-row">
-  <div class="docs"><b>Container protocol:</b> <code>__len__</code>, <code>__getitem__</code>, <code>__setitem__</code>, <code>__contains__</code> make your class behave like a sequence.</div>
-  <div class="code"><pre><code class="language-python">class Row:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Container Protocol: __len__, __getitem__, __contains__</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">class Row:
     def __init__(self, *values):
         self._data = list(values)
     def __len__(self):
@@ -820,22 +622,54 @@ Vec(1, 2) * 3            # Vec(3, 6)</code></pre></div>
         return self._data[idx]
     def __contains__(self, val):
         return val in self._data
+    def __iter__(self):
+        return iter(self._data)
 
 r = Row(10, 20, 30)
-len(r)       # 3
-r[1]         # 20
-20 in r      # True</code></pre></div>
+len(r)                                 # 3
+r[1]                                   # 20
+20 in r                                # True
+list(r)                                # [10, 20, 30]</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="properties">
-<h2>Properties</h2>
-<p class="lead"><code>@property</code> turns a method into a read-only attribute. Add <code>@name.setter</code> to make it writable with validation.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">__eq__ without __hash__</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Defining __eq__ makes the class unhashable by default
+class Point:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
-<div class="example-row">
-  <div class="docs">The getter is decorated with <code>@property</code>. Access looks like an attribute, not a method call.</div>
-  <div class="code"><pre><code class="language-python">class Circle:
+# {Point(1,2)}                      # TypeError: unhashable
+
+# &#x2705; Define __hash__ alongside __eq__
+class Point:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+{Point(1,2), Point(1,2)}              # 1 element (deduped)</code></pre>
+</div>
+</div>
+
+<!-- ==================== PROPERTIES & DATACLASSES ==================== -->
+<div class="section-title" id="sec-propdata"><span class="icon">&#128220;</span> Properties &amp; Dataclasses</div>
+<p class="section-intro"><code>@property</code> turns a method into a computed attribute with optional validation. <code>@dataclass</code> (3.7+) auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code> from type-annotated fields.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">@property &amp; @dataclass Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; @property: getter / setter / computed &mdash;
+class Circle:
     def __init__(self, radius):
         self._radius = radius
 
@@ -845,31 +679,23 @@ r[1]         # 20
 
     @radius.setter
     def radius(self, value):
-        if value < 0:
+        if value &lt; 0:
             raise ValueError("Radius cannot be negative")
         self._radius = value
 
     @property
-    def area(self):
+    def area(self):                    # computed, read-only
         import math
         return math.pi * self._radius ** 2
 
 c = Circle(5)
-c.radius        # 5      (calls getter)
-c.radius = 10   # OK     (calls setter)
-c.area          # 314.15  (computed, read-only)
-c.radius = -1   # ValueError</code></pre></div>
-</div>
-</div>
+c.radius                               # 5   (calls getter)
+c.radius = 10                          # OK  (calls setter)
+c.area                                 # 314.16  (computed)
+# c.radius = -1                        # ValueError
 
-<!-- ============================================================ -->
-<div class="example" id="dataclasses">
-<h2>Dataclasses</h2>
-<p class="lead"><code>@dataclass</code> auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>, and more from type-annotated fields. Python 3.7+.</p>
-
-<div class="example-row">
-  <div class="docs">Annotated fields become constructor parameters. Defaults are supported. Mutable defaults need <code>field(default_factory=...)</code>.</div>
-  <div class="code"><pre><code class="language-python">from dataclasses import dataclass, field
+# &mdash; @dataclass: auto __init__, __repr__, __eq__ &mdash;
+from dataclasses import dataclass, field
 
 @dataclass
 class User:
@@ -878,210 +704,191 @@ class User:
     tags: list = field(default_factory=list)
 
 u = User("Alice", 30)
-u                    # User(name='Alice', age=30, tags=[])
-u == User("Alice", 30)  # True (auto __eq__)
+u                                      # User(name='Alice', age=30, tags=[])
+u == User("Alice", 30)                # True (auto __eq__)
 
-# DO NOT use mutable default directly:
-# tags: list = []  ← shared across instances (bug)</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b><code>frozen=True</code></b> makes instances immutable (hashable). <b><code>order=True</code></b> generates comparison methods. <b><code>__post_init__</code></b> runs after <code>__init__</code> for validation or computed fields.</div>
-  <div class="code"><pre><code class="language-python">@dataclass(frozen=True, order=True)
+# &mdash; frozen=True: immutable + hashable &mdash;
+@dataclass(frozen=True, order=True)
 class Coord:
     x: float
     y: float
 
-a = Coord(1.0, 2.0)
-b = Coord(3.0, 4.0)
-a < b          # True (compares by (x, y) tuple)
-{a, b}         # works in sets (hashable)
-a.x = 5        # FrozenInstanceError
+a, b = Coord(1.0, 2.0), Coord(3.0, 4.0)
+a &lt; b                                  # True (compares by (x, y))
+{a, b}                                 # works in sets (hashable)
+# a.x = 5                              # FrozenInstanceError
 
+# &mdash; __post_init__: validation after __init__ &mdash;
 @dataclass
 class Range:
     lo: int
     hi: int
     def __post_init__(self):
-        if self.lo > self.hi:
-            self.lo, self.hi = self.hi, self.lo</code></pre></div>
+        if self.lo &gt; self.hi:
+            self.lo, self.hi = self.hi, self.lo</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="abc">
-<h2>Abstract Base Classes</h2>
-<p class="lead">ABCs define interfaces that subclasses must implement. Trying to instantiate a class with missing abstract methods raises <code>TypeError</code>.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable default in @dataclass</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Mutable default raises ValueError at class creation
+@dataclass
+class Bad:
+    items: list = []             # ValueError: mutable default
 
-<div class="example-row">
-  <div class="docs"><b><code>@abstractmethod</code></b> marks methods that subclasses must override. The ABC itself cannot be instantiated.</div>
-  <div class="code"><pre><code class="language-python">from abc import ABC, abstractmethod
+# &#x2705; Use field(default_factory=...)
+@dataclass
+class Good:
+    items: list = field(default_factory=list)</code></pre>
+</div>
+</div>
+
+<!-- ==================== ABC, ENUMS & SLOTS ==================== -->
+<div class="section-title" id="sec-abc"><span class="icon">&#128737;</span> ABC, Enums &amp; Slots</div>
+<p class="section-intro">Abstract Base Classes define interfaces that subclasses must implement. Enums define fixed sets of named constants. <code>__slots__</code> restricts attributes for memory savings.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ABC, Enums &amp; Slots</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Abstract Base Class &mdash;
+from abc import ABC, abstractmethod
 
 class Shape(ABC):
     @abstractmethod
-    def area(self) -> float:
-        ...
-
+    def area(self) -&gt; float: ...
     @abstractmethod
-    def perimeter(self) -> float:
-        ...
-
-    def describe(self):
+    def perimeter(self) -&gt; float: ...
+    def describe(self):                # concrete method is OK
         return f"Area: {self.area():.2f}"
 
-# Shape()  # TypeError: can't instantiate
+# Shape()                              # TypeError: can't instantiate
 
 class Rect(Shape):
-    def __init__(self, w, h):
-        self.w, self.h = w, h
-    def area(self):
-        return self.w * self.h
-    def perimeter(self):
-        return 2 * (self.w + self.h)
+    def __init__(self, w, h): self.w, self.h = w, h
+    def area(self): return self.w * self.h
+    def perimeter(self): return 2 * (self.w + self.h)
 
-Rect(3, 4).describe()  # "Area: 12.00"</code></pre></div>
-</div>
-</div>
+Rect(3, 4).describe()                 # "Area: 12.00"
 
-<!-- ============================================================ -->
-<div class="example" id="enums">
-<h2>Enums</h2>
-<p class="lead">Enums define a fixed set of named constants. Members are singleton instances, not plain ints or strings.</p>
-
-<div class="example-row">
-  <div class="docs"><b><code>Enum</code></b> members have a <code>.name</code> and <code>.value</code>. <b><code>auto()</code></b> assigns incrementing values. <b><code>IntEnum</code></b> members compare as integers.</div>
-  <div class="code"><pre><code class="language-python">from enum import Enum, IntEnum, auto
+# &mdash; Enum &mdash;
+from enum import Enum, IntEnum, auto
 
 class Color(Enum):
     RED = 1
     GREEN = 2
     BLUE = 3
 
-Color.RED.name       # 'RED'
-Color.RED.value      # 1
-Color(2)             # Color.GREEN
-Color['BLUE']        # Color.BLUE
-list(Color)          # [Color.RED, Color.GREEN, Color.BLUE]
+Color.RED.name                         # 'RED'
+Color.RED.value                        # 1
+Color(2)                               # Color.GREEN
+Color['BLUE']                          # Color.BLUE
+list(Color)                            # [Color.RED, Color.GREEN, Color.BLUE]
 
 class Direction(Enum):
-    NORTH = auto()   # 1
-    SOUTH = auto()   # 2
-    EAST = auto()    # 3
-    WEST = auto()    # 4
+    NORTH = auto()                     # 1
+    SOUTH = auto()                     # 2
 
 class Perm(IntEnum):
-    READ = 4
-    WRITE = 2
-    EXEC = 1
+    READ = 4; WRITE = 2; EXEC = 1
+Perm.READ + Perm.WRITE                # 6 (IntEnum allows arithmetic)
 
-Perm.READ + Perm.WRITE   # 6 (IntEnum allows arithmetic)</code></pre></div>
-</div>
-</div>
-
-<!-- ============================================================ -->
-<div class="example" id="slots">
-<h2>Slots</h2>
-<p class="lead"><code>__slots__</code> restricts instance attributes to a fixed set, saving memory by eliminating the per-instance <code>__dict__</code>.</p>
-
-<div class="example-row">
-  <div class="docs">Without slots, each instance carries a <code>__dict__</code> (hash table). With slots, attributes are stored in a fixed-size array. ~30-40% less memory per instance.</div>
-  <div class="code"><pre><code class="language-python">class Point:
+# &mdash; __slots__: restrict attributes, save memory &mdash;
+class Point:
     __slots__ = ('x', 'y')
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x, self.y = x, y
 
 p = Point(1, 2)
-p.x           # 1
-p.z = 3       # AttributeError: 'Point' has no attribute 'z'
-p.__dict__    # AttributeError: no __dict__
+p.x                                    # 1
+# p.z = 3                              # AttributeError
+# p.__dict__                           # AttributeError (no __dict__)
 
-# Python 3.10+ dataclasses support slots:
-from dataclasses import dataclass
-
+# Python 3.10+ dataclass slots:
 @dataclass(slots=True)
 class Coord:
     x: float
-    y: float</code></pre></div>
+    y: float</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="typehints">
-<h2>Type Hints</h2>
-<p class="lead">Type annotations document expected types. They are not enforced at runtime — use <code>mypy</code> or <code>pyright</code> for static checking.</p>
+<!-- ==================== TYPE HINTS ==================== -->
+<div class="section-title" id="sec-types"><span class="icon">&#128301;</span> Type Hints</div>
+<p class="section-intro">Type annotations document expected types but are <b>not enforced at runtime</b>. Use <code>mypy</code> or <code>pyright</code> for static checking. Built-in generics (<code>list[int]</code>) work since 3.9; <code>X | Y</code> union syntax since 3.10.</p>
 
-<div class="example-row">
-  <div class="docs"><b>Basic annotations</b> for function parameters, return types, and variables.</div>
-  <div class="code"><pre><code class="language-python">def greet(name: str, times: int = 1) -> str:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Type Hints &amp; Protocol</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic annotations &mdash;
+def greet(name: str, times: int = 1) -&gt; str:
     return (f"Hello {name}! ") * times
 
 age: int = 25
-names: list[str] = ["Alice", "Bob"]
-config: dict[str, int] = {"timeout": 30}</code></pre></div>
-</div>
+names: list[str] = ["Alice", "Bob"]        # 3.9+
+config: dict[str, int] = {"timeout": 30}   # 3.9+
 
-<div class="example-row">
-  <div class="docs"><b><code>Optional</code></b> means "this type or None". <b><code>Union</code></b> accepts multiple types. Since Python 3.10, use <code>X | Y</code> syntax.</div>
-  <div class="code"><pre><code class="language-python">from typing import Optional, Union
+# &mdash; Optional, Union, TypeVar &mdash;
+from typing import Optional, TypeVar
 
-def find(items: list[int], target: int) -> Optional[int]:
-    try:
-        return items.index(target)
-    except ValueError:
-        return None
+def find(items: list[int], target: int) -&gt; Optional[int]:
+    try: return items.index(target)
+    except ValueError: return None
 
-# Python 3.10+ union syntax:
-def parse(val: str | int) -> str:
+# 3.10+ union syntax:
+def parse(val: str | int) -&gt; str:          # replaces Union[str, int]
     return str(val)
 
-# TypeVar for generics
-from typing import TypeVar
 T = TypeVar('T')
-def first(items: list[T]) -> T:
-    return items[0]</code></pre></div>
-</div>
+def first(items: list[T]) -&gt; T:
+    return items[0]
 
-<div class="example-row">
-  <div class="docs"><b><code>Protocol</code></b> defines structural subtyping (duck typing with static checks). Any class with matching methods satisfies the protocol — no inheritance needed.</div>
-  <div class="code"><pre><code class="language-python">from typing import Protocol
+# &mdash; Protocol: structural subtyping (duck typing with static checks) &mdash;
+from typing import Protocol
 
 class Drawable(Protocol):
-    def draw(self) -> None: ...
+    def draw(self) -&gt; None: ...
 
 class Circle:
-    def draw(self) -> None:
+    def draw(self) -&gt; None:
         print("Drawing circle")
 
-def render(shape: Drawable) -> None:
+def render(shape: Drawable) -&gt; None:
     shape.draw()
 
-render(Circle())  # OK — Circle has draw()</code></pre></div>
+render(Circle())                       # OK &mdash; Circle has draw()</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="exceptions">
-<h2>Exception Handling</h2>
-<p class="lead"><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> — <code>else</code> runs only if no exception was raised; <code>finally</code> always runs.</p>
+<!-- ==================== EXCEPTIONS ==================== -->
+<div class="section-title" id="sec-exceptions"><span class="icon">&#128165;</span> Exception Handling</div>
+<p class="section-intro"><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> &mdash; <code>else</code> runs only if no exception was raised; <code>finally</code> always runs. Catch specific exceptions; bare <code>except:</code> catches everything including <code>KeyboardInterrupt</code>.</p>
 
-<div class="example-row">
-  <div class="docs">Catch specific exceptions. The <b><code>else</code></b> block runs only on success — keep the "happy path" logic here, not in <code>try</code>.</div>
-  <div class="code"><pre><code class="language-python">try:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Exception Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; try / except / else / finally &mdash;
+try:
     result = int("42")
 except ValueError as e:
     print(f"Bad input: {e}")
-except (TypeError, KeyError):
+except (TypeError, KeyError):          # catch multiple types
     print("Wrong type or missing key")
 else:
-    print(f"Parsed: {result}")   # runs on success
+    print(f"Parsed: {result}")         # runs ONLY on success
 finally:
-    print("Always runs")         # cleanup</code></pre></div>
-</div>
+    print("Always runs")              # cleanup
 
-<div class="example-row">
-  <div class="docs"><b>Custom exceptions</b> — subclass <code>Exception</code> (not <code>BaseException</code>). Add attributes for structured error info.</div>
-  <div class="code"><pre><code class="language-python">class ValidationError(Exception):
+# &mdash; Custom exception &mdash;
+class ValidationError(Exception):
     def __init__(self, field, message):
         self.field = field
         self.message = message
@@ -1090,317 +897,302 @@ finally:
 try:
     raise ValidationError("age", "must be positive")
 except ValidationError as e:
-    print(e.field)     # "age"
-    print(e.message)   # "must be positive"</code></pre></div>
-</div>
+    e.field                            # "age"
+    e.message                          # "must be positive"
 
-<div class="example-row">
-  <div class="docs"><b>Exception chaining</b> — <code>raise ... from original</code> links the new exception to the cause. Useful for wrapping low-level errors.</div>
-  <div class="code"><pre><code class="language-python">try:
-    data = open("config.json").read()
+# &mdash; Exception chaining &mdash;
+try:
+    open("config.json")
 except FileNotFoundError as e:
     raise RuntimeError("Config missing") from e
-    # Traceback shows both: RuntimeError caused by FileNotFoundError
+    # Traceback shows: RuntimeError caused by FileNotFoundError
 
-# Suppress the chain with `from None`:
+# Suppress chain with `from None`:
 try:
     int("abc")
 except ValueError:
-    raise TypeError("Expected numeric string") from None</code></pre></div>
+    raise TypeError("Expected numeric") from None</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="context">
-<h2>Context Managers</h2>
-<p class="lead"><code>with</code> ensures setup/teardown happens even if exceptions occur. Implement <code>__enter__</code>/<code>__exit__</code> or use <code>@contextmanager</code>.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bare except catches too much</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Bare except catches KeyboardInterrupt, SystemExit
+try:
+    do_work()
+except:                                # catches EVERYTHING
+    pass                               # silences Ctrl+C too!
 
-<div class="example-row">
-  <div class="docs">The <code>with</code> statement calls <code>__enter__</code> on entry and <code>__exit__</code> on exit (even if an exception is raised).</div>
-  <div class="code"><pre><code class="language-python"># Built-in context managers:
+# &#x2705; Catch Exception (excludes KeyboardInterrupt, SystemExit)
+try:
+    do_work()
+except Exception as e:
+    print(f"Error: {e}")</code></pre>
+</div>
+</div>
+
+<!-- ==================== CONTEXT MANAGERS ==================== -->
+<div class="section-title" id="sec-context"><span class="icon">&#128274;</span> Context Managers</div>
+<p class="section-intro"><code>with</code> ensures setup/teardown happens even on exceptions. Implement <code>__enter__</code>/<code>__exit__</code> or use <code>@contextmanager</code>. Any resource that needs cleanup (files, locks, connections, temp dirs) should use a context manager.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Context Manager Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Built-in &mdash;
 with open("file.txt") as f:
-    data = f.read()
-# f is automatically closed here
+    data = f.read()                    # f.close() called automatically
 
-# Multiple context managers (Python 3.10+):
+# 3.10+ multiple context managers:
 with (
     open("in.txt") as src,
     open("out.txt", "w") as dst,
 ):
-    dst.write(src.read())</code></pre></div>
-</div>
+    dst.write(src.read())
 
-<div class="example-row">
-  <div class="docs"><b>Class-based</b> context manager with the protocol methods.</div>
-  <div class="code"><pre><code class="language-python">class Timer:
+# &mdash; Class-based &mdash;
+class Timer:
     def __enter__(self):
         import time
         self.start = time.perf_counter()
         return self
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         import time
         self.elapsed = time.perf_counter() - self.start
         print(f"Elapsed: {self.elapsed:.4f}s")
-        return False   # don't suppress exceptions
+        return False                   # don't suppress exceptions
 
 with Timer() as t:
     sum(range(1_000_000))
-# Elapsed: 0.0234s</code></pre></div>
-</div>
+# Elapsed: 0.0234s
 
-<div class="example-row">
-  <div class="docs"><b><code>@contextmanager</code></b> from <code>contextlib</code> — write a generator that yields once. Code before <code>yield</code> is setup; code after is teardown.</div>
-  <div class="code"><pre><code class="language-python">from contextlib import contextmanager
+# &mdash; @contextmanager (generator-based) &mdash;
+from contextlib import contextmanager
 
 @contextmanager
 def temp_dir():
     import tempfile, shutil
     path = tempfile.mkdtemp()
     try:
-        yield path         # hand control to the with-block
+        yield path                     # &larr; hand control to with-block
     finally:
-        shutil.rmtree(path)  # cleanup always runs
+        shutil.rmtree(path)            # cleanup always runs
 
 with temp_dir() as d:
-    print(d)   # /tmp/xyz...
-# directory deleted on exit</code></pre></div>
+    print(d)                           # /tmp/xyz...</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="walrus">
-<h2>Walrus Operator</h2>
-<p class="lead"><code>:=</code> (assignment expression) assigns and returns a value in one step. Python 3.8+.</p>
+<!-- ==================== MODERN PYTHON ==================== -->
+<div class="section-title" id="sec-modern"><span class="icon">&#127381;</span> Modern Python</div>
+<p class="section-intro"><b>Walrus operator</b> <code>:=</code> (3.8+) assigns and returns a value in one expression. <b>Match / Case</b> (3.10+) provides structural pattern matching with sequence, mapping, and class destructuring.</p>
 
-<div class="example-row">
-  <div class="docs">Useful in <code>while</code> loops, <code>if</code> checks, and comprehensions where you need the value and a condition on it.</div>
-  <div class="code"><pre><code class="language-python"># Without walrus — reads twice or uses temp:
-line = input()
-while line != "quit":
-    process(line)
-    line = input()
-
-# With walrus — read once:
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Walrus Operator &amp; Match / Case</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Walrus operator := (3.8+) &mdash;
+# Assign and test in one expression
 while (line := input()) != "quit":
     process(line)
 
-# In an if:
-if (n := len(data)) > 10:
+if (n := len(data)) &gt; 10:
     print(f"Too long: {n}")
 
-# In a comprehension:
-results = [y for x in data if (y := expensive(x)) > 0]</code></pre></div>
-</div>
-</div>
+# In comprehensions:
+results = [y for x in data if (y := expensive(x)) &gt; 0]
 
-<!-- ============================================================ -->
-<div class="example" id="match">
-<h2>Match / Case</h2>
-<p class="lead">Structural pattern matching. Like switch-case but decomposes objects, sequences, and mappings. Python 3.10+.</p>
-
-<div class="example-row">
-  <div class="docs"><b>Literal and variable patterns.</b> <code>_</code> is the wildcard. A bare name captures the value (it does not match a variable).</div>
-  <div class="code"><pre><code class="language-python">def http_status(code):
+# &mdash; Match / Case (3.10+) &mdash;
+def http_status(code):
     match code:
-        case 200:
-            return "OK"
-        case 301 | 302:
-            return "Redirect"
-        case 404:
-            return "Not Found"
-        case _:
-            return "Other"</code></pre></div>
-</div>
+        case 200:                      return "OK"
+        case 301 | 302:               return "Redirect"
+        case 404:                      return "Not Found"
+        case _:                        return "Other"
 
-<div class="example-row">
-  <div class="docs"><b>Sequence and mapping patterns</b> destructure lists, tuples, and dicts directly in the <code>case</code>.</div>
-  <div class="code"><pre><code class="language-python">def handle(command):
+# &mdash; Sequence &amp; mapping patterns &mdash;
+def handle(command):
     match command.split():
-        case ["quit"]:
-            quit()
-        case ["go", direction]:
-            move(direction)
-        case ["pick", "up", item]:
-            pickup(item)
-        case _:
-            print("Unknown command")
+        case ["quit"]:                 quit()
+        case ["go", direction]:        move(direction)
+        case ["pick", "up", item]:     pickup(item)
 
-# Mapping pattern:
 match event:
     case {"type": "click", "x": x, "y": y}:
         handle_click(x, y)
     case {"type": "key", "code": code}:
-        handle_key(code)</code></pre></div>
-</div>
+        handle_key(code)
 
-<div class="example-row">
-  <div class="docs"><b>Class patterns</b> match object attributes. <b>Guards</b> add conditions with <code>if</code>.</div>
-  <div class="code"><pre><code class="language-python">from dataclasses import dataclass
-
+# &mdash; Class pattern with guard &mdash;
 @dataclass
 class Point:
     x: float
     y: float
 
-def classify(point):
-    match point:
-        case Point(x=0, y=0):
-            return "origin"
-        case Point(x=0, y=y):
-            return f"on y-axis at {y}"
-        case Point(x=x, y=0):
-            return f"on x-axis at {x}"
+def classify(pt):
+    match pt:
+        case Point(x=0, y=0):         return "origin"
+        case Point(x=0, y=y):         return f"y-axis at {y}"
+        case Point(x=x, y=0):         return f"x-axis at {x}"
         case Point(x=x, y=y) if x == y:
-            return f"on diagonal at {x}"
-        case _:
-            return "somewhere else"</code></pre></div>
+            return f"diagonal at {x}"
+        case _:                        return "elsewhere"</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="async">
-<h2>Async / Await</h2>
-<p class="lead">Cooperative concurrency for I/O-bound tasks. <code>async def</code> defines a coroutine; <code>await</code> suspends until a result is ready.</p>
+<!-- ==================== ASYNC ==================== -->
+<div class="section-title" id="sec-async"><span class="icon">&#9889;</span> Async / Await</div>
+<p class="section-intro">Cooperative concurrency for I/O-bound tasks. <code>async def</code> defines a coroutine; <code>await</code> suspends until a result is ready. Not useful for CPU-bound work &mdash; use <code>multiprocessing</code> for that.</p>
 
-<div class="example-row">
-  <div class="docs"><b>Coroutines</b> are defined with <code>async def</code>. You must <code>await</code> them — calling directly returns a coroutine object, not the result.</div>
-  <div class="code"><pre><code class="language-python">import asyncio
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">asyncio Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import asyncio
 
+# &mdash; Basic coroutine &mdash;
 async def fetch(url):
     print(f"Fetching {url}")
-    await asyncio.sleep(1)         # simulate I/O
+    await asyncio.sleep(1)             # simulate I/O
     return f"Data from {url}"
 
 async def main():
     result = await fetch("https://example.com")
     print(result)
 
-asyncio.run(main())</code></pre></div>
-</div>
+asyncio.run(main())
 
-<div class="example-row">
-  <div class="docs"><b><code>asyncio.gather</code></b> runs multiple coroutines concurrently. Total time is the slowest task, not the sum.</div>
-  <div class="code"><pre><code class="language-python">async def main():
+# &mdash; gather: run concurrently &mdash;
+async def main():
     results = await asyncio.gather(
         fetch("url1"),
         fetch("url2"),
         fetch("url3"),
     )
-    # All three run concurrently — ~1s total, not ~3s
-    print(results)
+    # ~1s total, not ~3s
 
-asyncio.run(main())</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b><code>async for</code></b> iterates over an async iterator. <b><code>async with</code></b> is the async context manager.</div>
-  <div class="code"><pre><code class="language-python">async def countdown(n):
-    while n > 0:
+# &mdash; async for (async iterator) &mdash;
+async def countdown(n):
+    while n &gt; 0:
         yield n
         await asyncio.sleep(0.5)
         n -= 1
 
 async def main():
     async for val in countdown(3):
-        print(val)   # 3, 2, 1
+        print(val)                     # 3, 2, 1
 
-# Async context manager:
+# &mdash; async with (async context manager) &mdash;
 # async with aiohttp.ClientSession() as session:
 #     async with session.get(url) as resp:
-#         data = await resp.json()</code></pre></div>
+#         data = await resp.json()</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="regex">
-<h2>Regular Expressions</h2>
-<p class="lead">The <code>re</code> module provides Perl-style regex. Use raw strings (<code>r"..."</code>) to avoid backslash escaping headaches.</p>
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Forgetting await &mdash; coroutine never executes</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Calling without await returns a coroutine object
+result = fetch("url")              # &lt;coroutine object&gt;  &larr; NOT the result
+# RuntimeWarning: coroutine was never awaited
 
-<div class="example-row">
-  <div class="docs"><b>Core functions:</b> <code>search</code> finds first match, <code>match</code> anchors at start, <code>findall</code> returns all matches, <code>sub</code> replaces.</div>
-  <div class="code"><pre><code class="language-python">import re
+# &#x2705; Must await inside an async function
+result = await fetch("url")        # "Data from url"</code></pre>
+</div>
+</div>
+
+<!-- ==================== REGEX ==================== -->
+<div class="section-title" id="sec-regex"><span class="icon">&#128270;</span> Regular Expressions</div>
+<p class="section-intro">The <code>re</code> module provides Perl-style regex. Use raw strings (<code>r"..."</code>) to avoid backslash escaping. <code>search</code> finds first match, <code>findall</code> returns all, <code>sub</code> replaces. Compile patterns for reuse.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Regex Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import re
 
 text = "Order #123 placed on 2024-01-15"
 
-re.search(r"\d+", text).group()       # "123"
+# &mdash; Core functions &mdash;
+re.search(r"\d+", text).group()        # "123"  (first match)
 re.findall(r"\d+", text)              # ["123", "2024", "01", "15"]
 re.sub(r"\d{4}-\d{2}-\d{2}", "DATE", text)
-# "Order #123 placed on DATE"
+                                      # "Order #123 placed on DATE"
+bool(re.match(r"Order", text))        # True  (anchored at start)
+bool(re.match(r"\d+", text))          # False (doesn't start with digits)
 
-bool(re.match(r"Order", text))        # True (anchored at start)
-bool(re.match(r"\d+", text))          # False</code></pre></div>
-</div>
+# &mdash; Named groups &mdash;
+pat = r"(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{2})-(?P&lt;day&gt;\d{2})"
+m = re.search(pat, "Date: 2024-01-15")
+m.group("year")                        # "2024"
+m.group("month")                       # "01"
+m.groupdict()                          # {'year':'2024', 'month':'01', 'day':'15'}
 
-<div class="example-row">
-  <div class="docs"><b>Groups</b> capture sub-matches. Named groups use <code>(?P&lt;name&gt;...)</code>.</div>
-  <div class="code"><pre><code class="language-python">pattern = r"(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{2})-(?P&lt;day&gt;\d{2})"
-m = re.search(pattern, "Date: 2024-01-15")
-
-m.group(0)          # "2024-01-15" (full match)
-m.group(1)          # "2024"
-m.group("month")    # "01"
-m.groupdict()       # {'year': '2024', 'month': '01', 'day': '15'}</code></pre></div>
-</div>
-
-<div class="example-row">
-  <div class="docs"><b>Compile</b> for reuse. <b>Flags:</b> <code>re.IGNORECASE</code>, <code>re.MULTILINE</code>, <code>re.DOTALL</code>.</div>
-  <div class="code"><pre><code class="language-python"># Compiled pattern — faster when reused
+# &mdash; Compile for reuse &mdash;
 email_re = re.compile(
     r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
     re.IGNORECASE
 )
+email_re.findall("alice@ex.com Bob@TEST.COM")
+                                      # ['alice@ex.com', 'Bob@TEST.COM']
 
-emails = email_re.findall("Contact alice@ex.com or Bob@TEST.COM")
-# ['alice@ex.com', 'Bob@TEST.COM']
-
-# VERBOSE flag for readable patterns:
+# &mdash; VERBOSE flag for readable patterns &mdash;
 phone_re = re.compile(r"""
     (\d{3})   # area code
     [-.\s]?   # separator
     (\d{3})   # exchange
     [-.\s]?   # separator
     (\d{4})   # number
-""", re.VERBOSE)</code></pre></div>
+""", re.VERBOSE)</code></pre>
 </div>
 </div>
 
-<!-- ============================================================ -->
-<div class="example" id="collections">
-<h2>Collections Module</h2>
-<p class="lead">Specialized container types beyond the built-in <code>dict</code>, <code>list</code>, <code>set</code>, and <code>tuple</code>.</p>
+<!-- ==================== COLLECTIONS ==================== -->
+<div class="section-title" id="sec-collections"><span class="icon">&#128451;&#65039;</span> Collections Module</div>
+<p class="section-intro">Specialized containers beyond built-in <code>dict</code>/<code>list</code>/<code>set</code>/<code>tuple</code>. For <code>defaultdict</code>, <code>Counter</code>, and <code>deque</code>, see the main Python3 tab&rsquo;s Dict &amp; Set and Stack sections.</p>
 
-<div class="example-row">
-  <div class="docs"><b><code>namedtuple</code></b> creates lightweight immutable classes with named fields. Access by name or index.</div>
-  <div class="code"><pre><code class="language-python">from collections import namedtuple
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">namedtuple, ChainMap &amp; OrderedDict</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; namedtuple: lightweight immutable class &mdash;
+from collections import namedtuple
 
 Point = namedtuple("Point", ["x", "y"])
 p = Point(3, 4)
-p.x             # 3
-p[0]            # 3
-x, y = p        # unpack like a tuple
-p._asdict()     # {'x': 3, 'y': 4}
-p._replace(x=10)  # Point(x=10, y=4)  (new instance)</code></pre></div>
-</div>
+p.x                                    # 3
+p[0]                                   # 3  (tuple-style access)
+x, y = p                              # unpack like a tuple
+p._asdict()                            # {'x': 3, 'y': 4}
+p._replace(x=10)                       # Point(x=10, y=4)  (new instance)
 
-<div class="example-row">
-  <div class="docs"><b><code>ChainMap</code></b> groups multiple dicts. Lookups search each dict in order — first match wins. Great for layered configs.</div>
-  <div class="code"><pre><code class="language-python">from collections import ChainMap
+# &mdash; ChainMap: layered dict lookup &mdash;
+from collections import ChainMap
 
 defaults = {"color": "red", "size": 10}
-user_prefs = {"color": "blue"}
+user = {"color": "blue"}
 env = {"size": 20, "debug": True}
 
-config = ChainMap(env, user_prefs, defaults)
-config["color"]    # "blue"  (user_prefs wins)
-config["size"]     # 20      (env wins)
-config["debug"]    # True
-list(config)       # all unique keys</code></pre></div>
-</div>
+config = ChainMap(env, user, defaults)
+config["color"]                        # "blue"  (user wins)
+config["size"]                         # 20      (env wins)
+config["debug"]                        # True
+list(config)                           # all unique keys
 
-<div class="example-row">
-  <div class="docs"><b><code>OrderedDict</code></b> remembers insertion order (redundant since Python 3.7 for plain dicts, but has <code>move_to_end</code>). Useful for LRU caches.</div>
-  <div class="code"><pre><code class="language-python">from collections import OrderedDict
+# &mdash; OrderedDict: move_to_end + LRU cache &mdash;
+from collections import OrderedDict
 
 class LRUCache:
     def __init__(self, capacity):
@@ -1408,8 +1200,7 @@ class LRUCache:
         self.cap = capacity
 
     def get(self, key):
-        if key not in self.cache:
-            return -1
+        if key not in self.cache: return -1
         self.cache.move_to_end(key)
         return self.cache[key]
 
@@ -1417,15 +1208,18 @@ class LRUCache:
         if key in self.cache:
             self.cache.move_to_end(key)
         self.cache[key] = value
-        if len(self.cache) > self.cap:
-            self.cache.popitem(last=False)</code></pre></div>
+        if len(self.cache) &gt; self.cap:
+            self.cache.popitem(last=False)</code></pre>
 </div>
 </div>
 
+</div><!-- .cards-grid -->
 </div><!-- .main -->
-</div><!-- .layout -->
+</div><!-- #content -->
 
-<div class="footer">Python by Example — AlgoCode</div>
+<div class="footer" id="footer">Python by Example &mdash; AlgoCode</div>
+
+<button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
 
 <script>
 (function () {
@@ -1452,16 +1246,40 @@ class LRUCache:
   function highlight() {
     if (typeof hljs === 'undefined') return setTimeout(highlight, 100);
     document.querySelectorAll('pre code').forEach(function (b) { hljs.highlightElement(b); });
+    document.querySelectorAll('.ctable td code, .section-intro code').forEach(function (el) {
+      el.classList.add('language-python');
+      hljs.highlightElement(el);
+    });
   }
   highlight();
 
-  /* Active sidebar link on scroll */
-  var links = document.querySelectorAll('.sidebar a');
-  var sections = document.querySelectorAll('.example[id]');
+  /* Nav pills */
+  var navLinksEl = document.getElementById('navLinks');
+  var contentEl = document.getElementById('content');
+  function buildNavLinks() {
+    navLinksEl.innerHTML = '';
+    contentEl.querySelectorAll('.section-title[id]').forEach(function (sec) {
+      var a = document.createElement('a');
+      a.className = 'nav-link';
+      a.href = '#' + sec.id;
+      a.textContent = sec.textContent.trim();
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      navLinksEl.appendChild(a);
+    });
+  }
+  buildNavLinks();
+
+  /* Active nav link on scroll */
   function updateActive() {
+    var sections = contentEl.querySelectorAll('.section-title[id]');
+    var links = navLinksEl.querySelectorAll('.nav-link');
+    if (!sections.length) return;
     var cur = sections[0].id;
     sections.forEach(function (s) {
-      if (s.getBoundingClientRect().top <= 100) cur = s.id;
+      if (s.getBoundingClientRect().top <= 120) cur = s.id;
     });
     links.forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
@@ -1472,6 +1290,37 @@ class LRUCache:
     if (!ticking) { requestAnimationFrame(function () { updateActive(); ticking = false; }); ticking = true; }
   }, { passive: true });
   updateActive();
+
+  /* Scroll to top */
+  var scrollTopBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', function () {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* Search */
+  var searchInput = document.getElementById('searchInput');
+  var searchTimer = 0;
+  searchInput.addEventListener('input', function () {
+    var query = this.value.toLowerCase();
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () {
+      contentEl.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = card.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+      contentEl.querySelectorAll('.section-title').forEach(function (sec) {
+        var next = sec.nextElementSibling;
+        var hasVisible = false;
+        while (next && !next.classList.contains('section-title')) {
+          if (next.classList.contains('card') && next.style.display !== 'none') hasVisible = true;
+          next = next.nextElementSibling;
+        }
+        sec.style.display = hasVisible ? '' : 'none';
+      });
+    }, 150);
+  });
 })();
 </script>
 </body>

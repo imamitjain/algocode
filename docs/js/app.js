@@ -33,6 +33,10 @@ if (toggle) {
 }
 
 /* ── Nav pills ── */
+var BY_EXAMPLE = {
+  'python3': { href: 'python-by-example.html', text: '\uD83D\uDCD6 Python by Example' }
+};
+
 function buildNavLinks() {
   if (!navLinksEl) return;
   navLinksEl.innerHTML = '';
@@ -48,6 +52,16 @@ function buildNavLinks() {
     });
     navLinksEl.appendChild(a);
   });
+  var extra = BY_EXAMPLE[currentTab];
+  if (extra) {
+    var a = document.createElement('a');
+    a.className = 'nav-link';
+    a.href = extra.href;
+    a.textContent = extra.text;
+    a.style.borderColor = 'var(--accent)';
+    a.style.color = 'var(--accent)';
+    navLinksEl.appendChild(a);
+  }
   updateActiveNavLink();
 }
 
