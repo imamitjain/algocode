@@ -3,7 +3,9 @@
 
 var TABS = {
   'java':   { file: 'content/java.html',   footer: 'AlgoCode — Java',   search: 'Search collections, methods, data structures...' },
-  'golang': { file: 'content/golang.html', footer: 'AlgoCode — Golang', search: 'Search Go slices, maps, algorithms...' }
+  'golang': { file: 'content/golang.html', footer: 'AlgoCode — Golang', search: 'Search Go slices, maps, algorithms...' },
+  'cpp':     { file: 'content/cpp.html',     footer: 'AlgoCode — C++',     search: 'Search STL, vectors, algorithms...' },
+  'python3': { file: 'content/python3.html', footer: 'AlgoCode — Python3', search: 'Search lists, dicts, heapq, algorithms...' }
 };
 var DEFAULT_TAB = 'java';
 var contentEl = document.getElementById('content');
@@ -175,7 +177,7 @@ function renderContent(html) {
     contentEl.querySelectorAll('pre code').forEach(function (block) {
       hljs.highlightElement(block);
     });
-    var lang = currentTab === 'golang' ? 'language-go' : 'language-java';
+    var lang = currentTab === 'golang' ? 'language-go' : currentTab === 'cpp' ? 'language-cpp' : 'language-java';
     if (lang) {
       contentEl.querySelectorAll('.ctable td code, .section-intro code').forEach(function (el) {
         el.classList.add(lang);
