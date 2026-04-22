@@ -2,8 +2,6 @@
    Loaded with defer — DOM is fully parsed when this runs. */
 
 var TABS = {
-  'code-tricks': { file: 'content/code-tricks.html', footer: 'AlgoCode — Code Tricks', search: 'Search tricks, patterns...' },
-  'edge-cases':  { file: 'content/edge-cases.html',  footer: 'AlgoCode — Edge Cases',  search: 'Search edge cases, gotchas...' },
   'java':   { file: 'content/java.html',   footer: 'AlgoCode — Java',   search: 'Search collections, methods, data structures...' },
   'golang': { file: 'content/golang.html', footer: 'AlgoCode — Golang', search: 'Search Go slices, maps, algorithms...' }
 };
