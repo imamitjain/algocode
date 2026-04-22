@@ -1,4 +1,4 @@
-/* app.js — SPA shell: hash-based tab routing, theme, nav, search, hljs
+/* app.js — SPA shell: hash-based tab routing, theme, sidebar, nav, search, hljs
    Loaded with defer — DOM is fully parsed when this runs. */
 
 var TABS = {
@@ -14,6 +14,28 @@ var navLinksEl = document.getElementById('navLinks');
 var searchInput = document.getElementById('searchInput');
 var pageCache = {};
 var currentTab = null;
+
+/* ── Sidebar toggle (mobile) ── */
+var sidebarEl = document.getElementById('sidebar');
+var overlayEl = document.getElementById('sidebarOverlay');
+var hamburgerBtn = document.getElementById('hamburger');
+var sidebarCloseBtn = document.getElementById('sidebarClose');
+
+function openSidebar() {
+  if (sidebarEl) sidebarEl.classList.add('open');
+  if (overlayEl) overlayEl.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  if (sidebarEl) sidebarEl.classList.remove('open');
+  if (overlayEl) overlayEl.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+if (overlayEl) overlayEl.addEventListener('click', closeSidebar);
 
 /* ── Theme toggle ── */
 var toggle = document.getElementById('themeToggle');
@@ -49,6 +71,7 @@ function buildNavLinks() {
     a.textContent = sec.textContent.trim();
     a.addEventListener('click', function (e) {
       e.preventDefault();
+      closeSidebar();
       sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     navLinksEl.appendChild(a);
@@ -59,12 +82,13 @@ function buildNavLinks() {
     a.className = 'nav-link';
     a.href = extra.href;
     a.textContent = extra.text;
-    a.style.borderColor = 'var(--accent)';
     a.style.color = 'var(--accent)';
     navLinksEl.appendChild(a);
   }
   updateActiveNavLink();
 }
+
+var NAV_OFFSET = sidebarEl ? 70 : 120;
 
 function updateActiveNavLink() {
   if (!navLinksEl) return;
@@ -72,9 +96,8 @@ function updateActiveNavLink() {
   var links = navLinksEl.querySelectorAll('.nav-link');
   if (!sections.length) return;
   var currentId = sections[0].id;
-  var offset = 120;
   sections.forEach(function (sec) {
-    if (sec.getBoundingClientRect().top <= offset) currentId = sec.id;
+    if (sec.getBoundingClientRect().top <= NAV_OFFSET) currentId = sec.id;
   });
   links.forEach(function (link) {
     link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);

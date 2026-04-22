@@ -33,11 +33,9 @@
 </head>
 <body>
 
-<div class="header">
+<div class="topbar">
+  <button class="hamburger" id="hamburger" title="Categories">&#9776;</button>
   <span class="logo"><span class="logo-text">Algo<span>Code</span></span></span>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search tricks, patterns...">
-  </div>
   <div class="header-tabs">
     <a href="#java" class="tab-btn active" data-tab="java">
       <span class="tab-icon">&#9749;</span>
@@ -55,16 +53,29 @@
       <span class="tab-icon">&#128013;</span>
       <span><span>Python3</span><span class="tab-sub">63 cards · 16 categories</span></span>
     </a>
-
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search tricks, patterns...">
   </div>
   <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">&#9728;&#65039;</button>
 </div>
 
-<div class="nav-bar" id="navLinks"></div>
+<div class="page-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Categories</span>
+      <button class="sidebar-close" id="sidebarClose" title="Close">&times;</button>
+    </div>
+    <div class="sidebar-nav" id="navLinks"></div>
+  </aside>
 
-<div id="content"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<div class="footer" id="footer">AlgoCode</div>
+  <div class="main-wrapper">
+    <div id="content"></div>
+    <div class="footer" id="footer">AlgoCode</div>
+  </div>
+</div>
 
 <button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
 
