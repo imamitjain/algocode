@@ -4,7 +4,6 @@
 var TABS = {
   'code-tricks': { file: 'content/code-tricks.html', footer: 'AlgoCode — Code Tricks', search: 'Search tricks, patterns...' },
   'edge-cases':  { file: 'content/edge-cases.html',  footer: 'AlgoCode — Edge Cases',  search: 'Search edge cases, gotchas...' },
-  'go-vs-cpp':   { file: 'content/go-vs-cpp.html',   footer: 'AlgoCode — Go vs C++',   search: 'Search containers, algorithms, strings...' },
   'java':   { file: 'content/java.html',   footer: 'AlgoCode — Java',   search: 'Search collections, methods, data structures...' },
   'golang': { file: 'content/golang.html', footer: 'AlgoCode — Golang', search: 'Search Go slices, maps, algorithms...' }
 };
@@ -178,8 +177,7 @@ function renderContent(html) {
     contentEl.querySelectorAll('pre code').forEach(function (block) {
       hljs.highlightElement(block);
     });
-    var lang = currentTab === 'golang' ? 'language-go'
-             : (currentTab === 'go-vs-cpp') ? '' : 'language-java';
+    var lang = currentTab === 'golang' ? 'language-go' : 'language-java';
     if (lang) {
       contentEl.querySelectorAll('.ctable td code, .section-intro code').forEach(function (el) {
         el.classList.add(lang);
