@@ -75,17 +75,26 @@ a:hover { text-decoration: underline; }
   font-size: 0.85rem;
 }
 
-/* ---- Topbar (index.html) ---- */
+/* ---- Topbar ---- */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 100;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 10px 24px;
+  padding: 10px 24px 10px calc(var(--sidebar-w) + 12px);
   display: flex;
   align-items: center;
   gap: 12px;
+}
+.topbar .logo {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: calc(var(--sidebar-w) - 32px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hamburger {
@@ -392,7 +401,13 @@ a:hover { text-decoration: underline; }
     gap: 8px;
   }
   .topbar .hamburger { order: 0; }
-  .topbar .logo { order: 1; }
+  .topbar .logo {
+    position: static;
+    transform: none;
+    max-width: none;
+    overflow: visible;
+    order: 1;
+  }
   .topbar .search-box { order: 2; max-width: none; }
   .topbar .theme-toggle { order: 3; margin-left: auto; }
   .topbar .header-tabs {
