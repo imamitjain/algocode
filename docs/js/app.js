@@ -34,7 +34,8 @@ if (toggle) {
 
 /* ── Nav pills ── */
 var BY_EXAMPLE = {
-  'python3': { href: 'python-by-example.html', text: '\uD83D\uDCD6 Python by Example' }
+  'python3': { href: 'python-by-example.html', text: '\uD83D\uDCD6 Python by Example' },
+  'cpp':     { href: 'cpp-pointers-by-example.html', text: '\uD83D\uDCD6 C++ Pointers by Example' }
 };
 
 function buildNavLinks() {
