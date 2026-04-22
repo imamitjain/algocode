@@ -134,7 +134,7 @@ func (h *MinHeap) Pop() any {
     old := *h; n := len(old)
     x := old[n-1]; *h = old[:n-1]; return x
 }
-heap.Init(&amp;h); heap.Push(&amp;h, 3)</code></pre><span class="tag go-tag">container/heap</span></td>
+heap.Init(h); heap.Push(h, 3)</code></pre><span class="tag go-tag">container/heap</span></td>
 <td><pre><code class="language-cpp">// Max-heap by default
 priority_queue&lt;int&gt; pq;
 pq.push(3);
@@ -865,12 +865,12 @@ int l = lcm(12, 8);    // C++17</code></pre><span class="tag cpp-tag">std::gcd /
 
 <tr><td>Bit Manipulation</td>
 <td><pre><code class="language-go">import "math/bits"
-bits.OnesCount(x)           // popcount
-bits.Len(x)                 // bit length
-bits.LeadingZeros(x)
-bits.TrailingZeros(x)
-bits.RotateLeft(x, k)
-bits.Reverse(x)</code></pre><span class="tag go-tag">math/bits</span></td>
+bits.OnesCount(uint(x))     // popcount (requires uint)
+bits.Len(uint(x))           // bit length
+bits.LeadingZeros(uint(x))
+bits.TrailingZeros(uint(x))
+bits.RotateLeft(uint(x), k)
+bits.Reverse(uint(x))</code></pre><span class="tag go-tag">math/bits</span></td>
 <td><pre><code class="language-cpp">#include &lt;bit&gt;              // C++20
 popcount(x);
 bit_width(x);

@@ -2,7 +2,7 @@
 
 <!-- ==================== MATH UTILITIES ==================== -->
 <div class="section-title" id="sec-math"><span class="icon">&#129518;</span> Math Utilities</div>
-<p class="section-intro">C++ provides <code>&lt;cmath&gt;</code> for floating-point math, <code>&lt;algorithm&gt;</code> for <code>min</code>/<code>max</code>, and <code>&lt;climits&gt;</code> / <code>&lt;limits&gt;</code> for type boundaries. <code>int</code> is 32-bit, <code>long long</code> is 64-bit. Signed integer overflow is <b>undefined behavior</b> &mdash; the compiler may optimize it away silently.</p>
+<p class="section-intro">C++ provides <code>&lt;cmath&gt;</code> for floating-point math, <code>&lt;algorithm&gt;</code> for <code>min</code>/<code>max</code>, and <code>&lt;climits&gt;</code> / <code>&lt;limits&gt;</code> for type boundaries. <code>int</code> is typically 32-bit on most platforms, <code>long long</code> is at least 64-bit. Signed integer overflow is <b>undefined behavior</b> &mdash; the compiler may optimize it away silently.</p>
 
 <div class="card" style="grid-column:1/-1">
 <div class="card-header">
@@ -49,8 +49,8 @@
 <tr><td><code>long long</code> · <code>int64_t</code></td>       <td>8 bytes</td>     <td>&minus;9,223,372,036,854,775,808 (&minus;2<sup>63</sup>)</td><td>9,223,372,036,854,775,807 (2<sup>63</sup>&minus;1)</td>  <td><code>LLONG_MIN</code> / <code>LLONG_MAX</code></td></tr>
 <tr><td><code>unsigned long long</code></td>                      <td>8 bytes</td>     <td>0</td>                                                      <td>18,446,744,073,709,551,615 (2<sup>64</sup>&minus;1)</td><td><code>ULLONG_MAX</code></td></tr>
 <tr class="grp"><td colspan="5">Floating-Point Types</td></tr>
-<tr><td><code>float</code></td>                                   <td>4 bytes</td>     <td>1.17549&times;10<sup>&minus;38</sup></td>                    <td>3.40282&times;10<sup>38</sup></td>                      <td><code>FLT_MIN</code> / <code>FLT_MAX</code></td></tr>
-<tr><td><code>double</code></td>                                  <td>8 bytes</td>     <td>2.22507&times;10<sup>&minus;308</sup></td>                   <td>1.79769&times;10<sup>308</sup></td>                     <td><code>DBL_MIN</code> / <code>DBL_MAX</code></td></tr>
+<tr><td><code>float</code></td>                                   <td>4 bytes</td>     <td>&minus;3.40282&times;10<sup>38</sup></td>                   <td>3.40282&times;10<sup>38</sup></td>                      <td><code>-FLT_MAX</code> / <code>FLT_MAX</code></td></tr>
+<tr><td><code>double</code></td>                                  <td>8 bytes</td>     <td>&minus;1.79769&times;10<sup>308</sup></td>                  <td>1.79769&times;10<sup>308</sup></td>                     <td><code>-DBL_MAX</code> / <code>DBL_MAX</code></td></tr>
 <tr><td><code>long double</code></td>                             <td>8/12/16 bytes</td><td colspan="2">Platform-dependent; &ge; <code>double</code> range</td>                                                  <td><code>LDBL_MIN</code> / <code>LDBL_MAX</code></td></tr>
 </tbody>
 </table>
@@ -135,7 +135,7 @@ log(exp(1));                               // 1.0 (natural log)
 log2(8);                                   // 3.0
 log10(1000);                               // 3.0
 
-// Number of digits in n (n &gt; 0)
+// Number of digits in n (n must be &gt; 0; log10(0) is -inf!)
 int digits = (int)log10(n) + 1;           // 9999 &rarr; 4
 
 // &mdash; Ceiling division (positive a, b only) &mdash;
@@ -144,7 +144,7 @@ int cdiv = (a + b - 1) / b;              // ceil(a / b) without float
 // &mdash; Safe infinity for DP / shortest path &mdash;
 const int INF = 1e9;                      // 1e9 + 1e9 = 2e9, fits in int
 const int INF2 = INT_MAX / 2;            // safe for a single addition
-const long long LINF = 1e18;             // for long long problems
+const long long LINF = 1000000000000000000LL; // for long long problems
 
 // &mdash; Negative modulo &mdash;
 // C++ % keeps sign of dividend: -7 % 3 == -1 (not 2!)
@@ -194,8 +194,8 @@ long long modPow(long long base, long long exp, long long mod) {
     return result;
 }
 
-// Safe modular add
-((a % MOD) + (b % MOD)) % MOD;
+// Safe modular add (cast to long long to avoid overflow)
+((long long)(a % MOD) + (b % MOD)) % MOD;
 
 // Safe modular multiply (use long long)
 (1LL * a * b) % MOD;</code></pre>
@@ -224,7 +224,7 @@ memset(dp, 0x3f, sizeof dp);            // ~1e9 per cell (0x3f3f3f3f)
 vector&lt;bool&gt; dp(n + 1, false);
 dp[0] = true;  // base: empty subset
 
-// Space-optimized (two variables)
+// Space-optimized (two variables) &mdash; House Robber pattern
 int prev2 = 0, prev1 = 0;
 for (int num : nums) {
     int curr = max(prev1, prev2 + num);
@@ -531,7 +531,7 @@ bool isVowel = lower=='a' || lower=='e' || lower=='i'
 <tr><td>Lowest set bit</td><td><code>n &amp; (-n)</code></td>                                     <td class="tc-1">O(1)</td></tr>
 <tr><td>Clear lowest set</td><td><code>n &amp;= n - 1</code></td>                                <td class="tc-1">O(1)<span class="cmt">Kernighan&rsquo;s</span></td></tr>
 <tr><td>Power of 2</td><td><code>n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0</code></td>                   <td class="tc-1">O(1)</td></tr>
-<tr><td>Bitmask n bits</td><td><code>(1 &lt;&lt; n) - 1</code></td>                                 <td class="tc-1">O(1)</td></tr>
+<tr><td>Bitmask n bits</td><td><code>(1 &lt;&lt; n) - 1</code></td>                                 <td class="tc-1">O(1)<span class="cmt">use 1LL if n &ge; 31</span></td></tr>
 </tbody>
 </table>
 </div>
@@ -549,6 +549,7 @@ n &amp;= ~(1 &lt;&lt; i);                          // clear bit i
 n ^= 1 &lt;&lt; i;                             // toggle bit i
 
 // &mdash; Lowest set bit, Kernighan's &mdash;
+// Use unsigned to avoid UB when n == INT_MIN: (unsigned)n &amp; -(unsigned)n
 n &amp; (-n);                                 // isolate rightmost 1: 12(1100) &rarr; 4(0100)
 n &amp;= n - 1;                              // clear lowest set bit
 
@@ -580,7 +581,8 @@ a ^= b; b ^= a; a ^= b;  // XOR trick (avoid — less readable)
 // &mdash; Update bit i to value v (0 or 1) &mdash;
 n = (n &amp; ~(1 &lt;&lt; i)) | (v &lt;&lt; i);
 
-// &mdash; Highest one bit (floor power of 2) &mdash;
+// &mdash; Highest one bit (floor power of 2, n must be &gt; 0) &mdash;
+// __builtin_clz(0) is UB &mdash; always guard n &gt; 0
 1 &lt;&lt; (31 - __builtin_clz(n));            // 12 &rarr; 8, 16 &rarr; 16
 
 // &mdash; Bitmask &amp; subset enumeration &mdash;
@@ -666,7 +668,7 @@ vector&lt;vector&lt;int&gt;&gt; adj(n);              // adjacency list</code></p
 </div>
 <div class="card-body">
 <div class="note">
-<b>Contiguous memory</b> &mdash; elements are stored in a contiguous block. <code>&amp;v[0]</code> gives a raw pointer compatible with C APIs.
+<b>Contiguous memory</b> &mdash; elements are stored in a contiguous block. <code>v.data()</code> gives a raw pointer compatible with C APIs (<code>&amp;v[0]</code> is UB when empty).
 <ul>
 <li><code>v.size()</code> returns <code>size_t</code> (unsigned). Subtracting from 0 wraps to a huge number.</li>
 <li>Default values: <code>0</code> for numeric, <code>false</code> for bool, default-constructed for objects.</li>
@@ -816,7 +818,7 @@ v.push_back(4);            // no realloc if size &lt;= 100
 
 <!-- ==================== STRING ==================== -->
 <div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String</div>
-<p class="section-intro">C++ <code>std::string</code> is a <b>mutable</b> sequence of <code>char</code>. Unlike Java/Go, strings can be modified in place. <code>s[i]</code> accesses by index in O(1). Concatenation with <code>+=</code> is amortized O(1) (like vector). <code>==</code> compares by value.</p>
+<p class="section-intro">C++ <code>std::string</code> is a <b>mutable</b> sequence of <code>char</code>. Unlike Java/Go, strings can be modified in place. <code>s[i]</code> accesses by index in O(1). Concatenation with <code>+=</code> is amortized O(1) per append (like vector). <code>==</code> compares by value.</p>
 
 <div class="card" style="grid-column:1/-1">
 <div class="card-header">
@@ -900,10 +902,12 @@ s.insert(5, " ");              // insert at position
 s.erase(3, 2);                 // erase 2 chars at position 3
 
 // &mdash; Transform &mdash;
-// To lowercase (in-place)
-transform(s.begin(), s.end(), s.begin(), ::tolower);
+// To lowercase (in-place) &mdash; cast to unsigned char for safety with non-ASCII
+transform(s.begin(), s.end(), s.begin(),
+    [](unsigned char c){ return tolower(c); });
 // To uppercase (in-place)
-transform(s.begin(), s.end(), s.begin(), ::toupper);
+transform(s.begin(), s.end(), s.begin(),
+    [](unsigned char c){ return toupper(c); });
 
 // Reverse (in-place)
 reverse(s.begin(), s.end());
@@ -936,7 +940,7 @@ s1 &lt; s2;                       // lexicographic
 string key = s;
 sort(key.begin(), key.end());
 
-// Frequency array key (no sort needed)
+// Frequency array key (no sort needed, assumes lowercase a-z only)
 int freq[26] = {};
 for (char c : s) freq[c - 'a']++;
 
@@ -1036,9 +1040,9 @@ sort(strs.begin(), strs.end(), [](const string&amp; a, const string&amp; b) {
     return a + b &gt; b + a;
 });
 
-// Sort by absolute value
+// Sort by absolute value (cast to long long to avoid abs(INT_MIN) UB)
 sort(v.begin(), v.end(), [](int a, int b) {
-    return abs(a) &lt; abs(b);
+    return abs((long long)a) &lt; abs((long long)b);
 });
 
 // Check if sorted
@@ -1108,9 +1112,9 @@ sort(v.begin(), v.end(), [](int a, int b) {
 </div>
 <div class="card-body">
 <pre><code class="language-cpp">// Lower/upper bound (sorted vector)
-auto it = lower_bound(v.begin(), v.end(), target);  // first &ge; target
-auto it = upper_bound(v.begin(), v.end(), target);  // first &gt; target
-int idx = it - v.begin();                            // convert to index
+auto lb = lower_bound(v.begin(), v.end(), target);  // first &ge; target
+auto ub = upper_bound(v.begin(), v.end(), target);  // first &gt; target
+int idx = lb - v.begin();                            // convert to index
 
 bool found = binary_search(v.begin(), v.end(), target);
 
@@ -1281,8 +1285,8 @@ unordered_set&lt;int&gt; s(v.begin(), v.end());
 map&lt;int, int&gt; om;
 om.begin()-&gt;first;                   // smallest key
 om.rbegin()-&gt;first;                  // largest key
-auto it = om.lower_bound(k);        // first key &ge; k
-auto it = om.upper_bound(k);        // first key &gt; k
+auto lb = om.lower_bound(k);        // first key &ge; k
+auto ub = om.upper_bound(k);        // first key &gt; k
 
 // &mdash; set (ordered) &mdash;
 set&lt;int&gt; os;
@@ -1356,8 +1360,9 @@ unordered_map&lt;int, int, custom_hash&gt; m;
 // ❌ erase(value) removes ALL occurrences
 ms.erase(3);                         // removes all 3s! ms = {5}
 
-// ✅ erase(iterator) removes exactly one
-ms.erase(ms.find(3));               // removes one 3, ms = {3, 3, 5}</code></pre>
+// ✅ erase(iterator) removes exactly one &mdash; check find() != end() first!
+auto it = ms.find(3);
+if (it != ms.end()) ms.erase(it);   // removes one 3, ms = {3, 3, 5}</code></pre>
 </div>
 </div>
 
@@ -1612,7 +1617,7 @@ int r2 = idx / cols, c2 = idx % cols;
 for (int i = 0; i &lt; n; i++)
     for (int j = i + 1; j &lt; n; j++)
         swap(mat[i][j], mat[j][i]);
-// Rotate 90&deg; clockwise = transpose + reverse each row
+// Rotate 90&deg; clockwise (square matrix) = transpose + reverse each row
 
 // Spiral traversal: 4 boundaries shrinking
 int top = 0, bot = m - 1, left = 0, right = n - 1;
@@ -1737,7 +1742,7 @@ curr-&gt;next = prev;              // 2. reverse
 prev = curr;                    // 3. advance prev
 curr = next;                    // 4. advance curr
 
-// Floyd's cycle: phase 2 &mdash; find cycle start
+// Floyd's cycle: phase 2 &mdash; find cycle start (after phase 1 meets at slow)
 auto ptr = head;
 while (ptr != slow) {
     ptr = ptr-&gt;next; slow = slow-&gt;next;

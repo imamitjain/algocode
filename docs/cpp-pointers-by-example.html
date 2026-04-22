@@ -97,7 +97,7 @@
 <pre><code class="language-cpp">int arr[] = {10, 20, 30, 40, 50};
 int* p = arr;
 
-p++;                                   // points to arr[1] (moved 4 bytes)
+p++;                                   // points to arr[1] (moved sizeof(int) bytes, typically 4)
 p += 2;                                // points to arr[3]
 p--;                                   // back to arr[2]
 
@@ -621,8 +621,7 @@ double* dp = (double*)&amp;n;             // type-punning, likely UB
     int count = 0;
 
     Counter&amp; increment() {
-        this-&gt;count++;                 // explicit (usually unnecessary)
-        count++;                       // same &mdash; this-&gt; is implied
+        count++;                       // this-&gt;count++ is equivalent
         return *this;                  // return by ref for chaining
     }
 
@@ -634,7 +633,7 @@ double* dp = (double*)&amp;n;             // type-punning, likely UB
 
 Counter c;
 c.increment().increment().increment(); // chaining via return *this
-c.print();                             // 6
+c.print();                             // 3
 
 // &mdash; delete this (rare, dangerous) &mdash;
 // Legal only if heap-allocated with new.

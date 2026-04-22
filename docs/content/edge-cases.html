@@ -28,9 +28,9 @@ if a &gt; math.MaxInt - b {
   <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
-<pre><code class="language-go">// ❌ int32 values multiplied may overflow int
-width, height := 50000, 50000
-area := width * height   // may overflow int32
+<pre><code class="language-go">// ❌ int32 values multiplied may overflow int32 (safe on 64-bit int)
+var width, height int32 = 50000, 50000
+area := width * height   // overflows int32!
 
 // ✅ Cast to int64 before multiplying
 area := int64(width) * int64(height)</code></pre>
@@ -51,7 +51,7 @@ mid := (lo + hi) / 2
 mid := lo + (hi-lo)/2
 
 // Go has no &gt;&gt;&gt; — use the subtraction form above
-// For uint: mid := (lo + hi) / 2  (safe since unsigned)</code></pre>
+// For uint: prefer lo + (hi-lo)/2 as well (lo+hi can still wrap for large uint)</code></pre>
 </div>
 </div>
 
@@ -118,7 +118,7 @@ if dist[u] != INF &amp;&amp; dist[u]+w &lt; dist[v] {
 if len(nums) == 0 {
     return ...
 }
-if len(nums) &lt; 2 { return nums[0] }   // needs at least 2
+if len(nums) &lt; 2 { return nums[0] }   // safe: len==0 caught above
 
 // Kadane's: init with nums[0], loop from i=1 → needs guard
 // Two pointers: right = len(nums)-1 → -1 if empty → panic
@@ -193,7 +193,7 @@ if node == nil {
     return 0
 }
 
-// ✅ BFS start
+// ✅ BFS start (result must be declared above, e.g. var result [][]int)
 if root == nil {
     return result
 }
@@ -801,6 +801,7 @@ if n &lt;= 1 {
 if len(nums) == 1 {
     return nums[0]
 }
+n := len(nums)
 r1 := rob(nums[0 : n-1])  // skip last
 r2 := rob(nums[1 : n])    // skip first
 return max(r1, r2)</code></pre>

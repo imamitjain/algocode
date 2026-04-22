@@ -101,7 +101,7 @@ math.Log(math.E)                       // 1.0 (natural log)
 math.Log2(8)                           // 3.0
 math.Log10(1000)                       // 3.0
 
-// Number of digits in n (n &gt; 0)
+// Number of digits in n (n must be &gt; 0; Log10(0) is -Inf!)
 digits := int(math.Log10(float64(n))) + 1  // 9999 &rarr; 4
 
 // &mdash; Ceiling division (positive a, b only) &mdash;
@@ -196,7 +196,7 @@ for i := range memo { memo[i] = -1 }
 dp := make([]bool, n+1)
 dp[0] = true  // base: empty subset
 
-// Space-optimized (two variables)
+// Space-optimized (two variables) &mdash; House Robber pattern
 prev2, prev1 := 0, 0
 for _, num := range nums {
     curr := max(prev1, prev2+num)
@@ -718,7 +718,7 @@ for i := range grid {
 sum := 0
 for _, v := range arr { sum += v }
 
-mn := arr[0]
+mn := arr[0]  // panics if arr is empty &mdash; guard with len check
 for _, v := range arr[1:] { if v &lt; mn { mn = v } }
 
 // &mdash; Reverse in-place &mdash;
@@ -735,8 +735,8 @@ rand.Shuffle(len(arr), func(i, j int) {
 arr = append(arr[:i], arr[i+1:]...)       // O(n), order preserved
 arr[i] = arr[len(arr)-1]; arr = arr[:len(arr)-1] // O(1), order lost
 
-// &mdash; Rotate left by k &mdash;
-k %= len(s)
+// &mdash; Rotate left by k (guard empty slice: len==0 panics on %) &mdash;
+if len(s) &gt; 0 { k %= len(s) }
 s = append(s[k:], s[:k]...)
 
 // &mdash; Remove duplicates (sorted) &mdash;
@@ -907,7 +907,7 @@ for _, c := range s { freq[c-'a']++ }
 var sb strings.Builder
 sb.WriteString("text")  // append string
 sb.WriteRune('c')       // append rune
-sb.WriteByte(b)         // append byte
+sb.WriteByte('a')       // append byte
 sb.Len()                // current length
 sb.Reset()              // clear
 sb.String()             // convert to string
@@ -987,7 +987,7 @@ slices.Sort(arr)                      // Go 1.21+
 
 // Sort descending
 sort.Sort(sort.Reverse(sort.IntSlice(arr)))
-slices.SortFunc(arr, func(a, b int) int { return b - a }) // Go 1.21+
+slices.SortFunc(arr, func(a, b int) int { return cmp.Compare(b, a) }) // Go 1.21+; b-a can overflow
 
 // Custom sort with bool less function
 sort.Slice(arr, func(i, j int) bool {
@@ -1612,7 +1612,7 @@ for i := 0; i &lt; n; i++ {
         mat[i][j], mat[j][i] = mat[j][i], mat[i][j]
     }
 }
-// Rotate 90&deg; clockwise = transpose + reverse each row
+// Rotate 90&deg; clockwise (square matrix) = transpose + reverse each row
 
 // Spiral traversal: 4 boundaries shrinking
 top, bot, left, right := 0, m-1, 0, n-1
@@ -2162,13 +2162,13 @@ result, err := divide(10, 0)
 if err != nil { log.Fatal(err) }
 
 // &mdash; Panic / recover &mdash;
-panic("fatal error")
-
+// defer must be registered BEFORE the panic occurs
 defer func() {
     if r := recover(); r != nil {
         fmt.Println("recovered:", r)
     }
 }()
+panic("fatal error")
 
 // &mdash; Error wrapping &mdash;
 err := fmt.Errorf("open failed: %w", origErr)
@@ -2350,6 +2350,7 @@ http.ListenAndServe(":8080", nil)
 
 // &mdash; HTTP Client &mdash;
 resp, err := http.Get("https://api.example.com/data")
+if err != nil { log.Fatal(err) }       // resp can be nil on error
 defer resp.Body.Close()
 body, _ := io.ReadAll(resp.Body)
 

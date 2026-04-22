@@ -102,7 +102,7 @@ Math.log(Math.E);                          // 1.0 (natural log)
 Math.log10(1000);                          // 3.0
 (int)(Math.log(8) / Math.log(2));          // 3 (log base 2)
 
-// Number of digits in n (n &gt; 0)
+// Number of digits in n (n must be &gt; 0; log10(0) is -Infinity!)
 int digits = (int)(Math.log10(n)) + 1;    // 9999 &rarr; 4
 
 // &mdash; Ceiling division (positive a, b only) &mdash;
@@ -146,7 +146,7 @@ static long lcm(long a, long b) {
 // isPrime &mdash; trial division O(&radic;n)
 static boolean isPrime(int n) {
     if (n &lt; 2) return false;
-    for (int i = 2; i * i &lt;= n; i++) {
+    for (int i = 2; i &lt;= n / i; i++) {  // i*i can overflow for large n
         if (n % i == 0) return false;
     }
     return true;
@@ -821,7 +821,7 @@ String str   = new String(chars);            // char[] → String</code></pre>
 <b>No generics for primitives</b> &mdash; <code>int[]</code> stores raw ints with zero boxing overhead. <code>List&lt;Integer&gt;</code> boxes every element.
 <ul>
 <li>For performance-critical code with primitives, prefer arrays over collections.</li>
-<li><code>Arrays.asList(intArray)</code> won&rsquo;t work for primitives. Use <code>IntStream.of(arr).boxed().toList()</code> instead.</li>
+<li><code>Arrays.asList(intArray)</code> won&rsquo;t work for primitives. Use <code>IntStream.of(arr).boxed().collect(Collectors.toList())</code> instead (<code>.toList()</code> requires Java 16+).</li>
 </ul>
 <b>Pass by reference</b> &mdash; arrays are objects. Passing an array to a method shares the same memory; mutations are visible to the caller.
 <br><br><b><code>char[]</code></b> &mdash; works identically to <code>int[]</code> for all <code>Arrays.*</code> methods. See initialization card for String interop.
@@ -1029,7 +1029,7 @@ Arrays.sort(boxed);  // stable — equal elements preserve insertion order
 
 // ⚠ Practical trap: sorting int[][] by first element
 int[][] intervals = {{1, 10}, {1, 5}, {2, 3}};
-Arrays.sort(intervals, (a, b) -&gt; a[0] - b[0]);
+Arrays.sort(intervals, (a, b) -&gt; Integer.compare(a[0], b[0]));  // safe; a[0]-b[0] can overflow
 // Stable — {1,10} and {1,5} keep original order (Comparator triggers TimSort)
 
 // ❌ If you sort a primitive array and depend on order of equal elements,
@@ -2051,8 +2051,7 @@ hash.add(null);  // OK
 Set&lt;String&gt; tree = new TreeSet&lt;&gt;();
 tree.add(null);  // NullPointerException!
 
-// ❌ Even with a custom comparator that handles null:
-// First element added may succeed, but behavior is undefined
+// ✅ With a null-aware comparator, null IS supported:
 Set&lt;String&gt; tree2 = new TreeSet&lt;&gt;(Comparator.nullsFirst(Comparator.naturalOrder()));
 tree2.add(null);    // OK &mdash; comparator handles null ordering</code></pre>
 </div>
@@ -2630,8 +2629,8 @@ EnumMap&lt;Day, String&gt; em3 = new EnumMap&lt;&gt;(existingMap);        // cop
 <tr><td>Collection</td><td><code>Object[] toArray()</code></td>           <td class="tc-n">O(n)</td>                                           <td class="na">--</td></tr>
 <tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                           <td class="na">--</td></tr>
 <tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(m)</td>                                        <td class="na">--</td></tr>
-<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise AND</span></td>    <td class="na">--</td></tr>
-<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise</span></td>      <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise AND; O(m) for non-EnumSet arg</span></td>    <td class="na">--</td></tr>
+<tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-1">O(1)<span class="cmt">bitwise; O(m) for non-EnumSet arg</span></td>      <td class="na">--</td></tr>
 <tr><td>Collection</td><td><code>boolean removeIf(Predicate p)</code></td><td class="tc-n">O(n)</td>                                           <td class="na">--</td></tr>
 <tr class="grp"><td colspan="4">EnumSet &mdash; Factory Methods</td></tr>
 <tr><td>EnumSet</td><td><code>EnumSet noneOf(Class)</code></td>            <td class="tc-1">O(1)<span class="cmt">factory</span></td>           <td class="na">--</td></tr>
@@ -2646,7 +2645,7 @@ EnumMap&lt;Day, String&gt; em3 = new EnumMap&lt;&gt;(existingMap);        // cop
 <tr><td>Map</td><td><code>boolean containsValue(Object)</code></td>        <td class="na">--</td>   <td class="tc-n">O(n)<span class="cmt">scans array</span></td></tr>
 <tr><td>Map</td><td><code>int size()</code></td>                           <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
 <tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
-<tr><td>Map</td><td><code>void clear()</code></td>                         <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">nulls array</span></td></tr>
+<tr><td>Map</td><td><code>void clear()</code></td>                         <td class="na">--</td>   <td class="tc-n">O(k)<span class="cmt">k = enum constants</span></td></tr>
 <tr class="grp"><td colspan="4">EnumMap &mdash; Views &amp; Bulk</td></tr>
 <tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="na">--</td>   <td class="tc-n">O(m)</td></tr>
 <tr><td>Map</td><td><code>Set keySet()</code></td>                         <td class="na">--</td>   <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
@@ -2852,7 +2851,7 @@ BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // boun
 <tr><td>ConcurrentMap</td><td><code>V computeIfAbsent(K, fn)</code></td>   <td class="tc-1">O(1)<span class="cmt">atomic; + fn</span></td>     <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
 <tr><td>ConcurrentMap</td><td><code>V merge(K, V, fn)</code></td>          <td class="tc-1">O(1)<span class="cmt">atomic</span></td>            <td class="tc-logn">O(log n)</td></tr>
 <tr class="grp"><td colspan="4">Size &amp; Metadata</td></tr>
-<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-1">O(1)<span class="cmt">capped at MAX_VALUE; prefer mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-n">O(n)<span class="cmt">not O(1); aggregates counters. Prefer mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
 <tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
 <tr><td>Map</td><td><code>void clear()</code></td>                         <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
 <tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="tc-n">O(m)</td>                                           <td class="tc-nlogn">O(m log n)</td></tr>
@@ -3204,7 +3203,7 @@ boolean  disjoint(Collection&lt;?&gt; c1, Collection&lt;?&gt; c2)</code></pre>
 <b>Always bounds-check</b> &mdash; <code>nr &gt;= 0 &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; cols</code> before accessing <code>grid[nr][nc]</code>.
 <br><br><b>2D &harr; 1D index</b> &mdash; <code>(r, c)</code> maps to <code>r * cols + c</code>. Reverse: <code>r = idx / cols</code>, <code>c = idx % cols</code>. Useful for Union-Find on grids.
 <br><br><b>Transpose</b> &mdash; swap <code>[i][j]</code> and <code>[j][i]</code>. In-place only for square matrices.
-<br><br><b>Rotate 90&deg; CW</b> &mdash; transpose + reverse each row. <b>CCW</b> &mdash; transpose + reverse each column.
+<br><br><b>Rotate 90&deg; CW (square matrix)</b> &mdash; transpose + reverse each row. <b>CCW</b> &mdash; transpose + reverse each column.
 <br><br><b>Diagonal properties</b> &mdash; <code>r - c</code> is constant along <code>\</code> diagonals. <code>r + c</code> is constant along <code>/</code> anti-diagonals. Use as map keys for N-Queens, diagonal traversal.
 </div>
 </div>
@@ -3296,6 +3295,8 @@ while (top &lt;= bot &amp;&amp; left &lt;= right) {
 // Same / anti-diagonal: r + c is constant    (0,2) and (1,1) both have r+c = 2
 
 // &mdash; Grid DFS (4-directional) &mdash;
+int[] dr = {-1, 0, 1, 0}, dc = {0, 1, 0, -1};
+
 void dfs(int[][] grid, boolean[][] vis, int r, int c) {
     if (r &lt; 0 || r &gt;= grid.length || c &lt; 0 || c &gt;= grid[0].length || vis[r][c]) return;
     vis[r][c] = true;

@@ -248,7 +248,7 @@ math.Log(n)        // natural log (base e)
 math.Log2(n)       // log base 2
 math.Log10(n)      // log base 10
 
-// Number of digits in n (n &gt; 0)
+// Number of digits in n (n must be &gt; 0; Log10(0) is -Inf!)
 digits := int(math.Log10(float64(n))) + 1
 
 // GCD — Euclidean O(log min(a,b))
