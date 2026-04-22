@@ -1,0 +1,2008 @@
+<div class="cards-grid">
+
+<!-- ==================== MATH UTILITIES ==================== -->
+<div class="section-title" id="sec-math"><span class="icon">&#129518;</span> Math Utilities</div>
+<p class="section-intro">C++ provides <code>&lt;cmath&gt;</code> for floating-point math, <code>&lt;algorithm&gt;</code> for <code>min</code>/<code>max</code>, and <code>&lt;climits&gt;</code> / <code>&lt;limits&gt;</code> for type boundaries. <code>int</code> is 32-bit, <code>long long</code> is 64-bit. Signed integer overflow is <b>undefined behavior</b> &mdash; the compiler may optimize it away silently.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Integer limits</b> &mdash; know the boundaries to avoid UB.
+<ul>
+<li><code>INT_MAX</code> = 2,147,483,647 (2<sup>31</sup>&minus;1) &nbsp;|&nbsp; <code>INT_MIN</code> = &minus;2,147,483,648 (&minus;2<sup>31</sup>)</li>
+<li><code>LLONG_MAX</code> = 9.2&times;10<sup>18</sup> (2<sup>63</sup>&minus;1) &nbsp;|&nbsp; <code>LLONG_MIN</code> = &minus;9.2&times;10<sup>18</sup> (&minus;2<sup>63</sup>)</li>
+<li>Signed overflow is <b>undefined behavior</b> &mdash; not wrap-around like Java/Go. The compiler may remove your overflow checks entirely.</li>
+</ul>
+<b>Safe infinity for DP / shortest path</b> &mdash; never use <code>INT_MAX</code> as INF if you add to it.
+<ul>
+<li><code>1e9</code> is safe: 1e9&nbsp;+&nbsp;1e9&nbsp;=&nbsp;2e9, fits in <code>int</code>.</li>
+<li><code>INT_MAX / 2</code> is safe for a single addition.</li>
+</ul>
+<b><code>abs</code> overloads</b> &mdash; <code>abs(int)</code> from <code>&lt;cstdlib&gt;</code>, <code>abs(long long)</code> needs <code>&lt;cstdlib&gt;</code> or <code>llabs</code>. <code>abs(INT_MIN)</code> is <b>undefined behavior</b>.
+<br><br><b><code>pow</code> returns <code>double</code></b> &mdash; casting to <code>int</code> can lose precision. <code>(int)pow(10,9)</code> may give 999999999. Use a loop or bit shift for exact integer powers.
+<br><br><b>C++17 <code>__gcd</code> / <code>gcd</code></b> &mdash; <code>std::gcd</code> and <code>std::lcm</code> in <code>&lt;numeric&gt;</code> (C++17). <code>__gcd</code> is a GCC extension available on most competitive programming judges.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Arithmetic</td></tr>
+<tr><td>Max</td><td><code>max(a, b)</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Min</td><td><code>min(a, b)</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Absolute (int)</td><td><code>abs(a)</code></td>                                      <td class="tc-1">O(1)<span class="cmt">UB on INT_MIN</span></td></tr>
+<tr><td>Absolute (float)</td><td><code>fabs(a)</code></td>                                   <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Power &amp; Root</td></tr>
+<tr><td>Power</td><td><code>pow(base, exp)</code></td>                                       <td class="tc-1">O(1)<span class="cmt">returns double</span></td></tr>
+<tr><td>Square root</td><td><code>sqrt(x)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>Cube root</td><td><code>cbrt(x)</code></td>                                          <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Rounding</td></tr>
+<tr><td>Floor</td><td><code>floor(x)</code></td>                                             <td class="tc-1">O(1)<span class="cmt">toward &minus;&infin;</span></td></tr>
+<tr><td>Ceiling</td><td><code>ceil(x)</code></td>                                            <td class="tc-1">O(1)<span class="cmt">toward +&infin;</span></td></tr>
+<tr><td>Round</td><td><code>round(x)</code></td>                                             <td class="tc-1">O(1)<span class="cmt">nearest</span></td></tr>
+<tr><td>Ceil div (int)</td><td><code>(a + b - 1) / b</code></td>                             <td class="tc-1">O(1)<span class="cmt">positive a, b</span></td></tr>
+<tr class="grp"><td colspan="3">Logarithms</td></tr>
+<tr><td>Natural log</td><td><code>log(x)</code></td>                                         <td class="tc-1">O(1)<span class="cmt">base e</span></td></tr>
+<tr><td>Log base 2</td><td><code>log2(x)</code></td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Log base 10</td><td><code>log10(x)</code></td>                                       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">GCD / LCM</td></tr>
+<tr><td>GCD</td><td><code>__gcd(a, b)</code></td>                                            <td class="tc-logn">O(log min)<span class="cmt">GCC built-in</span></td></tr>
+<tr><td>GCD</td><td><code>gcd(a, b)</code></td>                                              <td class="tc-logn">O(log min)<span class="cmt">C++17 &lt;numeric&gt;</span></td></tr>
+<tr><td>LCM</td><td><code>lcm(a, b)</code></td>                                              <td class="tc-logn">O(log min)<span class="cmt">C++17 &lt;numeric&gt;</span></td></tr>
+<tr class="grp"><td colspan="3">Random</td></tr>
+<tr><td>Random int</td><td><code>rand() % n</code></td>                                      <td class="tc-1">O(1)<span class="cmt">biased; prefer mt19937</span></td></tr>
+<tr><td>Random engine</td><td><code>mt19937 rng(seed)</code></td>                             <td class="tc-1">O(1)<span class="cmt">&lt;random&gt;</span></td></tr>
+<tr class="grp"><td colspan="3">Special Values</td></tr>
+<tr><td>Infinity (double)</td><td><code>INFINITY</code></td>                                  <td class="tc-1">O(1)<span class="cmt">or 1e18, 1e9</span></td></tr>
+<tr><td>Is NaN</td><td><code>isnan(x)</code></td>                                            <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Math Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Arithmetic &mdash;
+max(3, 7);                                 // 7
+min(3, 7);                                 // 3
+max({1, 5, 3, 7, 2});                      // 7   (initializer_list, C++11)
+abs(-5);                                   // 5
+fabs(-3.14);                               // 3.14
+
+// &mdash; Power &amp; Root &mdash;
+pow(2, 10);                                // 1024.0 (double)
+(int)pow(2, 10);                           // 1024   (safe for small values)
+(long long)pow(10, 18);                    // may lose precision!
+sqrt(49.0);                                // 7.0
+(int)sqrt(49);                             // 7
+
+// Perfect square check
+int sq = (int)sqrt(n);
+bool ok = sq * sq == n || (sq + 1) * (sq + 1) == n;
+
+// &mdash; Rounding &mdash;
+floor(2.7);                                // 2.0
+ceil(2.1);                                 // 3.0
+round(2.5);                                // 3.0
+
+// &mdash; Logarithms &mdash;
+log(exp(1));                               // 1.0 (natural log)
+log2(8);                                   // 3.0
+log10(1000);                               // 3.0
+
+// Number of digits in n (n &gt; 0)
+int digits = (int)log10(n) + 1;           // 9999 &rarr; 4
+
+// &mdash; Ceiling division (positive a, b only) &mdash;
+int cdiv = (a + b - 1) / b;              // ceil(a / b) without float
+
+// &mdash; Safe infinity for DP / shortest path &mdash;
+const int INF = 1e9;                      // 1e9 + 1e9 = 2e9, fits in int
+const int INF2 = INT_MAX / 2;            // safe for a single addition
+const long long LINF = 1e18;             // for long long problems
+
+// &mdash; Negative modulo &mdash;
+// C++ % keeps sign of dividend: -7 % 3 == -1 (not 2!)
+int mod = ((a % n) + n) % n;             // always-positive modulo</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">GCD, LCM, isPrime, modPow</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// GCD &mdash; C++17 (or use __gcd on GCC)
+#include &lt;numeric&gt;
+gcd(12, 8);                                // 4
+lcm(4, 6);                                // 12
+
+// GCD &mdash; Euclidean algorithm O(log min(a,b))
+int gcd(int a, int b) {
+    while (b) { a %= b; swap(a, b); }
+    return a;
+}
+
+// LCM &mdash; divide first to avoid overflow
+long long lcm(long long a, long long b) {
+    return a / gcd(a, b) * b;
+}
+
+// isPrime &mdash; trial division O(&radic;n)
+bool isPrime(int n) {
+    if (n &lt; 2) return false;
+    for (int i = 2; (long long)i * i &lt;= n; i++)
+        if (n % i == 0) return false;
+    return true;
+}
+
+// Modular exponentiation O(log exp)
+const int MOD = 1'000'000'007;
+
+long long modPow(long long base, long long exp, long long mod) {
+    long long result = 1; base %= mod;
+    while (exp &gt; 0) {
+        if (exp &amp; 1) result = result * base % mod;
+        base = base * base % mod;
+        exp &gt;&gt;= 1;
+    }
+    return result;
+}
+
+// Safe modular add
+((a % MOD) + (b % MOD)) % MOD;
+
+// Safe modular multiply (use long long)
+(1LL * a * b) % MOD;</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">DP Initialization &mdash; fill with infinity</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// 1D DP with infinity
+vector&lt;int&gt; dp(n, 1e9);
+dp[0] = 0;  // base case
+
+// 2D DP with infinity
+vector&lt;vector&lt;int&gt;&gt; dp(m, vector&lt;int&gt;(n, 1e9));
+
+// memset trick: 0 and -1 only (sets each byte)
+int dp[N];
+memset(dp, 0, sizeof dp);               // all zeros
+memset(dp, -1, sizeof dp);              // all -1 (0xFF bytes = -1 in two's complement)
+memset(dp, 0x3f, sizeof dp);            // ~1e9 per cell (0x3f3f3f3f)
+
+// Boolean DP
+vector&lt;bool&gt; dp(n + 1, false);
+dp[0] = true;  // base: empty subset
+
+// Space-optimized (two variables)
+int prev2 = 0, prev1 = 0;
+for (int num : nums) {
+    int curr = max(prev1, prev2 + num);
+    prev2 = prev1;
+    prev1 = curr;
+}</code></pre>
+</div>
+</div>
+
+<!-- Math — Common Mistakes -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Signed overflow &mdash; undefined behavior</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Signed overflow is UB — compiler may optimize away checks!
+int a = INT_MAX;
+int b = a + 1;      // UB! not guaranteed to wrap
+
+// The compiler can assume signed overflow never happens,
+// and may REMOVE your overflow guard:
+if (a + 1 &gt; a) { }  // compiler may optimize to always-true
+
+// ✅ Cast to long long before arithmetic
+long long safe = (long long)a + 1;
+
+// ✅ Or check before adding
+if (a &gt; INT_MAX - b) { /* would overflow */ }</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Multiplication overflow</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Two ints multiplied — result overflows before assignment
+int w = 50000, h = 50000;
+long long area = w * h;     // UB! overflow happens in int
+
+// ✅ Cast at least one operand to long long
+long long area = 1LL * w * h;
+long long area = (long long)w * h;</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Midpoint overflow</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Overflows when lo + hi &gt; INT_MAX
+int mid = (lo + hi) / 2;
+
+// ✅ Safe midpoint
+int mid = lo + (hi - lo) / 2;
+
+// C++ has no &gt;&gt;&gt; — use the subtraction form above
+// For unsigned: (lo + hi) / 2 is safe</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">abs(INT_MIN) is undefined behavior</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ -INT_MIN overflows (no positive counterpart in 32-bit)
+abs(INT_MIN);              // UB!
+int n = INT_MIN;
+int neg = -n;              // UB!
+
+// ✅ Cast to long long first
+abs((long long)INT_MIN);   // 2147483648LL
+
+// ✅ Guard in abs helper
+long long safeAbs(int n) {
+    return abs((long long)n);
+}</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">INF + w overflow in shortest path</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ INT_MAX + w is UB
+int INF = INT_MAX;
+if (dist[u] + w &lt; dist[v]) { ... }  // UB when dist[u]=INF
+
+// ✅ Use 1e9 as INF (1e9 + 1e9 = 2e9, fits in int)
+const int INF = 1e9;
+
+// ✅ Or guard before adding
+if (dist[u] != INF &amp;&amp; dist[u] + w &lt; dist[v]) {
+    dist[v] = dist[u] + w;
+}</code></pre>
+</div>
+</div>
+
+<!-- ==================== TYPE CONVERSIONS ==================== -->
+<div class="section-title" id="sec-conversions"><span class="icon">&#128260;</span> Type Conversions</div>
+<p class="section-intro">C++ uses <code>stoi</code>/<code>stoll</code> for string&rarr;number and <code>to_string</code> for number&rarr;string. <code>static_cast</code> is the idiomatic C++ cast. Character&harr;integer conversion uses arithmetic on <code>char</code> values directly.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">int &harr; string</td></tr>
+<tr><td>Int to string</td><td><code>to_string(n)</code></td>                                 <td class="tc-1">O(d)<span class="cmt">d = digits</span></td></tr>
+<tr><td>String to int</td><td><code>stoi(s)</code></td>                                      <td class="tc-1">O(d)<span class="cmt">throws on invalid</span></td></tr>
+<tr><td>String to long long</td><td><code>stoll(s)</code></td>                               <td class="tc-1">O(d)</td></tr>
+<tr><td>String to double</td><td><code>stod(s)</code></td>                                   <td class="tc-1">O(d)</td></tr>
+<tr class="grp"><td colspan="3">Radix conversions</td></tr>
+<tr><td>Int to binary</td><td><code>bitset&lt;32&gt;(n).to_string()</code></td>                 <td class="tc-1">O(b)<span class="cmt">b = bits</span></td></tr>
+<tr><td>Parse with radix</td><td><code>stoi(s, nullptr, base)</code></td>                    <td class="tc-1">O(d)</td></tr>
+<tr class="grp"><td colspan="3">char &harr; int</td></tr>
+<tr><td>Char to digit</td><td><code>c - '0'</code></td>                                     <td class="tc-1">O(1)</td></tr>
+<tr><td>Digit to char</td><td><code>'0' + d</code></td>                                     <td class="tc-1">O(1)</td></tr>
+<tr><td>Char to index</td><td><code>c - 'a'</code></td>                                     <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Conversions</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; int &harr; string &mdash;
+string s = to_string(42);                 // "42"
+string s = to_string(-3.14);              // "-3.140000"
+
+int n = stoi("42");                        // 42
+long long n = stoll("123456789012");       // 123456789012LL
+double d = stod("3.14");                   // 3.14
+
+// stoi with base
+stoi("1010", nullptr, 2);                  // 10 (binary)
+stoi("FF", nullptr, 16);                   // 255 (hex)
+
+// &mdash; char &harr; int index &mdash;
+int idx = 'c' - 'a';                      // 2
+int d   = '7' - '0';                      // 7
+char ch = 'a' + 2;                        // 'c'
+int code = (int)'A';                      // 65
+
+// &mdash; stringstream (flexible parsing) &mdash;
+#include &lt;sstream&gt;
+stringstream ss("10 20 30");
+int a, b, c;
+ss &gt;&gt; a &gt;&gt; b &gt;&gt; c;                       // 10, 20, 30
+
+// Build string from parts
+ostringstream oss;
+oss &lt;&lt; "val=" &lt;&lt; 42;
+string result = oss.str();                // "val=42"
+
+// &mdash; Radix conversions &mdash;
+bitset&lt;8&gt;(10).to_string();                // "00001010" (binary)
+// Hex output via printf or stringstream
+char buf[16];
+sprintf(buf, "%x", 255);                 // "ff"</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">stoi throws on invalid input</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ stoi throws std::invalid_argument on non-numeric input
+stoi("abc");                               // throws!
+
+// ❌ stoi throws std::out_of_range if value exceeds int
+stoi("99999999999");                       // throws!
+
+// ✅ Wrap in try-catch if input is untrusted
+try {
+    int n = stoi(s);
+} catch (const exception&amp; e) {
+    // handle error
+}
+
+// For competitive programming, input is typically well-formed
+// — stoi/stoll is safe without try-catch</code></pre>
+</div>
+</div>
+
+<!-- ==================== CHARACTER OPERATIONS ==================== -->
+<div class="section-title" id="sec-char"><span class="icon">&#128288;</span> Character Operations</div>
+<p class="section-intro">C++ uses <code>&lt;cctype&gt;</code> for character classification and case conversion. <code>char</code> is a single byte (typically signed). All <code>&lt;cctype&gt;</code> functions take <code>int</code> and return <code>int</code> &mdash; pass <code>(unsigned char)c</code> for safety with negative char values.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Classification</td></tr>
+<tr><td>Is digit</td><td><code>isdigit(c)</code></td>                                       <td class="tc-1">O(1)</td></tr>
+<tr><td>Is letter</td><td><code>isalpha(c)</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Is alphanumeric</td><td><code>isalnum(c)</code></td>                                 <td class="tc-1">O(1)</td></tr>
+<tr><td>Is space</td><td><code>isspace(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>Is upper</td><td><code>isupper(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>Is lower</td><td><code>islower(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Conversion</td></tr>
+<tr><td>To upper</td><td><code>toupper(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>To lower</td><td><code>tolower(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Character Checks &amp; Case Conversion</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">isdigit(c);                     // '0'..'9'
+isalpha(c);                     // a-z, A-Z
+isalnum(c);                     // letter or digit
+isspace(c);                     // space, tab, newline
+isupper(c);                     // A-Z
+islower(c);                     // a-z
+
+// Fast inline ASCII checks (tight loops):
+c &gt;= 'a' &amp;&amp; c &lt;= 'z';          // lowercase
+c &gt;= 'A' &amp;&amp; c &lt;= 'Z';          // uppercase
+c &gt;= '0' &amp;&amp; c &lt;= '9';          // digit
+
+toupper('a');                   // 'A' (returns int, cast to char)
+tolower('A');                   // 'a'
+
+// Bit-level case tricks (ASCII letters only):
+c | ' ';    // force lowercase  ('A'&rarr;'a', 'a'&rarr;'a')
+c &amp; '_';    // force uppercase  ('a'&rarr;'A', 'A'&rarr;'A')
+c ^ ' ';    // toggle case      ('a'&harr;'A')
+// ' ' = 32 = 0b0010_0000,  '_' = 95 = 0b0101_1111
+
+// Vowel check
+char lower = tolower(c);
+bool isVowel = lower=='a' || lower=='e' || lower=='i'
+            || lower=='o' || lower=='u';</code></pre>
+</div>
+</div>
+
+<!-- ==================== BIT MANIPULATION ==================== -->
+<div class="section-title" id="sec-bits"><span class="icon">&#9889;</span> Bit Manipulation</div>
+<p class="section-intro">C++ provides GCC built-in intrinsics (<code>__builtin_popcount</code>, <code>__builtin_clz</code>, <code>__builtin_ctz</code>) and <code>&lt;bitset&gt;</code>. The <code>~</code> operator flips all bits. Right-shifting a signed negative value is <b>implementation-defined</b> (usually arithmetic).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b><code>~</code> (bitwise NOT)</b> &mdash; flips all bits. <code>~0</code> = <code>-1</code> in two's complement.
+<br><br><b>GCC built-ins</b> &mdash; hardware-accelerated intrinsics: <code>__builtin_popcount</code>, <code>__builtin_clz</code>, <code>__builtin_ctz</code>. Use <code>__builtin_popcountll</code> for <code>long long</code>.
+<br><br><b><code>&lt;bitset&gt;</code></b> &mdash; fixed-size bit array with <code>count()</code>, <code>set()</code>, <code>reset()</code>, <code>flip()</code>, and bitwise operators. Size must be compile-time constant.
+<br><br><b>Left-shift past bit width is UB</b> &mdash; <code>1 &lt;&lt; 32</code> is UB for 32-bit int. Use <code>1LL &lt;&lt; k</code> for shifts &ge; 31.
+<br><br><b>Right-shift of signed is implementation-defined</b> &mdash; usually arithmetic (preserves sign), but not guaranteed. Use unsigned types for portable logical shift.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Single-bit</td></tr>
+<tr><td>Check bit i</td><td><code>(n &gt;&gt; i) &amp; 1</code></td>                                  <td class="tc-1">O(1)</td></tr>
+<tr><td>Set bit i</td><td><code>n |= 1 &lt;&lt; i</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Clear bit i</td><td><code>n &amp;= ~(1 &lt;&lt; i)</code></td>                                <td class="tc-1">O(1)</td></tr>
+<tr><td>Toggle bit i</td><td><code>n ^= 1 &lt;&lt; i</code></td>                                    <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">GCC intrinsics</td></tr>
+<tr><td>Pop count</td><td><code>__builtin_popcount(n)</code></td>                              <td class="tc-1">O(1)<span class="cmt">hardware</span></td></tr>
+<tr><td>Pop count 64</td><td><code>__builtin_popcountll(n)</code></td>                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Leading zeros</td><td><code>__builtin_clz(n)</code></td>                               <td class="tc-1">O(1)<span class="cmt">UB if n=0</span></td></tr>
+<tr><td>Trailing zeros</td><td><code>__builtin_ctz(n)</code></td>                              <td class="tc-1">O(1)<span class="cmt">UB if n=0</span></td></tr>
+<tr><td>Bit length</td><td><code>32 - __builtin_clz(n)</code></td>                             <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">bitset</td></tr>
+<tr><td>Count set bits</td><td><code>bs.count()</code></td>                                    <td class="tc-1">O(N/64)<span class="cmt">word-parallel</span></td></tr>
+<tr><td>Any/None/All</td><td><code>bs.any() / bs.none()</code></td>                            <td class="tc-1">O(N/64)</td></tr>
+<tr class="grp"><td colspan="3">Common tricks</td></tr>
+<tr><td>Lowest set bit</td><td><code>n &amp; (-n)</code></td>                                     <td class="tc-1">O(1)</td></tr>
+<tr><td>Clear lowest set</td><td><code>n &amp;= n - 1</code></td>                                <td class="tc-1">O(1)<span class="cmt">Kernighan&rsquo;s</span></td></tr>
+<tr><td>Power of 2</td><td><code>n &gt; 0 &amp;&amp; (n &amp; (n-1)) == 0</code></td>                   <td class="tc-1">O(1)</td></tr>
+<tr><td>Bitmask n bits</td><td><code>(1 &lt;&lt; n) - 1</code></td>                                 <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Bit Operations, XOR &amp; Subset Enumeration</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Single-bit operations &mdash;
+(n &gt;&gt; i) &amp; 1;                             // check bit i
+n |= 1 &lt;&lt; i;                             // set bit i
+n &amp;= ~(1 &lt;&lt; i);                          // clear bit i
+n ^= 1 &lt;&lt; i;                             // toggle bit i
+
+// &mdash; Lowest set bit, Kernighan's &mdash;
+n &amp; (-n);                                 // isolate rightmost 1: 12(1100) &rarr; 4(0100)
+n &amp;= n - 1;                              // clear lowest set bit
+
+// Count set bits &mdash; Kernighan's O(k)
+int count = 0;
+for (int x = n; x; x &amp;= x - 1) count++;
+
+// Count set bits &mdash; built-in O(1)
+__builtin_popcount(n);                    // int
+__builtin_popcountll(n);                  // long long
+
+// &mdash; Shifts, even/odd &mdash;
+n &lt;&lt; k;    // n &times; 2^k
+n &gt;&gt; k;    // n &divide; 2^k (arithmetic for signed, usually)
+n &amp; 1;     // 0 = even, 1 = odd
+
+// &mdash; XOR rules &mdash;
+a ^ 0 == a;        // unchanged
+a ^ a == 0;        // self-cancels &larr; key for Single Number
+a ^ b ^ a == b;    // associative + self-cancel
+
+// &mdash; Swap without temp &mdash;
+swap(a, b);        // std::swap (preferred)
+a ^= b; b ^= a; a ^= b;  // XOR trick (avoid — less readable)
+
+// &mdash; Negate via bits (two's complement) &mdash;
+~n + 1;             // same as -n
+
+// &mdash; Update bit i to value v (0 or 1) &mdash;
+n = (n &amp; ~(1 &lt;&lt; i)) | (v &lt;&lt; i);
+
+// &mdash; Highest one bit (floor power of 2) &mdash;
+1 &lt;&lt; (31 - __builtin_clz(n));            // 12 &rarr; 8, 16 &rarr; 16
+
+// &mdash; Bitmask &amp; subset enumeration &mdash;
+(1 &lt;&lt; n) - 1;       // n=4 &rarr; 0b1111 = 15
+
+for (int sub = m; sub &gt; 0; sub = (sub - 1) &amp; m) {
+    // process sub
+}
+// don't forget empty subset (sub = 0)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">1 &lt;&lt; 31 is UB for int</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Shifting 1 (int) by 31+ bits is UB
+int mask = 1 &lt;&lt; 31;         // UB! 1 is signed int
+
+// ✅ Use 1LL for shifts &ge; 31
+long long mask = 1LL &lt;&lt; 40;
+
+// ✅ Or use unsigned
+unsigned mask = 1u &lt;&lt; 31;   // OK, unsigned</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">n=0 and power-of-2 check</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ 0 falsely passes
+return (n &amp; (n - 1)) == 0;
+
+// ✅ Must check n &gt; 0
+return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;</code></pre>
+</div>
+</div>
+
+<!-- ==================== VECTORS ==================== -->
+<div class="section-title" id="sec-vectors"><span class="icon">&#128203;</span> Vectors</div>
+<p class="section-intro"><code>vector</code> is C++&rsquo;s dynamic array &mdash; contiguous memory, amortized O(1) <code>push_back</code>, O(1) random access. Iterators are <b>invalidated</b> by insertions that trigger reallocation. Use <code>reserve</code> to pre-allocate capacity.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Empty vector
+vector&lt;int&gt; v;                            // size=0, capacity=0
+
+// Pre-sized (n elements, all zeros)
+vector&lt;int&gt; v(n);                         // [0, 0, ..., 0]
+vector&lt;int&gt; v(n, val);                    // [val, val, ..., val]
+
+// Initializer list
+vector&lt;int&gt; v = {1, 2, 3};
+vector&lt;int&gt; v{1, 2, 3};                  // same
+
+// From range
+vector&lt;int&gt; v(arr, arr + n);             // from C-array
+vector&lt;int&gt; v(other.begin(), other.end());
+
+// Pre-allocate capacity (size stays 0)
+vector&lt;int&gt; v;
+v.reserve(1000);                          // no reallocation until size &gt; 1000
+
+// 2D vector
+vector&lt;vector&lt;int&gt;&gt; grid(rows, vector&lt;int&gt;(cols, 0));
+
+// 2D vector (jagged)
+vector&lt;vector&lt;int&gt;&gt; adj(n);              // adjacency list</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Contiguous memory</b> &mdash; elements are stored in a contiguous block. <code>&amp;v[0]</code> gives a raw pointer compatible with C APIs.
+<ul>
+<li><code>v.size()</code> returns <code>size_t</code> (unsigned). Subtracting from 0 wraps to a huge number.</li>
+<li>Default values: <code>0</code> for numeric, <code>false</code> for bool, default-constructed for objects.</li>
+</ul>
+<b>Iterator invalidation</b> &mdash; <code>push_back</code>, <code>insert</code>, <code>erase</code> may invalidate all iterators if reallocation occurs. Use <code>reserve()</code> to prevent surprises.
+<br><br><b><code>push_back</code> amortized O(1)</b> &mdash; doubles capacity when full (typically 2x growth). Single reallocation is O(n), but amortized over n insertions is O(1).
+<br><br><b><code>v[i]</code> has no bounds check</b> &mdash; out-of-bounds access is UB (no exception). Use <code>v.at(i)</code> for bounds-checked access that throws <code>out_of_range</code>.
+<br><br><b><code>vector&lt;bool&gt;</code> is special</b> &mdash; space-optimized (1 bit per element), NOT a real container. Cannot take address of elements. Use <code>vector&lt;char&gt;</code> or <code>bitset</code> if you need normal behavior.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Access</td></tr>
+<tr><td>Size</td><td><code>v.size()</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Empty</td><td><code>v.empty()</code></td>                                            <td class="tc-1">O(1)</td></tr>
+<tr><td>Index</td><td><code>v[i]</code></td>                                                 <td class="tc-1">O(1)<span class="cmt">no bounds check</span></td></tr>
+<tr><td>Bounds-checked</td><td><code>v.at(i)</code></td>                                     <td class="tc-1">O(1)<span class="cmt">throws if OOB</span></td></tr>
+<tr><td>Front</td><td><code>v.front()</code></td>                                            <td class="tc-1">O(1)</td></tr>
+<tr><td>Back</td><td><code>v.back()</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Modify</td></tr>
+<tr><td>Push back</td><td><code>v.push_back(x)</code></td>                                   <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Emplace back</td><td><code>v.emplace_back(args...)</code></td>                       <td class="tc-1">O(1)*<span class="cmt">constructs in-place</span></td></tr>
+<tr><td>Pop back</td><td><code>v.pop_back()</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Insert at pos</td><td><code>v.insert(it, x)</code></td>                              <td class="tc-n">O(n)<span class="cmt">shifts elements</span></td></tr>
+<tr><td>Erase at pos</td><td><code>v.erase(it)</code></td>                                   <td class="tc-n">O(n)<span class="cmt">shifts elements</span></td></tr>
+<tr><td>Erase O(1)</td><td><code>swap(v[i],v.back()); v.pop_back();</code></td>              <td class="tc-1">O(1)<span class="cmt">order lost</span></td></tr>
+<tr class="grp"><td colspan="3">Copy &amp; Fill</td></tr>
+<tr><td>Assign</td><td><code>v.assign(n, val)</code></td>                                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Resize</td><td><code>v.resize(n)</code></td>                                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Clear</td><td><code>v.clear()</code></td>                                            <td class="tc-n">O(n)</td></tr>
+<tr><td>Fill</td><td><code>fill(v.begin(), v.end(), val)</code></td>                         <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Search</td></tr>
+<tr><td>Linear</td><td><code>find(v.begin(), v.end(), x)</code></td>                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Count</td><td><code>count(v.begin(), v.end(), x)</code></td>                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Binary</td><td><code>lower_bound(v.begin(), v.end(), x)</code></td>                  <td class="tc-logn">O(log n)<span class="cmt">must be sorted</span></td></tr>
+<tr class="grp"><td colspan="3">Sort &amp; Transform</td></tr>
+<tr><td>Sort</td><td><code>sort(v.begin(), v.end())</code></td>                              <td class="tc-nlogn">O(n log n)<span class="cmt">introsort</span></td></tr>
+<tr><td>Reverse</td><td><code>reverse(v.begin(), v.end())</code></td>                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Unique</td><td><code>unique(v.begin(), v.end())</code></td>                          <td class="tc-n">O(n)<span class="cmt">adj dups; must sort first</span></td></tr>
+<tr><td>Min element</td><td><code>*min_element(v.begin(), v.end())</code></td>               <td class="tc-n">O(n)</td></tr>
+<tr><td>Max element</td><td><code>*max_element(v.begin(), v.end())</code></td>               <td class="tc-n">O(n)</td></tr>
+<tr><td>Accumulate</td><td><code>accumulate(v.begin(), v.end(), 0)</code></td>               <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Vector Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Sort &mdash;
+sort(v.begin(), v.end());                  // ascending
+sort(v.begin(), v.end(), greater&lt;int&gt;());  // descending
+sort(v.rbegin(), v.rend());                // also descending
+
+// Sort 2D by first element
+sort(intervals.begin(), intervals.end());  // lexicographic by default
+
+// &mdash; Copy &mdash;
+vector&lt;int&gt; cp = v;                        // deep copy (value semantics)
+
+// 2D clone
+vector&lt;vector&lt;int&gt;&gt; cp2d = grid;          // deep copy (each inner vector copied)
+
+// &mdash; Aggregate &mdash;
+int sum = accumulate(v.begin(), v.end(), 0);
+long long sum = accumulate(v.begin(), v.end(), 0LL);  // avoid int overflow
+int mn = *min_element(v.begin(), v.end());
+int mx = *max_element(v.begin(), v.end());
+
+// &mdash; Reverse in-place &mdash;
+reverse(v.begin(), v.end());
+
+// &mdash; Shuffle &mdash;
+mt19937 rng(42);
+shuffle(v.begin(), v.end(), rng);
+
+// &mdash; Remove at index i &mdash;
+v.erase(v.begin() + i);                   // O(n), order preserved
+swap(v[i], v.back()); v.pop_back();        // O(1), order lost
+
+// &mdash; Rotate left by k &mdash;
+rotate(v.begin(), v.begin() + k, v.end());
+
+// &mdash; Remove duplicates (sorted) &mdash;
+sort(v.begin(), v.end());
+v.erase(unique(v.begin(), v.end()), v.end());
+
+// &mdash; Erase-remove idiom &mdash;
+v.erase(remove(v.begin(), v.end(), val), v.end());
+
+// &mdash; Print &mdash;
+for (int x : v) cout &lt;&lt; x &lt;&lt; " ";        // 1 2 3</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">v.size() - 1 underflow on empty vector</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ v.size() returns size_t (unsigned)
+// On empty vector: v.size() - 1 = 18446744073709551615!
+vector&lt;int&gt; v;
+for (int i = 0; i &lt; v.size() - 1; i++) { }  // huge loop!
+
+// ✅ Cast to int, or guard with empty check
+for (int i = 0; i &lt; (int)v.size() - 1; i++) { }
+if (!v.empty()) { /* safe to use v.size() - 1 */ }</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Iterator invalidation after push_back</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ push_back may reallocate, invalidating all iterators
+vector&lt;int&gt; v = {1, 2, 3};
+auto it = v.begin();
+v.push_back(4);           // may reallocate!
+*it;                       // UB — dangling iterator
+
+// ✅ Re-obtain iterators after modification
+v.push_back(4);
+it = v.begin();            // safe now
+
+// ✅ Or reserve to prevent reallocation
+v.reserve(100);
+auto it = v.begin();
+v.push_back(4);            // no realloc if size &lt;= 100
+*it;                        // safe</code></pre>
+</div>
+</div>
+
+<!-- ==================== STRING ==================== -->
+<div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String</div>
+<p class="section-intro">C++ <code>std::string</code> is a <b>mutable</b> sequence of <code>char</code>. Unlike Java/Go, strings can be modified in place. <code>s[i]</code> accesses by index in O(1). Concatenation with <code>+=</code> is amortized O(1) (like vector). <code>==</code> compares by value.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Mutable</b> &mdash; <code>s[i] = 'x'</code> modifies in place. No need for StringBuilder/Builder pattern.
+<br><br><b><code>s[i]</code> is O(1)</b> &mdash; direct char access. No bounds check (<code>s.at(i)</code> does bounds check).
+<br><br><b><code>==</code> is value comparison</b> &mdash; unlike Java, C++ <code>==</code> compares string contents, not references.
+<br><br><b><code>substr</code> creates a copy</b> &mdash; <code>s.substr(i, len)</code> allocates a new string. O(len) time and space.
+<br><br><b><code>find</code> returns <code>string::npos</code></b> &mdash; not <code>-1</code>. <code>npos</code> is <code>(size_t)-1</code> = max unsigned value. Always compare with <code>!= string::npos</code>.
+<br><br><b><code>+</code> creates temporaries</b> &mdash; <code>s1 + s2 + s3</code> creates intermediate strings. Use <code>+=</code> or <code>append</code> in loops.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Access</td></tr>
+<tr><td>Length</td><td><code>s.size()</code> / <code>s.length()</code></td>                   <td class="tc-1">O(1)</td></tr>
+<tr><td>Char at i</td><td><code>s[i]</code></td>                                             <td class="tc-1">O(1)<span class="cmt">no bounds check</span></td></tr>
+<tr><td>Substring</td><td><code>s.substr(i, len)</code></td>                                  <td class="tc-n">O(len)<span class="cmt">creates copy</span></td></tr>
+<tr><td>Empty</td><td><code>s.empty()</code></td>                                             <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Search</td></tr>
+<tr><td>Find</td><td><code>s.find(sub)</code></td>                                            <td class="tc-n">O(n&middot;m)<span class="cmt">npos if not found</span></td></tr>
+<tr><td>Reverse find</td><td><code>s.rfind(sub)</code></td>                                   <td class="tc-n">O(n&middot;m)</td></tr>
+<tr><td>Find first of</td><td><code>s.find_first_of(chars)</code></td>                        <td class="tc-n">O(n&middot;k)</td></tr>
+<tr><td>Starts with</td><td><code>s.starts_with(pre)</code></td>                              <td class="tc-1">O(k)<span class="cmt">C++20</span></td></tr>
+<tr><td>Ends with</td><td><code>s.ends_with(suf)</code></td>                                  <td class="tc-1">O(k)<span class="cmt">C++20</span></td></tr>
+<tr class="grp"><td colspan="3">Modify (in-place)</td></tr>
+<tr><td>Append</td><td><code>s += t</code> / <code>s.append(t)</code></td>                    <td class="tc-1">O(k)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Push back</td><td><code>s.push_back(c)</code></td>                                    <td class="tc-1">O(1)*</td></tr>
+<tr><td>Pop back</td><td><code>s.pop_back()</code></td>                                       <td class="tc-1">O(1)</td></tr>
+<tr><td>Insert</td><td><code>s.insert(pos, t)</code></td>                                     <td class="tc-n">O(n)</td></tr>
+<tr><td>Erase</td><td><code>s.erase(pos, len)</code></td>                                     <td class="tc-n">O(n)</td></tr>
+<tr><td>Replace</td><td><code>s.replace(pos, len, t)</code></td>                              <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Transform (return new string)</td></tr>
+<tr><td>Lower</td><td><code>transform(... ::tolower)</code></td>                              <td class="tc-n">O(n)</td></tr>
+<tr><td>Reverse</td><td><code>reverse(s.begin(), s.end())</code></td>                         <td class="tc-n">O(n)<span class="cmt">in-place</span></td></tr>
+<tr class="grp"><td colspan="3">Comparison</td></tr>
+<tr><td>Equals</td><td><code>s1 == s2</code></td>                                             <td class="tc-n">O(n)<span class="cmt">value comparison</span></td></tr>
+<tr><td>Compare</td><td><code>s1.compare(s2)</code></td>                                      <td class="tc-n">O(n)<span class="cmt">&lt;0, 0, &gt;0</span></td></tr>
+<tr><td>Lexicographic</td><td><code>s1 &lt; s2</code></td>                                     <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common String Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Access &mdash;
+s.size();                       // length (same as s.length())
+s[i];                           // char at index i
+s.front();                      // first char
+s.back();                       // last char
+s.substr(i, len);               // substring [i, i+len)
+s.substr(i);                    // from i to end
+
+// &mdash; Search &mdash;
+s.find("sub");                  // first occurrence, string::npos if not found
+s.rfind("sub");                 // last occurrence
+s.find('x');                    // first char occurrence
+s.find("sub", pos);            // search starting at pos
+
+// &mdash; Modify in-place &mdash;
+s[i] = 'x';                    // direct char assignment
+s += "world";                   // append
+s.push_back('!');               // append char
+s.pop_back();                   // remove last char
+s.insert(5, " ");              // insert at position
+s.erase(3, 2);                 // erase 2 chars at position 3
+
+// &mdash; Transform &mdash;
+// To lowercase (in-place)
+transform(s.begin(), s.end(), s.begin(), ::tolower);
+// To uppercase (in-place)
+transform(s.begin(), s.end(), s.begin(), ::toupper);
+
+// Reverse (in-place)
+reverse(s.begin(), s.end());
+
+// &mdash; Split by delimiter &mdash;
+stringstream ss(s);
+string token;
+vector&lt;string&gt; parts;
+while (getline(ss, token, ',')) parts.push_back(token);
+
+// Split by whitespace
+istringstream iss(s);
+string word;
+while (iss &gt;&gt; word) parts.push_back(word);
+
+// &mdash; Join &mdash;
+// No built-in join; use a loop with ostringstream
+ostringstream oss;
+for (int i = 0; i &lt; v.size(); i++) {
+    if (i) oss &lt;&lt; ",";
+    oss &lt;&lt; v[i];
+}
+string joined = oss.str();
+
+// &mdash; Comparison &amp; anagram key &mdash;
+s1 == s2;                       // value comparison ✅
+s1 &lt; s2;                       // lexicographic
+
+// Sorted key for anagram grouping
+string key = s;
+sort(key.begin(), key.end());
+
+// Frequency array key (no sort needed)
+int freq[26] = {};
+for (char c : s) freq[c - 'a']++;
+
+// &mdash; Repeat a string &mdash;
+string(5, 'a');                 // "aaaaa"
+// For repeating a string: use a loop or accumulate</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">string::npos check</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Comparing find result with -1 or 0
+if (s.find("sub") == -1) { }   // works by accident but fragile
+if (s.find("sub")) { }         // WRONG — 0 means "found at index 0"
+
+// ✅ Always compare with string::npos
+if (s.find("sub") != string::npos) {
+    // found
+}
+
+// npos = (size_t)-1 = 18446744073709551615</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Palindrome &mdash; empty, spaces</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Empty string &rarr; palindrome (true)
+// Single char &rarr; palindrome (true)
+
+// Valid Palindrome: strip non-alphanumeric, lowercase
+bool isPalindrome(string s) {
+    string clean;
+    for (char c : s)
+        if (isalnum(c)) clean += tolower(c);
+    string rev = clean;
+    reverse(rev.begin(), rev.end());
+    return clean == rev;
+}
+
+// Two-pointer version (O(1) space):
+int l = 0, r = s.size() - 1;
+while (l &lt; r) {
+    while (l &lt; r &amp;&amp; !isalnum(s[l])) l++;
+    while (l &lt; r &amp;&amp; !isalnum(s[r])) r--;
+    if (tolower(s[l]) != tolower(s[r])) return false;
+    l++; r--;
+}
+return true;</code></pre>
+</div>
+</div>
+
+<!-- ==================== SORT & COMPARATORS ==================== -->
+<div class="section-title" id="sec-sort"><span class="icon">&#128202;</span> Sort &amp; Comparators</div>
+<p class="section-intro"><code>std::sort</code> uses introsort (quicksort + heapsort + insertion sort) &mdash; O(n log n) guaranteed, <b>not stable</b>. Use <code>stable_sort</code> to preserve equal-element order. Comparators are lambdas or function objects returning <code>bool</code> (strict weak ordering).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Sorting Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Sort ascending
+sort(v.begin(), v.end());
+
+// Sort descending
+sort(v.begin(), v.end(), greater&lt;int&gt;());
+sort(v.rbegin(), v.rend());
+
+// Custom comparator (lambda)
+sort(v.begin(), v.end(), [](int a, int b) {
+    return a &lt; b;                          // ascending
+});
+
+// Stable sort (preserves equal-element order)
+stable_sort(v.begin(), v.end());
+
+// Sort intervals by start asc, end desc (tie-break)
+sort(intervals.begin(), intervals.end(), [](auto&amp; a, auto&amp; b) {
+    if (a[0] != b[0]) return a[0] &lt; b[0];
+    return a[1] &gt; b[1];
+});
+
+// Sort by string length
+sort(strs.begin(), strs.end(), [](const string&amp; a, const string&amp; b) {
+    return a.size() &lt; b.size();
+});
+
+// Largest Number #179 &mdash; concat comparison
+sort(strs.begin(), strs.end(), [](const string&amp; a, const string&amp; b) {
+    return a + b &gt; b + a;
+});
+
+// Sort by absolute value
+sort(v.begin(), v.end(), [](int a, int b) {
+    return abs(a) &lt; abs(b);
+});
+
+// Check if sorted
+is_sorted(v.begin(), v.end());
+
+// Partial sort: k smallest elements in first k positions
+partial_sort(v.begin(), v.begin() + k, v.end());
+
+// nth_element: O(n) — puts nth element in sorted position
+nth_element(v.begin(), v.begin() + k, v.end());
+// v[k] is now the (k+1)th smallest; elements before it are &le;, after are &ge;
+
+// Next permutation
+next_permutation(v.begin(), v.end());  // returns false if already last</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Comparator must define strict weak ordering</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Using &lt;= violates strict weak ordering — UB!
+sort(v.begin(), v.end(), [](int a, int b) {
+    return a &lt;= b;   // WRONG — equal elements must return false
+});
+// May crash, infinite loop, or corrupt memory
+
+// ✅ Use &lt; (strict less-than)
+sort(v.begin(), v.end(), [](int a, int b) {
+    return a &lt; b;
+});</code></pre>
+</div>
+</div>
+
+<!-- ==================== SEARCHING ==================== -->
+<div class="section-title" id="sec-searching"><span class="icon">&#128269;</span> Searching</div>
+<p class="section-intro"><code>lower_bound</code> returns an iterator to the first element &ge; target. <code>upper_bound</code> returns an iterator to the first element &gt; target. Both require <b>sorted</b> input and run in O(log n) on random-access iterators.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Binary Search (sorted input)</td></tr>
+<tr><td>Lower bound</td><td><code>lower_bound(begin, end, x)</code></td>                     <td class="tc-logn">O(log n)<span class="cmt">first &ge; x</span></td></tr>
+<tr><td>Upper bound</td><td><code>upper_bound(begin, end, x)</code></td>                      <td class="tc-logn">O(log n)<span class="cmt">first &gt; x</span></td></tr>
+<tr><td>Exists</td><td><code>binary_search(begin, end, x)</code></td>                         <td class="tc-logn">O(log n)<span class="cmt">bool</span></td></tr>
+<tr><td>Equal range</td><td><code>equal_range(begin, end, x)</code></td>                      <td class="tc-logn">O(log n)<span class="cmt">pair of iterators</span></td></tr>
+<tr class="grp"><td colspan="3">Linear Search</td></tr>
+<tr><td>Find</td><td><code>find(begin, end, x)</code></td>                                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Count</td><td><code>count(begin, end, x)</code></td>                                  <td class="tc-n">O(n)</td></tr>
+<tr><td>Min</td><td><code>*min_element(begin, end)</code></td>                                <td class="tc-n">O(n)</td></tr>
+<tr><td>Max</td><td><code>*max_element(begin, end)</code></td>                                <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Binary Search &amp; Rotated Array</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Lower/upper bound (sorted vector)
+auto it = lower_bound(v.begin(), v.end(), target);  // first &ge; target
+auto it = upper_bound(v.begin(), v.end(), target);  // first &gt; target
+int idx = it - v.begin();                            // convert to index
+
+bool found = binary_search(v.begin(), v.end(), target);
+
+// Count occurrences in sorted range
+auto [lo, hi] = equal_range(v.begin(), v.end(), target);
+int cnt = hi - lo;
+
+// Find minimum in rotated sorted array (= pivot index)
+int findMin(vector&lt;int&gt;&amp; nums) {
+    int lo = 0, hi = nums.size() - 1;
+    while (lo &lt; hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] &gt; nums[hi]) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
+// Search in rotated array
+int search(vector&lt;int&gt;&amp; nums, int target) {
+    int lo = 0, hi = nums.size() - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[lo] &lt;= nums[mid]) {
+            if (nums[lo] &lt;= target &amp;&amp; target &lt; nums[mid])
+                hi = mid - 1;
+            else lo = mid + 1;
+        } else {
+            if (nums[mid] &lt; target &amp;&amp; target &lt;= nums[hi])
+                lo = mid + 1;
+            else hi = mid - 1;
+        }
+    }
+    return -1;
+}</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Infinite loop: lo = mid</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ No progress when lo=0, hi=1: mid=0, lo stays 0
+while (lo &lt; hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (valid(mid)) hi = mid;
+    else lo = mid;  // &larr; INFINITE LOOP!
+}
+
+// ✅ Always advance by at least 1
+lo = mid + 1;
+
+// Rule: lo &lt; hi  &rarr; boundary-finding
+// Rule: lo &lt;= hi &rarr; exact-match</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">First/last occurrence &mdash; don't return early</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// First occurrence: use lower_bound
+auto it = lower_bound(v.begin(), v.end(), target);
+int first = (it != v.end() &amp;&amp; *it == target) ? it - v.begin() : -1;
+
+// Last occurrence: use upper_bound - 1
+auto it = upper_bound(v.begin(), v.end(), target);
+int last = (it != v.begin() &amp;&amp; *(it-1) == target) ? (it-1) - v.begin() : -1;
+
+// Or manual binary search — keep searching when found:
+if (nums[mid] == target) hi = mid;       // first: search LEFT
+if (nums[mid] == target) lo = mid + 1;   // last: search RIGHT</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Search-on-answer wrong boundaries</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// lo/hi must cover the complete valid range!
+
+// Koko Eating Bananas:
+lo = 1;                            // minimum possible rate
+hi = *max_element(p.begin(), p.end()); // one pile per hour
+
+// Capacity to Ship:
+lo = *max_element(w.begin(), w.end());  // must fit heaviest
+hi = accumulate(w.begin(), w.end(), 0); // everything in one day
+
+// isFeasible must be monotone!</code></pre>
+</div>
+</div>
+
+<!-- ==================== MAP & SET ==================== -->
+<div class="section-title" id="sec-map"><span class="icon">&#128451;&#65039;</span> Map &amp; Set</div>
+<p class="section-intro">C++ offers <b>hash-based</b> (<code>unordered_map</code>/<code>unordered_set</code>, O(1) average) and <b>tree-based</b> (<code>map</code>/<code>set</code>, O(log n) guaranteed, sorted order). <code>multiset</code>/<code>multimap</code> allow duplicate keys. Hash containers can degrade to O(n) with adversarial input.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>unordered_map</th><th>map</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Map</td></tr>
+<tr><td>Insert/Update</td><td><code>m[key] = val</code></td>                                  <td class="tc-1">O(1)<span class="cmt">avg</span></td>         <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Access</td><td><code>m[key]</code></td>                                               <td class="tc-1">O(1)<span class="cmt">inserts default if missing</span></td> <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Find</td><td><code>m.find(key)</code></td>                                            <td class="tc-1">O(1)</td>                                     <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Count</td><td><code>m.count(key)</code></td>                                          <td class="tc-1">O(1)<span class="cmt">0 or 1</span></td>    <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Erase</td><td><code>m.erase(key)</code></td>                                          <td class="tc-1">O(1)</td>                                     <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Size</td><td><code>m.size()</code></td>                                               <td class="tc-1">O(1)</td>                                     <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Sorted Access (map only)</td></tr>
+<tr><td>First key</td><td><code>m.begin()-&gt;first</code></td>                                 <td class="na">--</td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Last key</td><td><code>m.rbegin()-&gt;first</code></td>                                <td class="na">--</td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Lower bound</td><td><code>m.lower_bound(k)</code></td>                                <td class="na">--</td>                                         <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Upper bound</td><td><code>m.upper_bound(k)</code></td>                                <td class="na">--</td>                                         <td class="tc-logn">O(log n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Map &amp; Set Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; unordered_map (hash map) &mdash;
+unordered_map&lt;int, int&gt; m;
+m[key] = val;                        // insert or update
+m[key];                              // access (inserts 0 if missing!)
+m.count(key);                        // 0 or 1 (existence check)
+auto it = m.find(key);               // iterator, m.end() if not found
+if (it != m.end()) use(it-&gt;second);
+m.erase(key);                        // remove
+m.size();                            // count
+
+// Frequency counting
+unordered_map&lt;int, int&gt; freq;
+for (int n : nums) freq[n]++;
+
+// Decrement and remove if zero
+freq[key]--;
+if (freq[key] == 0) freq.erase(key);
+
+// Group by key
+unordered_map&lt;int, vector&lt;int&gt;&gt; groups;
+groups[key].push_back(val);          // auto-inits vector
+
+// &mdash; unordered_set (hash set) &mdash;
+unordered_set&lt;int&gt; s;
+s.insert(val);                       // add
+s.count(val);                        // 0 or 1
+s.erase(val);                        // remove
+s.size();
+
+// Set from vector
+unordered_set&lt;int&gt; s(v.begin(), v.end());
+
+// &mdash; map (ordered, red-black tree) &mdash;
+map&lt;int, int&gt; om;
+om.begin()-&gt;first;                   // smallest key
+om.rbegin()-&gt;first;                  // largest key
+auto it = om.lower_bound(k);        // first key &ge; k
+auto it = om.upper_bound(k);        // first key &gt; k
+
+// &mdash; set (ordered) &mdash;
+set&lt;int&gt; os;
+os.insert(val);
+auto it = os.lower_bound(val);      // first &ge; val
+
+// &mdash; multiset (allows duplicates) &mdash;
+multiset&lt;int&gt; ms;
+ms.insert(5); ms.insert(5);
+ms.count(5);                        // 2
+ms.erase(ms.find(5));               // remove ONE occurrence
+ms.erase(5);                        // remove ALL occurrences
+
+// Iterate ordered map
+for (auto&amp; [k, v] : om) { /* sorted by key */ }
+
+// Check if two maps have same keys and values
+m1 == m2;                            // ✅ works for map and unordered_map</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">operator[] inserts default on missing key</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ m[key] inserts a default-constructed value if key is absent
+unordered_map&lt;int, int&gt; m;
+if (m[5] == 0) { }                   // now m contains {5: 0}!
+m.size();                            // 1 — unintended insertion
+
+// ✅ Use count() or find() for existence checks
+if (m.count(5)) { }                  // no side effect
+if (m.find(5) != m.end()) { }       // no side effect</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">unordered_map O(n) worst case</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Adversarial input can force hash collisions &rarr; O(n) per op
+// This happens in competitive programming with anti-hash tests
+
+// ✅ Use a custom hash to defend against it
+struct custom_hash {
+    size_t operator()(size_t x) const {
+        x ^= x &gt;&gt; 16;
+        x *= 0x45d9f3b;
+        x ^= x &gt;&gt; 16;
+        return x;
+    }
+};
+unordered_map&lt;int, int, custom_hash&gt; m;
+
+// ✅ Or just use map (O(log n) guaranteed) if TLE suspected</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">multiset erase — one vs all</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">multiset&lt;int&gt; ms = {3, 3, 3, 5};
+
+// ❌ erase(value) removes ALL occurrences
+ms.erase(3);                         // removes all 3s! ms = {5}
+
+// ✅ erase(iterator) removes exactly one
+ms.erase(ms.find(3));               // removes one 3, ms = {3, 3, 5}</code></pre>
+</div>
+</div>
+
+<!-- ==================== HEAP / PRIORITY QUEUE ==================== -->
+<div class="section-title" id="sec-heap"><span class="icon">&#9935;&#65039;</span> Heap / Priority Queue</div>
+<p class="section-intro"><code>priority_queue</code> is a <b>max-heap</b> by default. For min-heap, use <code>greater&lt;int&gt;</code>. No peek-and-update or decrease-key &mdash; push new entries and skip stale ones (lazy deletion).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td>Push</td><td><code>pq.push(x)</code></td>                                            <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Pop</td><td><code>pq.pop()</code></td>                                               <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Top</td><td><code>pq.top()</code></td>                                               <td class="tc-1">O(1)</td></tr>
+<tr><td>Size</td><td><code>pq.size()</code></td>                                             <td class="tc-1">O(1)</td></tr>
+<tr><td>Empty</td><td><code>pq.empty()</code></td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Heapify</td><td><code>priority_queue pq(v.begin(), v.end())</code></td>              <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">MaxHeap, MinHeap &amp; Custom Comparators</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Max-heap (default)
+priority_queue&lt;int&gt; maxPQ;
+maxPQ.push(5); maxPQ.push(3);
+maxPQ.top();                               // 5 (largest)
+
+// Min-heap
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minPQ;
+minPQ.push(5); minPQ.push(3);
+minPQ.top();                               // 3 (smallest)
+
+// Pair-based min-heap for {distance, node} &mdash; Dijkstra
+priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, greater&lt;&gt;&gt; pq;
+pq.push({0, src});
+auto [d, u] = pq.top(); pq.pop();
+
+// Custom comparator via lambda (C++20 or function object)
+auto cmp = [](const auto&amp; a, const auto&amp; b) {
+    return a.freq &lt; b.freq;                // max-heap by freq
+};
+priority_queue&lt;Item, vector&lt;Item&gt;, decltype(cmp)&gt; pq(cmp);
+
+// Custom comparator via struct
+struct Cmp {
+    bool operator()(const pair&lt;int,int&gt;&amp; a, const pair&lt;int,int&gt;&amp; b) {
+        if (a.first != b.first) return a.first &lt; b.first;  // max by first
+        return a.second &gt; b.second;                         // min by second
+    }
+};
+priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, Cmp&gt; pq;
+
+// Top-K via min-heap (partial sort)
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;
+for (int x : data) {
+    pq.push(x);
+    if ((int)pq.size() &gt; k) pq.pop();    // evict smallest
+}
+// pq now holds the k largest elements</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">priority_queue is max-heap by default</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Forgetting that default is max-heap (opposite of Java!)
+priority_queue&lt;int&gt; pq;
+pq.push(3); pq.push(1); pq.push(5);
+pq.top();                              // 5, NOT 1!
+
+// In Java: PriorityQueue is min-heap by default
+// In C++: priority_queue is MAX-heap by default
+
+// ✅ For min-heap, specify greater&lt;&gt;
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;</code></pre>
+</div>
+</div>
+
+<!-- ==================== STACK / QUEUE / DEQUE ==================== -->
+<div class="section-title" id="sec-stack"><span class="icon">&#128218;</span> Stack / Queue / Deque</div>
+<p class="section-intro">C++ provides <code>stack</code>, <code>queue</code> (FIFO), and <code>deque</code> (double-ended) as container adaptors or standalone containers. <code>deque</code> supports O(1) push/pop at both ends and O(1) random access.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>stack</th><th>queue</th><th>deque</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="5">Stack (LIFO)</td></tr>
+<tr><td>Push</td><td><code>push(x)</code></td>       <td class="tc-1">O(1)</td>   <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Top/Peek</td><td><code>top()</code></td>     <td class="tc-1">O(1)</td>   <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop</td><td><code>pop()</code></td>           <td class="tc-1">O(1)</td>   <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="5">Queue (FIFO)</td></tr>
+<tr><td>Push</td><td><code>push(x)</code></td>        <td class="na">--</td>       <td class="tc-1">O(1)</td> <td class="tc-1">O(1)</td></tr>
+<tr><td>Front</td><td><code>front()</code></td>        <td class="na">--</td>       <td class="tc-1">O(1)</td> <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop</td><td><code>pop()</code></td>            <td class="na">--</td>       <td class="tc-1">O(1)</td> <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="5">Deque (double-ended)</td></tr>
+<tr><td>Push front</td><td><code>push_front(x)</code></td>  <td class="na">--</td> <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Push back</td><td><code>push_back(x)</code></td>    <td class="na">--</td> <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop front</td><td><code>pop_front()</code></td>     <td class="na">--</td> <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop back</td><td><code>pop_back()</code></td>       <td class="na">--</td> <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+<tr><td>Random access</td><td><code>dq[i]</code></td>       <td class="na">--</td> <td class="na">--</td>   <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Stack, Queue, Deque &amp; Sliding Window Max</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Stack &mdash;
+stack&lt;int&gt; st;
+st.push(x);                               // push
+st.top();                                  // peek
+st.pop();                                  // pop (returns void!)
+st.empty();                                // isEmpty
+
+// &mdash; Queue &mdash;
+queue&lt;int&gt; q;
+q.push(x);                                // enqueue
+q.front();                                 // peek front
+q.back();                                  // peek back
+q.pop();                                   // dequeue (returns void!)
+
+// &mdash; Deque &mdash;
+deque&lt;int&gt; dq;
+dq.push_back(x);                          // push to back
+dq.push_front(x);                         // push to front
+dq.pop_back();                            // pop from back
+dq.pop_front();                           // pop from front
+dq.front();                               // peek front
+dq.back();                                // peek back
+dq[i];                                    // random access O(1)
+
+// &mdash; Sliding window maximum (monotonic decreasing deque) &mdash;
+deque&lt;int&gt; dq;  // stores indices
+for (int i = 0; i &lt; (int)nums.size(); i++) {
+    while (!dq.empty() &amp;&amp; nums[dq.back()] &lt; nums[i])
+        dq.pop_back();                     // remove smaller from back
+    dq.push_back(i);
+    if (dq.front() &lt;= i - k) dq.pop_front(); // out of window
+    if (i &gt;= k - 1)
+        result.push_back(nums[dq.front()]);
+}</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">pop() returns void &mdash; not the element</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ pop() does NOT return the element (unlike Java/Go/Python)
+stack&lt;int&gt; st;
+st.push(5);
+int val = st.pop();            // compile error! pop() returns void
+
+// ✅ Read first, then pop
+int val = st.top();
+st.pop();
+
+// Same for queue: read front() first, then pop()
+int val = q.front();
+q.pop();</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Pop/top on empty &mdash; undefined behavior</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ UB: no exception, may crash or return garbage
+stack&lt;int&gt; st;
+st.top();                      // UB!
+st.pop();                      // UB!
+
+// ✅ Always check before accessing
+if (!st.empty()) { int val = st.top(); st.pop(); }
+if (!q.empty()) { int val = q.front(); q.pop(); }</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Leftover elements after loop &mdash; monotonic</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Monotonic stack: after loop, remaining elements have
+// no "next greater" &rarr; result stays default (often 0 or -1)
+
+// Largest Rectangle (#84): append sentinel height 0
+// to force all bars to pop at the end
+heights.push_back(0);
+
+// Next Greater Element: remaining stack elements &rarr; result = -1
+// (already handled if result initialized to -1)</code></pre>
+</div>
+</div>
+
+<!-- ==================== GRID / MATRIX ==================== -->
+<div class="section-title" id="sec-grid"><span class="icon">&#128306;</span> Grid / Matrix</div>
+<p class="section-intro">Common patterns for 2D grid traversal, coordinate conversion, and matrix transforms. Direction arrays avoid repetitive if-else chains.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Directions, Bounds &amp; Traversal</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// 4-directional (up, right, down, left)
+int dr[] = {-1, 0, 1, 0};
+int dc[] = {0, 1, 0, -1};
+
+// 8-directional (includes diagonals)
+int dr8[] = {-1,-1,-1, 0, 0, 1, 1, 1};
+int dc8[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+
+// Bounds check
+auto inBounds = [&amp;](int r, int c) {
+    return r &gt;= 0 &amp;&amp; r &lt; rows &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; cols;
+};
+
+for (int d = 0; d &lt; 4; d++) {
+    int nr = r + dr[d], nc = c + dc[d];
+    if (inBounds(nr, nc)) { /* valid neighbor */ }
+}
+
+// 2D &harr; 1D index
+int idx = r * cols + c;
+int r2 = idx / cols, c2 = idx % cols;
+
+// Transpose (square matrix)
+for (int i = 0; i &lt; n; i++)
+    for (int j = i + 1; j &lt; n; j++)
+        swap(mat[i][j], mat[j][i]);
+// Rotate 90&deg; clockwise = transpose + reverse each row
+
+// Spiral traversal: 4 boundaries shrinking
+int top = 0, bot = m - 1, left = 0, right = n - 1;
+while (top &lt;= bot &amp;&amp; left &lt;= right) {
+    // &rarr; top row, &darr; right col, &larr; bottom row, &uarr; left col
+    top++; right--; bot--; left++;
+}
+
+// Diagonal properties:
+// Same diagonal:      r - c  is constant
+// Same anti-diagonal: r + c  is constant
+
+// Grid DFS (4-directional)
+void dfs(vector&lt;vector&lt;int&gt;&gt;&amp; grid, vector&lt;vector&lt;bool&gt;&gt;&amp; vis, int r, int c) {
+    if (r &lt; 0 || r &gt;= (int)grid.size() || c &lt; 0 || c &gt;= (int)grid[0].size()
+        || vis[r][c]) return;
+    vis[r][c] = true;
+    for (int d = 0; d &lt; 4; d++)
+        dfs(grid, vis, r + dr[d], c + dc[d]);
+}</code></pre>
+</div>
+</div>
+
+<!-- ==================== LINKED LIST / TREE / GRAPH ==================== -->
+<div class="section-title" id="sec-ds"><span class="icon">&#129521;</span> Linked List / Tree / Graph</div>
+<p class="section-intro">Standard node definitions and templates for linked lists, trees, tries, and graphs. C++ uses <code>struct</code> with raw pointers (or <code>unique_ptr</code> for ownership). LeetCode provides <code>ListNode</code> and <code>TreeNode</code>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Node Definitions &amp; Graph Building</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+struct TrieNode {
+    TrieNode* children[26] = {};
+    bool isEnd = false;
+};
+
+// Adjacency list &mdash; unweighted undirected
+vector&lt;vector&lt;int&gt;&gt; adj(n);
+for (auto&amp; e : edges) {
+    adj[e[0]].push_back(e[1]);
+    adj[e[1]].push_back(e[0]);    // omit for directed
+}
+
+// Weighted: pair&lt;int,int&gt;{neighbor, weight}
+vector&lt;vector&lt;pair&lt;int,int&gt;&gt;&gt; adj(n);
+adj[u].push_back({v, w});
+
+// In-degree array (for Kahn's topo sort)
+vector&lt;int&gt; inDeg(n, 0);
+for (auto&amp; e : edges) inDeg[e[1]]++;
+
+// Union-Find (DSU) with path compression + union by rank
+vector&lt;int&gt; parent(n), rank_(n, 0);
+iota(parent.begin(), parent.end(), 0);    // parent[i] = i
+
+int find(int x) {
+    if (parent[x] != x) parent[x] = find(parent[x]);
+    return parent[x];
+}
+
+bool unite(int x, int y) {
+    int px = find(x), py = find(y);
+    if (px == py) return false;
+    if (rank_[px] &lt; rank_[py]) swap(px, py);
+    parent[py] = px;
+    if (rank_[px] == rank_[py]) rank_[px]++;
+    return true;
+}</code></pre>
+</div>
+</div>
+
+<!-- Linked List edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Linked list nullptr guard &amp; dummy head</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">if (!head) return nullptr;
+if (!head-&gt;next) return head;
+
+// Iterate safely
+while (curr) curr = curr-&gt;next;
+
+// Dummy head avoids nullptr checks for head insertion/deletion
+ListNode dummy(0);
+dummy.next = head;
+// ... work with dummy ...
+return dummy.next;</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Fast/slow nullptr check &amp; reverse</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ✅ Short-circuit: fast checked before fast-&gt;next
+while (fast &amp;&amp; fast-&gt;next) {
+    slow = slow-&gt;next;
+    fast = fast-&gt;next-&gt;next;
+}
+
+// ✅ Reverse: save next before overwriting
+ListNode* next = curr-&gt;next;    // 1. save
+curr-&gt;next = prev;              // 2. reverse
+prev = curr;                    // 3. advance prev
+curr = next;                    // 4. advance curr
+
+// Floyd's cycle: phase 2 &mdash; find cycle start
+auto ptr = head;
+while (ptr != slow) {
+    ptr = ptr-&gt;next; slow = slow-&gt;next;
+}
+return ptr;  // cycle entry point</code></pre>
+</div>
+</div>
+
+<!-- Tree edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Tree nullptr guard &amp; BST validate</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// DFS base case &mdash; always first line
+if (!node) return 0;
+
+// BFS start
+if (!root) return result;
+
+// ❌ BST validate with int bounds fails for INT_MIN node
+// ✅ Always use long long bounds
+bool validate(TreeNode* n, long long lo, long long hi) {
+    if (!n) return true;
+    if (n-&gt;val &lt;= lo || n-&gt;val &gt;= hi) return false;
+    return validate(n-&gt;left, lo, n-&gt;val)
+        &amp;&amp; validate(n-&gt;right, n-&gt;val, hi);
+}
+validate(root, LLONG_MIN, LLONG_MAX);
+
+// Max Path Sum: init to INT_MIN (not 0!)
+int ans = INT_MIN;
+int leftGain = max(0, maxGain(n-&gt;left));
+int rightGain = max(0, maxGain(n-&gt;right));
+
+// Skewed tree (n=10^5 all left): use iterative traversal
+stack&lt;TreeNode*&gt; st;
+auto curr = root;
+while (curr || !st.empty()) {
+    while (curr) { st.push(curr); curr = curr-&gt;left; }
+    curr = st.top(); st.pop();
+    curr = curr-&gt;right;
+}</code></pre>
+</div>
+</div>
+
+<!-- Graph edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Graph &mdash; disconnected, Dijkstra, undirected DFS</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ❌ Only visits component containing node 0
+dfs(graph, 0, visited);
+// ✅ Start from every unvisited node
+for (int i = 0; i &lt; n; i++)
+    if (!visited[i]) { dfs(graph, i, visited); components++; }
+
+// Dijkstra: must skip stale entries
+auto [d, u] = pq.top(); pq.pop();
+if (d &gt; dist[u]) continue;
+
+// Dijkstra: unreachable nodes
+if (dist[dst] == INF) return -1;
+// ❌ Dijkstra with negative weights &rarr; use Bellman-Ford
+
+// Undirected DFS: ignore parent, not all visited neighbors
+if (neighbor == parent) continue;
+if (visited[neighbor]) return true;      // real cycle
+// For directed: use 3-state (unvisited / in-stack / done)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LCA &mdash; p is ancestor of q</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Standard algorithm handles p-is-ancestor correctly
+TreeNode* lca(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (!root || root == p || root == q) return root;
+    auto left = lca(root-&gt;left, p, q);
+    auto right = lca(root-&gt;right, p, q);
+    if (left &amp;&amp; right) return root;
+    return left ? left : right;
+}</code></pre>
+</div>
+</div>
+
+<!-- ==================== ALGORITHM PATTERNS ==================== -->
+<div class="section-title" id="sec-patterns"><span class="icon">&#127919;</span> Algorithm Patterns</div>
+<p class="section-intro">Common patterns for sliding window, DP, backtracking, and palindrome that appear across many DSA problems. Edge cases from these patterns are the most frequent source of wrong answers.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Palindrome, Result Patterns &amp; Frequency Arrays</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; String palindrome (two pointers) &mdash;
+int l = 0, r = s.size() - 1;
+while (l &lt; r) {
+    if (s[l] != s[r]) return false;
+    l++; r--;
+}
+
+// &mdash; Integer palindrome (no string conversion) &mdash;
+if (x &lt; 0 || (x % 10 == 0 &amp;&amp; x != 0)) return false;
+int rev = 0;
+while (x &gt; rev) { rev = rev * 10 + x % 10; x /= 10; }
+return x == rev || x == rev / 10;
+
+// &mdash; Expand around center (longest palindrome) &mdash;
+int expand(const string&amp; s, int l, int r) {
+    while (l &gt;= 0 &amp;&amp; r &lt; (int)s.size() &amp;&amp; s[l] == s[r]) { l--; r++; }
+    return r - l - 1;
+}
+
+// &mdash; Find minimum / maximum &mdash;
+int ans = INT_MAX;
+ans = min(ans, candidate);
+
+// &mdash; Collect results: always snapshot the vector! &mdash;
+result.push_back(current);                // ✅ vector has value semantics
+// (unlike Go/Java where slices/lists are references)
+
+// &mdash; Frequency arrays &mdash;
+int freq[26] = {};                        // 26 lowercase letters
+for (char c : s) freq[c - 'a']++;
+int freq128[128] = {};                    // 128 ASCII
+
+// &mdash; Early-return checklist &mdash;
+if (nums.empty())   return ...;           // array
+if (s.empty())      return ...;           // string
+if (!root)          return ...;           // tree
+if (!head)          return head;          // linked list
+if (k &gt; (int)nums.size()) return 0;      // window too large</code></pre>
+</div>
+</div>
+
+<!-- Sliding Window edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Sliding window &mdash; k &gt; n, matches counter</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">if (k &gt; (int)nums.size()) return 0;
+if (p.size() &gt; s.size()) return false;    // Permutation In String
+
+// Matches counter &mdash; increment only at exact boundary
+if (window[c] == need[c]) formed++;
+
+// Decrement only when crossing below threshold
+window[lc]--;
+if (window[lc] &lt; need[lc]) formed--;</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All/no chars satisfy &mdash; result init</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Min Window Substring: no valid window &rarr; return ""
+string result = "";
+if (minLen &gt; (int)s.size()) return "";
+
+// Max Consecutive Ones: all ones &rarr; return n
+// All zeros &rarr; return 0 (default)
+
+// Longest Substring w/o Repeat:
+//   all unique &rarr; return n
+//   all same char &rarr; return 1</code></pre>
+</div>
+</div>
+
+<!-- DP edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">DP &mdash; base case, circular, knapsack direction</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Climbing Stairs: n=1 &rarr; dp[i-2] accesses dp[-1]
+if (n &lt;= 1) return n;
+
+// Decode Ways: s[0]='0' &rarr; 0 ways immediately
+// Coin Change: amount=0 &rarr; 0 (no coins needed)
+// Edit Distance: dp[i][0]=i, dp[0][j]=j &rarr; don't forget!
+
+// House Robber II: can't use first and last together
+if (nums.size() == 1) return nums[0];     // guard before split
+int r1 = rob(nums, 0, n - 2);
+int r2 = rob(nums, 1, n - 1);
+return max(r1, r2);
+
+// Unbounded (Coin Change): each coin reusable &rarr; loop FORWARD
+for (int coin : coins)
+    for (int j = coin; j &lt;= amount; j++)
+        dp[j] = min(dp[j], dp[j - coin] + 1);
+
+// 0/1 Knapsack: each item once &rarr; loop BACKWARD
+for (auto&amp; item : items)
+    for (int j = W; j &gt;= item.w; j--)
+        dp[j] = max(dp[j], dp[j - item.w] + item.v);</code></pre>
+</div>
+</div>
+
+<!-- Backtracking edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Backtracking &mdash; duplicate skip</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// C++ vectors have value semantics — push_back copies automatically
+result.push_back(curr);           // ✅ safe, deep copy
+
+// ❌ i &gt; 0: skips valid combinations (too aggressive)
+if (i &gt; 0 &amp;&amp; nums[i] == nums[i-1]) continue;
+// ✅ i &gt; start: only skip duplicates at same recursion level
+if (i &gt; start &amp;&amp; nums[i] == nums[i-1]) continue;
+// MUST sort array first!
+sort(nums.begin(), nums.end());</code></pre>
+</div>
+</div>
+
+<!-- Value edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All negatives, zeros, duplicates</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Kadane's: ❌ init maxSoFar = 0 &rarr; [-3,-1,-2] wrongly returns 0
+// ✅ Init from first element
+int maxSoFar = nums[0], curr = nums[0];
+
+// Max Product [2,3,0,4]: zero resets the subarray
+// Product Except Self with zero: 2+ zeros &rarr; all products are zero
+
+// 3Sum [0,0,0] &rarr; skip: if (i &gt; 0 &amp;&amp; nums[i] == nums[i-1]) continue;
+
+// Longest Consecutive [1,1,1] &rarr; answer=1 (not 3); use set
+
+// Rotated Sorted Array II [1,1,1,1]: can't determine sorted half
+if (nums[lo] == nums[mid] &amp;&amp; nums[mid] == nums[hi]) {
+    lo++; hi--;  // linear fallback
+}</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Off-by-one &amp; return value conventions</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Subarray length: right - left + 1
+// Substring s.substr(i, len): starts at i, length len
+
+// for (l &lt; r) vs for (l &lt;= r)
+// Binary search: lo &lt;= hi for exact-match
+// Binary search: lo &lt; hi  for boundary-finding
+
+// Return conventions:
+// Binary Search not found    &rarr; -1
+// Coin Change impossible     &rarr; -1 (NOT 0!)
+// Min Window no window       &rarr; ""
+// Subsets: empty set {}      &rarr; valid result
+
+// Integer comparison: no autoboxing pitfall in C++
+int a = 1000, b = 1000;
+a == b;   // ✅ true (C++ has no Integer cache issue)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Empty array guard</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// ✅ Guard before any logic
+if (nums.empty()) return ...;
+if ((int)nums.size() &lt; 2) return nums[0];
+
+// Kadane's: init with nums[0], loop from i=1 &rarr; needs guard
+// Two pointers: right = nums.size()-1 &rarr; wraps if empty (size_t!)
+// Fixed window: k &gt; n &rarr; index out of bounds
+
+// ⚠ nums.size() - 1 on empty vector wraps to max size_t!
+// Always cast: (int)nums.size() - 1</code></pre>
+</div>
+</div>
+
+</div><!-- end cards-grid -->
