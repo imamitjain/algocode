@@ -28,7 +28,8 @@
 </head>
 <body>
 
-<div class="header">
+<div class="topbar">
+  <button class="hamburger" id="hamburger" title="Categories">&#9776;</button>
   <span class="logo"><span class="logo-text">C++ Pointers<span> by Example</span></span></span>
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Search smart pointers, casting, pitfalls...">
@@ -37,11 +38,21 @@
   <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme"></button>
 </div>
 
-<div class="nav-bar" id="navLinks"></div>
+<div class="page-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Categories</span>
+      <button class="sidebar-close" id="sidebarClose" title="Close">&times;</button>
+    </div>
+    <div class="sidebar-nav" id="navLinks"></div>
+  </aside>
 
-<div id="content">
-<div class="main">
-<div class="cards-grid">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrapper">
+    <div id="content">
+    <div class="main">
+    <div class="cards-grid">
 
 <!-- ==================== POINTER ARITHMETIC ==================== -->
 <div class="section-title" id="sec-arithmetic"><span class="icon">&#128290;</span> Pointer Arithmetic</div>
@@ -756,8 +767,9 @@ std::memcpy(&amp;n2, &amp;f, sizeof(n2));
 </div><!-- .cards-grid -->
 </div><!-- .main -->
 </div><!-- #content -->
-
-<div class="footer" id="footer">C++ Pointers by Example &mdash; AlgoCode</div>
+    <div class="footer" id="footer">C++ Pointers by Example &mdash; AlgoCode</div>
+  </div><!-- .main-wrapper -->
+</div><!-- .page-body -->
 
 <button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
 
@@ -793,6 +805,25 @@ std::memcpy(&amp;n2, &amp;f, sizeof(n2));
   }
   highlight();
 
+  /* Sidebar toggle (mobile) */
+  var sidebarEl = document.getElementById('sidebar');
+  var overlayEl = document.getElementById('sidebarOverlay');
+  var hamburgerBtn = document.getElementById('hamburger');
+  var sidebarCloseBtn = document.getElementById('sidebarClose');
+  function openSidebar() {
+    if (sidebarEl) sidebarEl.classList.add('open');
+    if (overlayEl) overlayEl.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    if (sidebarEl) sidebarEl.classList.remove('open');
+    if (overlayEl) overlayEl.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+  if (overlayEl) overlayEl.addEventListener('click', closeSidebar);
+
   /* Nav pills */
   var navLinksEl = document.getElementById('navLinks');
   var contentEl = document.getElementById('content');
@@ -805,6 +836,7 @@ std::memcpy(&amp;n2, &amp;f, sizeof(n2));
       a.textContent = sec.textContent.trim();
       a.addEventListener('click', function (e) {
         e.preventDefault();
+        closeSidebar();
         sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       navLinksEl.appendChild(a);
@@ -819,7 +851,7 @@ std::memcpy(&amp;n2, &amp;f, sizeof(n2));
     if (!sections.length) return;
     var cur = sections[0].id;
     sections.forEach(function (s) {
-      if (s.getBoundingClientRect().top <= 120) cur = s.id;
+      if (s.getBoundingClientRect().top <= 70) cur = s.id;
     });
     links.forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
