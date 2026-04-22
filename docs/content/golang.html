@@ -62,6 +62,9 @@
 <tr class="grp"><td colspan="3">Random</td></tr>
 <tr><td>Random int</td><td><code>rand.IntN(n)</code></td>                                    <td class="tc-1">O(1)<span class="cmt">math/rand/v2</span></td></tr>
 <tr><td>Random float</td><td><code>rand.Float64()</code></td>                                <td class="tc-1">O(1)<span class="cmt">[0.0, 1.0)</span></td></tr>
+<tr class="grp"><td colspan="3">Special Values</td></tr>
+<tr><td>Positive infinity</td><td><code>math.Inf(1)</code></td>                              <td class="tc-1">O(1)<span class="cmt">+Inf float64</span></td></tr>
+<tr><td>Is NaN</td><td><code>math.IsNaN(x)</code></td>                                      <td class="tc-1">O(1)</td></tr>
 </tbody>
 </table>
 </div>
@@ -361,6 +364,7 @@ s = string(bytes)
 // &mdash; Radix conversions &mdash;
 strconv.FormatInt(10, 2)           // "1010" (binary)
 strconv.FormatInt(255, 16)         // "ff"   (hex)
+strconv.FormatInt(8, 8)            // "10"   (octal)
 n, _ = strconv.ParseInt("1010", 2, 64)  // 10
 n, _ = strconv.ParseInt("FF", 16, 64)   // 255</code></pre>
 </div>
@@ -530,6 +534,12 @@ a, b = b, a       // Go's idiomatic swap (no XOR trick needed)
 // &mdash; Negate via bits (two's complement) &mdash;
 ^n + 1             // same as -n  (^ is bitwise NOT in Go)
 
+// &mdash; Update bit i to value v (0 or 1) &mdash;
+n = (n &amp;^ (1 &lt;&lt; i)) | (v &lt;&lt; i)
+
+// &mdash; Highest one bit (floor power of 2) &mdash;
+1 &lt;&lt; (bits.Len(uint(n)) - 1)    // 12 &rarr; 8, 16 &rarr; 16
+
 // &mdash; Bitmask &amp; subset enumeration &mdash;
 (1 &lt;&lt; n) - 1       // n=4 &rarr; 0b1111 = 15
 
@@ -671,6 +681,8 @@ for i := range grid {
 <tr><td>Compact</td><td><code>slices.Compact(s)</code></td>                                  <td class="tc-n">O(n)<span class="cmt">remove adj dups</span></td></tr>
 <tr><td>Min</td><td><code>slices.Min(s)</code></td>                                          <td class="tc-n">O(n)<span class="cmt">Go 1.21+</span></td></tr>
 <tr><td>Max</td><td><code>slices.Max(s)</code></td>                                          <td class="tc-n">O(n)<span class="cmt">Go 1.21+</span></td></tr>
+<tr><td>Delete by pred</td><td><code>slices.DeleteFunc(s, pred)</code></td>                  <td class="tc-n">O(n)<span class="cmt">Go 1.21+</span></td></tr>
+<tr><td>Find by pred</td><td><code>slices.IndexFunc(s, pred)</code></td>                     <td class="tc-n">O(n)<span class="cmt">Go 1.21+</span></td></tr>
 </tbody>
 </table>
 </div>
@@ -752,6 +764,30 @@ if len(nums) &lt; 2 { return nums[0] }   // needs at least 2
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Single &amp; two element arrays</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Kadane: max subarray of [-5] = -5 (init from nums[0]) ✓
+// House Robber II [5] &rarr; must return nums[0]
+if len(nums) == 1 { return nums[0] }
+
+// Binary Search [5], find 5: lo=hi=0, mid=0, found ✓
+// Min in rotated [5]: no rotation &rarr; returns nums[0] ✓
+
+// House Robber II [2,3]: can't rob both &rarr; max(2,3) = 3
+if len(nums) == 2 { return max(nums[0], nums[1]) }
+
+// Remove 2nd from end of [1&rarr;2]: removes head &rarr; need dummy
+dummy := &amp;ListNode{Next: head}
+
+// Two Sum [3,3] target=6: same element used twice?
+// Use index check: i != j</code></pre>
+</div>
+</div>
+
 <!-- ==================== STRING & STRINGS.BUILDER ==================== -->
 <div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String &amp; strings.Builder</div>
 <p class="section-intro">Go strings are <b>immutable UTF-8 byte sequences</b>. <code>len(s)</code> returns byte count, not rune count. For mutation, convert to <code>[]rune</code> or <code>[]byte</code>, or use <code>strings.Builder</code> for efficient concatenation. Unlike Java, <code>==</code> on strings is <b>value comparison</b> (not reference).</p>
@@ -767,6 +803,7 @@ if len(nums) &lt; 2 { return nums[0] }   // needs at least 2
 <br><br><b><code>s[i]</code> is a byte</b> &mdash; not a rune. For rune access use <code>[]rune(s)[i]</code>. <code>for _, c := range s</code> iterates by rune.
 <br><br><b><code>==</code> is value comparison</b> &mdash; unlike Java, Go&rsquo;s <code>==</code> on strings compares contents, not references. No <code>.equals()</code> needed.
 <br><br><b><code>strings.Split("", ",")</code> returns <code>[""]</code></b> &mdash; length 1, NOT 0! Guard empty strings before splitting.
+<br><br><b>isBlank idiom</b> &mdash; <code>strings.TrimSpace(s) == ""</code> checks for whitespace-only or empty strings.
 </div>
 </div>
 </div>
@@ -835,7 +872,11 @@ strings.HasSuffix(s, "suf")   // ends with
 strings.ToLower(s)
 strings.ToUpper(s)
 strings.TrimSpace(s)
-strings.ReplaceAll(s, "old", "new")
+strings.Replace(s, "old", "new", 1)    // first occurrence only
+strings.ReplaceAll(s, "old", "new")    // all occurrences
+strings.Trim(s, " \t")                // trim specific chars from both ends
+strings.TrimLeft(s, "0")              // trim from left
+strings.TrimRight(s, "\n")            // trim from right
 strings.Split(s, ",")          // split by separator
 strings.Fields(s)              // split by any whitespace
 strings.Join(elems, "-")       // join with delimiter
@@ -869,7 +910,22 @@ sb.WriteRune('c')       // append rune
 sb.WriteByte(b)         // append byte
 sb.Len()                // current length
 sb.Reset()              // clear
-sb.String()             // convert to string</code></pre>
+sb.String()             // convert to string
+
+// Reverse a string via Builder
+var sb2 strings.Builder
+runes := []rune(s)
+for i := len(runes) - 1; i &gt;= 0; i-- {
+    sb2.WriteRune(runes[i])
+}
+reversed := sb2.String()
+
+// &mdash; Regex &mdash;
+import "regexp"
+re := regexp.MustCompile(`\d+`)
+ok := re.MatchString("abc123")           // true
+all := re.FindAllString("a1b2c3", -1)    // ["1", "2", "3"]
+// Go uses RE2 (no backreferences, guaranteed linear time)</code></pre>
 </div>
 </div>
 
@@ -887,6 +943,32 @@ if s == "" { return []string{} }
 
 // Also: strings.Split("a,,b", ",") &rarr; ["a", "", "b"]
 // Empty strings appear between consecutive delimiters</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Palindrome definition &mdash; empty, spaces</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Empty string &rarr; palindrome (true)
+// Single char &rarr; palindrome (true)
+// "  " &rarr; after stripping &rarr; empty &rarr; true
+
+// Valid Palindrome: strip non-alphanumeric, lowercase
+func isPalindrome(s string) bool {
+    var clean []rune
+    for _, c := range s {
+        if unicode.IsLetter(c) || unicode.IsDigit(c) {
+            clean = append(clean, unicode.ToLower(c))
+        }
+    }
+    for l, r := 0, len(clean)-1; l &lt; r; l, r = l+1, r-1 {
+        if clean[l] != clean[r] { return false }
+    }
+    return true
+}</code></pre>
 </div>
 </div>
 
@@ -933,6 +1015,14 @@ sort.Slice(strs, func(i, j int) bool {
 // Largest Number #179 &mdash; concat comparison
 sort.Slice(strs, func(i, j int) bool {
     return strs[i]+strs[j] &gt; strs[j]+strs[i]
+})
+
+// Sort by absolute value
+sort.Slice(arr, func(i, j int) bool {
+    ai, aj := arr[i], arr[j]
+    if ai &lt; 0 { ai = -ai }
+    if aj &lt; 0 { aj = -aj }
+    return ai &lt; aj
 })
 
 // Check if sorted
@@ -1106,6 +1196,23 @@ hi = sum(weights)  // ship everything in one day
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Not rotated (sorted) array &mdash; still works</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Sorted array = rotation by 0
+// Binary search: findMin returns index 0 ✓
+// Search in rotated: left half is always sorted ✓
+
+// 3Sum on sorted array: early exit if nums[0] &gt; 0
+if nums[i] &gt; 0 { break }
+
+// No special case needed &mdash; algorithms handle it naturally</code></pre>
+</div>
+</div>
+
 <!-- ==================== MAP & SET ==================== -->
 <div class="section-title" id="sec-map"><span class="icon">&#128451;&#65039;</span> Map &amp; Set</div>
 <p class="section-intro">Go&rsquo;s built-in <code>map[K]V</code> is a hash map with O(1) average access. Iteration order is <b>random by design</b>. There is no built-in ordered map &mdash; sort keys manually. For sets, use <code>map[T]struct{}</code> (zero memory per value) or <code>map[T]bool</code> (slightly simpler syntax).</p>
@@ -1194,7 +1301,16 @@ for _, k := range keys { v := m[k]; /* ... */ }
 
 // Multi-map pattern
 mm := map[string][]int{}
-mm["a"] = append(mm["a"], 1, 2)</code></pre>
+mm["a"] = append(mm["a"], 1, 2)
+
+// Check if two maps have same keys and values
+func mapsEqual(a, b map[int]int) bool {
+    if len(a) != len(b) { return false }
+    for k, v := range a {
+        if b[k] != v { return false }
+    }
+    return true
+}</code></pre>
 </div>
 </div>
 
@@ -1286,7 +1402,16 @@ func (h FreqHeap) Less(i, j int) bool {
     if h[i].freq != h[j].freq { return h[i].freq &gt; h[j].freq }
     return h[i].val &lt; h[j].val
 }
-// ... Len, Swap, Push, Pop same pattern</code></pre>
+// ... Len, Swap, Push, Pop same pattern
+
+// Top-K via heap (partial sort)
+h := &amp;MinHeap{}
+heap.Init(h)
+for _, v := range data {
+    heap.Push(h, v)
+    if h.Len() &gt; k { heap.Pop(h) }  // evict smallest
+}
+// h now holds the k largest elements</code></pre>
 </div>
 </div>
 
@@ -1376,8 +1501,13 @@ val   := front.Value.(int)         // type-assert
 l.Remove(e2)                       // O(1)
 l.MoveToFront(e1)                  // promote
 
-// Iterate
+l.InsertAfter(8, e1)               // after element
+l.Len()                            // number of elements
+
+// Iterate forward
 for e := l.Front(); e != nil; e = e.Next() { fmt.Println(e.Value) }
+// Iterate backward
+for e := l.Back(); e != nil; e = e.Prev() { fmt.Println(e.Value) }
 
 // LRU cache: map[key]*list.Element + list for eviction order
 type LRU struct {
@@ -1424,6 +1554,24 @@ top := stack[len(stack)-1]  // when stack is empty
 // ✅ Always check before accessing
 if len(stack) &gt; 0 { top = stack[len(stack)-1] }
 if len(queue) &gt; 0 { front = queue[0] }</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Leftover elements after loop &mdash; monotonic</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Monotonic stack: after loop, remaining elements have
+// no "next greater" &rarr; result stays default (often 0 or -1)
+
+// Largest Rectangle (#84): append sentinel height 0
+// to force all bars to pop at the end
+heights = append(heights, 0)
+
+// Next Greater Element: remaining stack elements &rarr; result = -1
+// (already handled if result initialized to -1)</code></pre>
 </div>
 </div>
 
@@ -1513,6 +1661,11 @@ type TreeNode struct {
 type TrieNode struct {
     Children [26]*TrieNode
     IsEnd    bool
+}
+
+type GraphNode struct {
+    Val       int
+    Neighbors []*GraphNode
 }
 
 // Adjacency list &mdash; unweighted undirected
@@ -1655,9 +1808,65 @@ for i := 0; i &lt; n; i++ {
 curr := heap.Pop(h)
 if curr.dist &gt; dist[curr.node] { continue }
 
+// Dijkstra: unreachable nodes
+if dist[dst] == INF { return -1 }
+// ❌ Dijkstra with negative weights &rarr; use Bellman-Ford
+
 // Undirected DFS: ignore parent, not all visited neighbors
 if neighbor == parent { continue }
-if visited[neighbor] { return true }  // real cycle</code></pre>
+if visited[neighbor] { return true }  // real cycle
+// For directed: use 3-state (unvisited / in-stack / done)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Remove Nth from end &mdash; n = list length</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// n = list length &rarr; removes head &rarr; need dummy
+dummy := &amp;ListNode{Next: head}
+fast, slow := dummy, dummy
+for i := 0; i &lt;= n; i++ { fast = fast.Next }
+for fast != nil {
+    fast = fast.Next; slow = slow.Next
+}
+slow.Next = slow.Next.Next
+return dummy.Next</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">LCA &mdash; p is ancestor of q</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Standard algorithm handles p-is-ancestor correctly
+if root == nil || root == p || root == q { return root }
+left := lca(root.Left, p, q)
+right := lca(root.Right, p, q)
+if left != nil &amp;&amp; right != nil { return root }
+if left != nil { return left }
+return right</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Single tree node</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Diameter of tree [1]: diameter = 0 (no edges)
+// Not 1! Diameter counts edges, not nodes.
+
+// BST validate [MinInt]: use int64 bounds
+validate(root, math.MinInt64, math.MaxInt64)
+
+// LCA: if root is p or q, early return handles it
+if root == p || root == q { return root }</code></pre>
 </div>
 </div>
 
@@ -1741,6 +1950,25 @@ if window[lc] &lt; need[lc] { formed-- }</code></pre>
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All/no chars satisfy &mdash; result init</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// Min Window Substring: no valid window &rarr; return ""
+result := ""
+if minLen &gt; len(s) { return "" }
+
+// Max Consecutive Ones: all ones &rarr; return n
+// All zeros &rarr; return 0 (default)
+
+// Longest Substring w/o Repeat:
+//   all unique &rarr; return n
+//   all same char &rarr; return 1</code></pre>
+</div>
+</div>
+
 <!-- DP edge cases -->
 <div class="card">
 <div class="card-header">
@@ -1751,7 +1979,12 @@ if window[lc] &lt; need[lc] { formed-- }</code></pre>
 <pre><code class="language-go">// Climbing Stairs: n=1 &rarr; dp[i-2] accesses dp[-1]
 if n &lt;= 1 { return n }
 
+// Decode Ways: s[0]='0' &rarr; 0 ways immediately
+// Coin Change: amount=0 &rarr; 0 (no coins needed)
+// Edit Distance: dp[i][0]=i, dp[0][j]=j &rarr; don't forget!
+
 // House Robber II: can't use first and last together
+if len(nums) == 1 { return nums[0] }   // guard before split
 r1 := rob(nums[0 : n-1]); r2 := rob(nums[1 : n])
 return max(r1, r2)
 
@@ -1809,7 +2042,12 @@ maxSoFar, curr := nums[0], nums[0]
 
 // 3Sum [0,0,0] &rarr; skip: if i &gt; 0 &amp;&amp; nums[i] == nums[i-1] { continue }
 
-// Longest Consecutive [1,1,1] &rarr; answer=1 (not 3); use set</code></pre>
+// Longest Consecutive [1,1,1] &rarr; answer=1 (not 3); use set
+
+// Rotated Sorted Array II [1,1,1,1]: can't determine sorted half
+if nums[lo] == nums[mid] &amp;&amp; nums[mid] == nums[hi] {
+    lo++; hi--  // linear fallback
+}</code></pre>
 </div>
 </div>
 
@@ -1830,7 +2068,11 @@ maxSoFar, curr := nums[0], nums[0]
 // Binary Search not found    &rarr; -1
 // Coin Change impossible     &rarr; -1 (NOT 0!)
 // Min Window no window       &rarr; ""
-// Subsets: empty set []      &rarr; valid result</code></pre>
+// Subsets: empty set []      &rarr; valid result
+
+// Integer comparison: no autoboxing pitfall in Go
+a, b := 1000, 1000
+a == b   // ✅ true (Go has no Integer cache issue)</code></pre>
 </div>
 </div>
 
@@ -2027,7 +2269,23 @@ inc := func() { counter++ }
 for i, v := range s { }       // index + value
 for _, v := range s { }       // value only
 for i := range s { }          // index only
-for range 10 { }              // Go 1.22+, repeat N times</code></pre>
+for range 10 { }              // Go 1.22+, repeat N times
+
+// &mdash; Pair / Tuple via struct or multi-return &mdash;
+type Pair struct{ First, Second int }
+func twoVals() (int, string) { return 1, "hi" }
+
+// &mdash; Ring Buffer &mdash;
+import "container/ring"
+r := ring.New(5)               // ring of 5 elements
+r.Value = 1
+r = r.Next()
+r.Do(func(v any) { fmt.Println(v) })  // iterate all
+
+// &mdash; Iterators (Go 1.23+) &mdash;
+import "iter"
+func All(s []int) iter.Seq[int] { /* ... */ }
+// Push/pull iterators for lazy sequences</code></pre>
 </div>
 </div>
 
@@ -2074,6 +2332,40 @@ for _, tt := range tests {
 </div>
 </div>
 
+<!-- ==================== NETWORKING & HTTP ==================== -->
+<div class="section-title" id="sec-networking"><span class="icon">&#127760;</span> Networking &amp; HTTP</div>
+<p class="section-intro">Go&rsquo;s standard library includes a production-grade HTTP server/client in <code>net/http</code> and TCP/UDP primitives in <code>net</code>. No third-party libraries needed.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">HTTP Server, Client &amp; TCP Sockets</span>
+</div>
+<div class="card-body">
+<pre><code class="language-go">// &mdash; HTTP Server &mdash;
+import "net/http"
+http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Hello!")
+})
+http.ListenAndServe(":8080", nil)
+
+// &mdash; HTTP Client &mdash;
+resp, err := http.Get("https://api.example.com/data")
+defer resp.Body.Close()
+body, _ := io.ReadAll(resp.Body)
+
+// POST
+resp, err = http.Post(url, "application/json", bytes.NewReader(data))
+
+// &mdash; TCP Sockets &mdash;
+import "net"
+ln, _ := net.Listen("tcp", ":9000")
+conn, _ := ln.Accept()
+defer conn.Close()
+buf := make([]byte, 1024)
+n, _ := conn.Read(buf)</code></pre>
+</div>
+</div>
+
 <!-- ==================== JSON, TIME & MEMORY ==================== -->
 <div class="section-title" id="sec-json-time"><span class="icon">&#128230;</span> JSON, Time &amp; Memory</div>
 <p class="section-intro">Go&rsquo;s standard library includes <code>encoding/json</code> for serialization, <code>time</code> for temporal operations, and automatic garbage collection. <code>sync.Pool</code> provides object pooling for hot paths.</p>
@@ -2090,7 +2382,8 @@ type User struct {
 }
 data, _ := json.Marshal(user)       // struct &rarr; JSON
 json.Unmarshal(data, &amp;user)          // JSON &rarr; struct
-json.NewEncoder(w).Encode(user)     // streaming
+json.NewEncoder(w).Encode(user)     // streaming encode
+json.NewDecoder(r).Decode(&amp;user)     // streaming decode
 
 // &mdash; Time &mdash;
 now := time.Now()
@@ -2104,9 +2397,25 @@ t, _ := time.Parse("2006-01-02", "2024-03-15")
 
 d := 5 * time.Second
 
+// Timer (one-shot)
+timer := time.NewTimer(2 * time.Second)
+&lt;-timer.C  // blocks until timer fires
+
+// Ticker (repeating)
 ticker := time.NewTicker(time.Second)
 defer ticker.Stop()
 for t := range ticker.C { /* every second */ }
+
+nano := now.UnixNano()                 // nanoseconds since epoch
+
+// &mdash; Binary Serialization &mdash;
+import "encoding/gob"
+var buf bytes.Buffer
+gob.NewEncoder(&amp;buf).Encode(data)      // struct &rarr; bytes
+gob.NewDecoder(&amp;buf).Decode(&amp;result)    // bytes &rarr; struct
+
+import "encoding/binary"
+binary.Write(w, binary.LittleEndian, val)  // write raw bytes
 
 // &mdash; Memory &mdash;
 // Go has garbage collection &mdash; no manual free needed
