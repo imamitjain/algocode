@@ -2240,7 +2240,7 @@ stack2.peek();    // peekFirst</code></pre>
 <li>A <code>List&lt;Number&gt;</code> may hold an <code>Integer</code> but you search with a <code>Double</code> &mdash; <code>Object</code> allows this cross-type lookup.</li>
 <li>Generics are erased at runtime; restricting to <code>E</code> adds no real safety, only a compile-time illusion.</li>
 </ul>
-<b>Collections only store boxed types</b> &mdash; <code>int</code> &rarr; <code>Integer</code>, <code>char</code> &rarr; <code>Character</code>, <code>double</code> &rarr; <code>Double</code>. Java autoboxes automatically.
+<b>Collections only store boxed types</b> &mdash; <code>int</code> &rarr; <code>Integer</code>, <code>char</code> &rarr; <code>Character</code>, <code>double</code> &rarr; <code>Double</code>. Java autoboxes automatically. However, <code>int[]</code> (and other primitive arrays) are objects, so <code>List&lt;int[]&gt;</code> is valid &mdash; the array itself is not boxed.
 </div>
 <pre><code class="language-java">// Pitfall: remove(int index) vs remove(Object value) on List&lt;Integer&gt;
 List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(10, 20, 30));
