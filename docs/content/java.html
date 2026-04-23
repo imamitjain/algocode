@@ -302,6 +302,28 @@ if (dist[u] != INF &amp;&amp; dist[u] + w &lt; dist[v]) {
 </div>
 </div>
 
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Negative modulo for circular indexing</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// Java's % keeps sign of dividend (same as Go)
+-7 % 3;   // -1 (not 2!)
+-1 % 5;   // -1 (not 4!)
+
+// ❌ Circular array with negative index breaks
+char c = s.charAt((-1) % s.length());  // negative index!
+
+// ✅ Always-positive modulo
+int mod = ((a % n) + n) % n;
+
+// ✅ Or use Math.floorMod() (Java 8+)
+Math.floorMod(-7, 3);  // 2 ✓
+Math.floorMod(-1, 5);  // 4 ✓</code></pre>
+</div>
+</div>
+
 <!-- ==================== TYPE CONVERSIONS ==================== -->
 <div class="section-title" id="sec-conversions"><span class="icon">&#128260;</span> Type Conversions</div>
 <p class="section-intro">Java is statically typed &mdash; conversions between primitives and their String representations are explicit. Widening casts (<code>int</code>&rarr;<code>long</code>) are safe. <b>Narrowing casts</b> (<code>long</code>&rarr;<code>int</code>, <code>double</code>&rarr;<code>int</code>) silently truncate with no exception. <code>char</code> is an unsigned 16-bit integer (0&ndash;65535); arithmetic on <code>char</code> promotes to <code>int</code>.</p>
@@ -408,126 +430,6 @@ Math.toIntExact(2_500_000_000L);  // ArithmeticException!
 // ✅ Always validate before char arithmetic
 if (c &gt;= 'a' &amp;&amp; c &lt;= 'z') { idx = c - 'a'; }
 if (c &gt;= '0' &amp;&amp; c &lt;= '9') { digit = c - '0'; }</code></pre>
-</div>
-</div>
-
-<!-- ==================== CHARACTER UTILITIES ==================== -->
-<div class="section-title" id="sec-char"><span class="icon">&#128288;</span> Character Utility Methods</div>
-<p class="section-intro"><code>Character</code> provides static methods for classifying and converting Unicode code points. All run in O(1). For contest/interview code on ASCII input, inline range checks (<code>c &gt;= 'a' &amp;&amp; c &lt;= 'z'</code>) are often faster and avoid Unicode surprises. Case conversion is covered in the <a href="#sec-bits">Bit Manipulation</a> section (bit-level tricks + <code>Character.toLowerCase</code>/<code>toUpperCase</code>).</p>
-
-<div class="card" style="grid-column:1/-1">
-<div class="card-header">
-  <span class="card-title">Key Points</span>
-</div>
-<div class="card-body">
-<div class="note">
-<b><code>isDigit</code>/<code>isLetter</code> check Unicode</b> &mdash; not just ASCII. <code>Character.isDigit('\u0661')</code> returns <code>true</code> (Arabic-Indic digit). For ASCII-only problems, use inline range checks.
-<br><br><b><code>getNumericValue('A')</code> returns 10</b> &mdash; hex interpretation, not &minus;1. Use <code>c - '0'</code> for simple digit extraction instead.
-<br><br><b><code>isWhitespace</code> vs <code>isSpaceChar</code></b> &mdash; <code>isWhitespace</code> includes <code>\t</code>, <code>\n</code>, <code>\r</code>; <code>isSpaceChar</code> covers only Unicode space categories.
-<br><br><b>ASCII inline checks</b> &mdash; <code>c &gt;= 'a' &amp;&amp; c &lt;= 'z'</code>, <code>c &gt;= '0' &amp;&amp; c &lt;= '9'</code>. Clearer, no Unicode surprises, preferred for competitive programming.
-</div>
-</div>
-</div>
-
-<div class="card" style="grid-column:1/-1">
-<div class="card-header">
-  <span class="card-title">Operations &amp; Time Complexity</span>
-</div>
-<div class="card-body">
-<table class="ctable ctable-cmp">
-<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
-<tbody>
-<tr class="grp"><td colspan="3">Classify</td></tr>
-<tr><td>Digit</td><td><code>boolean Character.isDigit(char c)</code></td>                      <td class="tc-1">O(1)<span class="cmt">Unicode digits</span></td></tr>
-<tr><td>Letter</td><td><code>boolean Character.isLetter(char c)</code></td>                    <td class="tc-1">O(1)<span class="cmt">Unicode letters</span></td></tr>
-<tr><td>Letter or Digit</td><td><code>boolean Character.isLetterOrDigit(char c)</code></td>    <td class="tc-1">O(1)</td></tr>
-<tr><td>Uppercase</td><td><code>boolean Character.isUpperCase(char c)</code></td>              <td class="tc-1">O(1)</td></tr>
-<tr><td>Lowercase</td><td><code>boolean Character.isLowerCase(char c)</code></td>              <td class="tc-1">O(1)</td></tr>
-<tr><td>Whitespace</td><td><code>boolean Character.isWhitespace(char c)</code></td>            <td class="tc-1">O(1)<span class="cmt">includes \t, \n, \r</span></td></tr>
-<tr><td>Alphabetic</td><td><code>boolean Character.isAlphabetic(int cp)</code></td>            <td class="tc-1">O(1)<span class="cmt">broader than isLetter</span></td></tr>
-<tr class="grp"><td colspan="3">Convert</td></tr>
-<tr><td>To lower</td><td><code>char Character.toLowerCase(char c)</code></td>                  <td class="tc-1">O(1)<span class="cmt">Unicode-safe</span></td></tr>
-<tr><td>To upper</td><td><code>char Character.toUpperCase(char c)</code></td>                  <td class="tc-1">O(1)<span class="cmt">Unicode-safe</span></td></tr>
-<tr><td>Numeric val</td><td><code>int Character.getNumericValue(char c)</code></td>            <td class="tc-1">O(1)<span class="cmt">'A'&rarr;10, '$'&rarr;-1</span></td></tr>
-<tr class="grp"><td colspan="3">ASCII Inline Checks</td></tr>
-<tr><td>Is lower</td><td><code>c &gt;= 'a' &amp;&amp; c &lt;= 'z'</code></td>                              <td class="tc-1">O(1)<span class="cmt">ASCII only</span></td></tr>
-<tr><td>Is upper</td><td><code>c &gt;= 'A' &amp;&amp; c &lt;= 'Z'</code></td>                              <td class="tc-1">O(1)<span class="cmt">ASCII only</span></td></tr>
-<tr><td>Is digit</td><td><code>c &gt;= '0' &amp;&amp; c &lt;= '9'</code></td>                              <td class="tc-1">O(1)<span class="cmt">ASCII only</span></td></tr>
-<tr><td>Is letter</td><td><code>(c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')</code></td> <td class="tc-1">O(1)<span class="cmt">ASCII only</span></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<div class="card" style="grid-column:1/-1">
-<div class="card-header">
-  <span class="card-title">Common Character Operations</span>
-</div>
-<div class="card-body">
-<pre><code class="language-java">// &mdash; Classification &mdash;
-Character.isDigit('7');                    // true
-Character.isDigit('A');                    // false
-Character.isLetter('A');                   // true
-Character.isLetterOrDigit('3');            // true
-Character.isWhitespace(' ');               // true
-Character.isWhitespace('\t');              // true
-Character.isUpperCase('A');                // true
-Character.isLowerCase('a');                // true
-
-// &mdash; Numeric value &mdash;
-Character.getNumericValue('7');            // 7
-Character.getNumericValue('A');            // 10   &mdash; hex value, not -1!
-Character.getNumericValue('$');            // -1   &mdash; non-alphanumeric
-
-// &mdash; Inline ASCII checks (tight loops, contest code) &mdash;
-c &gt;= 'a' &amp;&amp; c &lt;= 'z';                      // lowercase letter
-c &gt;= 'A' &amp;&amp; c &lt;= 'Z';                      // uppercase letter
-c &gt;= '0' &amp;&amp; c &lt;= '9';                      // digit
-(c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z'); // any ASCII letter
-
-// &mdash; Valid Palindrome pattern (strip non-alphanumeric + lowercase) &mdash;
-for (int l = 0, r = s.length() - 1; l &lt; r; ) {
-    if (!Character.isLetterOrDigit(s.charAt(l))) { l++; continue; }
-    if (!Character.isLetterOrDigit(s.charAt(r))) { r--; continue; }
-    if (Character.toLowerCase(s.charAt(l)) != Character.toLowerCase(s.charAt(r)))
-        return false;
-    l++; r--;
-}</code></pre>
-</div>
-</div>
-
-<!-- Character Utilities — Edge Cases -->
-<div class="card">
-<div class="card-header">
-  <span class="card-title">getNumericValue returns hex value for letters</span>
-  <span class="severity subtle">Subtle</span>
-</div>
-<div class="card-body">
-<pre><code class="language-java">// ❌ getNumericValue interprets letters as hex digits
-Character.getNumericValue('A');    // 10 &mdash; NOT -1!
-Character.getNumericValue('F');    // 15
-Character.getNumericValue('Z');    // 35
-Character.getNumericValue('$');    // -1 &mdash; non-alphanumeric
-
-// ✅ Use c - '0' for digit extraction
-'7' - '0';                        // 7
-'0' - '0';                        // 0</code></pre>
-</div>
-</div>
-
-<div class="card">
-<div class="card-header">
-  <span class="card-title">isDigit / isLetter include non-ASCII Unicode</span>
-  <span class="severity subtle">Subtle</span>
-</div>
-<div class="card-body">
-<pre><code class="language-java">// ⚠ Character.isDigit includes Arabic-Indic, Devanagari, etc.
-Character.isDigit('\u0661');       // true &mdash; Arabic-Indic digit 1
-Character.isLetter('\u00E9');      // true &mdash; &eacute; (e with accent)
-
-// ✅ For ASCII-only problems, use inline range checks
-c &gt;= '0' &amp;&amp; c &lt;= '9';             // ASCII digits only
-c &gt;= 'a' &amp;&amp; c &lt;= 'z';             // ASCII lowercase only</code></pre>
 </div>
 </div>
 
@@ -739,6 +641,30 @@ long mask40 = (1L &lt;&lt; 40) - 1; // correct 40-bit mask</code></pre>
 
 <div class="card">
 <div class="card-header">
+  <span class="card-title">Negative shift amounts &amp; negative operands</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-java">// ⚠ Shift amount is masked: &amp; 0x1F (mod 32) for int, &amp; 0x3F (mod 64) for long
+1 &lt;&lt; -1;                      // = 1 &lt;&lt; (-1 &amp; 0x1F) = 1 &lt;&lt; 31 = Integer.MIN_VALUE
+1 &lt;&lt; 33;                      // = 1 &lt;&lt; (33 &amp; 0x1F) = 1 &lt;&lt; 1  = 2
+1L &lt;&lt; -1;                     // = 1L &lt;&lt; (-1 &amp; 0x3F) = 1L &lt;&lt; 63 = Long.MIN_VALUE
+
+// ⚠ Bitwise ops on negative numbers use two&rsquo;s complement representation
+~0;                           // -1  &mdash; all 32 bits set (0xFFFFFFFF)
+~(-1);                        // 0
+-n == ~n + 1;                 // true for all int n (two&rsquo;s complement identity)
+Integer.toBinaryString(-1);   // "11111111111111111111111111111111" (32 ones)
+Integer.toBinaryString(-8);   // "11111111111111111111111111111000"
+
+// n &amp; -n works correctly on negative numbers too (isolates lowest set bit)
+-12 &amp; 12;                     // 4? No: -12 &amp; 12 = 4, but (-12) &amp; -(-12) = (-12) &amp; 12 = 4
+(-6) &amp; (6);                   // 2  &mdash; lowest set bit of 6 = 0110 is 0010</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
   <span class="card-title">Bit-level character tricks</span>
   <span class="severity tip">Best Practice</span>
 </div>
@@ -796,7 +722,8 @@ jagged[0] = new int[]{1, 2};
 jagged[1] = new int[]{3, 4, 5};
 
 // ── Fill &amp; copy ──
-Arrays.fill(a, 7);                           // all elements → 7
+Arrays.fill(a, 7);                           // all elements &rarr; 7
+Arrays.fill(a, 1, 4, 0);                    // a[1..3] = 0; toIndex 4 is exclusive
 int[] copy = Arrays.copyOf(b, b.length);     // shallow copy
 int[] slice = Arrays.copyOfRange(b, 1, 4);   // [2, 3, 4]
 int[] cloned = b.clone();                    // another way to copy
@@ -886,6 +813,9 @@ Arrays.equals(g1, g2);     // false!
 
 // ✅ Use Arrays.deepEquals() for nested arrays
 Arrays.deepEquals(g1, g2); // true</code></pre>
+<div class="note">
+<b>Why does <code>Arrays.equals()</code> fail on 2D arrays?</b> &mdash; <code>Arrays.equals(Object[], Object[])</code> calls <code>.equals()</code> on each element pair. For a 2D array, each element is an <code>int[]</code> (an object). Arrays <b>do not override <code>Object.equals()</code></b> &mdash; they inherit reference equality. So <code>new int[]{1,2}.equals(new int[]{1,2})</code> is <code>false</code>, and <code>Arrays.equals</code> on 2D arrays returns <code>false</code> even with identical contents.
+</div>
 </div>
 </div>
 
@@ -928,7 +858,15 @@ Arrays.sort(arr);                        // [1, 1, 3, 4, 5]
 int idx2 = Arrays.binarySearch(arr, 4);  // 3 ✓
 
 // ⚠ Return value when not found: -(insertion point) - 1
-Arrays.binarySearch(new int[]{1, 3, 5}, 2);  // returns -2 (would insert at index 1)</code></pre>
+Arrays.binarySearch(new int[]{1, 3, 5}, 2);  // returns -2 (would insert at index 1)
+
+// Recover insertion point from negative result
+int r = Arrays.binarySearch(new int[]{1, 3, 5}, 2);  // -2
+int insertionPoint = -(r + 1);                        // 1  (same as ~r)
+int insertionPoint2 = ~r;                             // 1  (bitwise complement)</code></pre>
+<div class="note">
+<b>Return value</b> &mdash; when the key is found, returns its index. When <b>not found</b>, returns <code>-(insertion point) - 1</code>, where <em>insertion point</em> is the index at which the key would be inserted to keep the array sorted. The result is always negative when not found. Recover the insertion point with <code>-(result + 1)</code> or equivalently <code>~result</code> (bitwise complement).
+</div>
 </div>
 </div>
 
@@ -1019,23 +957,31 @@ int[][] grid2 = new int[3][3]; // each row is a separate new int[3]</code></pre>
   <span class="severity subtle">Subtle</span>
 </div>
 <div class="card-body">
-<pre><code class="language-java">// Primitives: dual-pivot quicksort — NOT stable (equal elements may reorder)
+<pre><code class="language-java">// Primitives: Dual-Pivot Quicksort — NOT stable (equal elements may reorder)
 int[] nums = {3, 1, 2};
 Arrays.sort(nums);  // fast, but relative order of equal elements is undefined
 
 // Objects: TimSort — STABLE (equal elements keep original order)
 Integer[] boxed = {3, 1, 2};
-Arrays.sort(boxed);  // stable — equal elements preserve insertion order
+Arrays.sort(boxed);  // stable &mdash; equal elements preserve insertion order
+
+// Any sort with a Comparator uses TimSort (stable)
+Integer[] arr = {5, 3, 1, 4, 2};
+Arrays.sort(arr, Comparator.reverseOrder());           // [5, 4, 3, 2, 1]
+Arrays.sort(arr, Comparator.comparingInt(a -&gt; a));     // [1, 2, 3, 4, 5]
 
 // ⚠ Practical trap: sorting int[][] by first element
 int[][] intervals = {{1, 10}, {1, 5}, {2, 3}};
 Arrays.sort(intervals, (a, b) -&gt; Integer.compare(a[0], b[0]));  // safe; a[0]-b[0] can overflow
-// Stable — {1,10} and {1,5} keep original order (Comparator triggers TimSort)
+// Stable &mdash; {1,10} and {1,5} keep original order (Comparator triggers TimSort)
 
 // ❌ If you sort a primitive array and depend on order of equal elements,
-//    results are unpredictable — quicksort may rearrange them
+//    results are unpredictable &mdash; quicksort may rearrange them
 
-// Collections.sort() and List.sort() always use TimSort — always stable</code></pre>
+// Collections.sort() and List.sort() always use TimSort &mdash; always stable</code></pre>
+<div class="note">
+<b>Underlying implementations</b> &mdash; <code>Arrays.sort(int[])</code> uses <b>Dual-Pivot Quicksort</b> (NOT stable). <code>Arrays.sort(Object[])</code> and any overload taking a <code>Comparator</code> uses <b>TimSort</b> (STABLE). <code>Collections.sort()</code> and <code>List.sort()</code> always delegate to TimSort.
+</div>
 </div>
 </div>
 
@@ -1239,28 +1185,6 @@ try {
 Integer.valueOf("127") == Integer.valueOf("127");   // true  — cached
 Integer.valueOf("128") == Integer.valueOf("128");   // false — different objects
 Integer.valueOf("128").equals(Integer.valueOf("128")); // true</code></pre>
-</div>
-</div>
-
-<div class="card">
-<div class="card-header">
-  <span class="card-title">Negative modulo for circular indexing</span>
-  <span class="severity subtle">Subtle</span>
-</div>
-<div class="card-body">
-<pre><code class="language-java">// Java's % keeps sign of dividend (same as Go)
--7 % 3;   // -1 (not 2!)
--1 % 5;   // -1 (not 4!)
-
-// ❌ Circular array with negative index breaks
-char c = s.charAt((-1) % s.length());  // negative index!
-
-// ✅ Always-positive modulo
-int mod = ((a % n) + n) % n;
-
-// ✅ Or use Math.floorMod() (Java 8+)
-Math.floorMod(-7, 3);  // 2 ✓
-Math.floorMod(-1, 5);  // 4 ✓</code></pre>
 </div>
 </div>
 
