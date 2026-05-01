@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>AlgoCode</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" id="hljs-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/severity.css">
+<link rel="prefetch" href="content/golang.html">
+<link rel="prefetch" href="content/cpp.html">
+<link rel="prefetch" href="content/python3.html">
+<script>
+(function() {
+  var s = localStorage.getItem('theme') || 'dark';
+  if (s !== 'dark') {
+    document.documentElement.setAttribute('data-theme', s);
+    var l = document.getElementById('hljs-theme');
+    if (l) l.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  }
+})();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="hamburger" id="hamburger" title="Categories">&#9776;</button>
+  <span class="logo"><span class="logo-text">Algo<span>Code</span></span></span>
+  <div class="header-tabs">
+    <a href="#java" class="tab-btn active" data-tab="java">
+      <span class="tab-icon">&#9749;</span>
+      <span><span>Java</span><span class="tab-sub">109 cards · 17 categories</span></span>
+    </a>
+    <a href="#golang" class="tab-btn" data-tab="golang">
+      <span class="tab-icon">&#128039;</span>
+      <span><span>Golang</span><span class="tab-sub">72 cards · 21 categories</span></span>
+    </a>
+    <a href="#cpp" class="tab-btn" data-tab="cpp">
+      <span class="tab-icon">&#9881;&#65039;</span>
+      <span><span>C++</span><span class="tab-sub">66 cards · 14 categories</span></span>
+    </a>
+    <a href="#python3" class="tab-btn" data-tab="python3">
+      <span class="tab-icon">&#128013;</span>
+      <span><span>Python3</span><span class="tab-sub">63 cards · 16 categories</span></span>
+    </a>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search tricks, patterns...">
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">&#9728;&#65039;</button>
+</div>
+
+<div class="page-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Categories</span>
+      <button class="sidebar-close" id="sidebarClose" title="Close">&times;</button>
+    </div>
+    <div class="sidebar-nav" id="navLinks"></div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrapper">
+    <div id="content"></div>
+    <div class="footer" id="footer">AlgoCode</div>
+  </div>
+</div>
+
+<button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
+
+<script defer src="js/app.js"></script>
+</body>
+</html>

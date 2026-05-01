@@ -1,0 +1,1970 @@
+<div class="cards-grid">
+
+<!-- ==================== MATH UTILITIES ==================== -->
+<div class="section-title" id="sec-math"><span class="icon">&#129518;</span> Math Utilities</div>
+<p class="section-intro">Python&rsquo;s integers have <b>arbitrary precision</b> &mdash; they never overflow. The <code>math</code> module provides float functions; <code>int</code> arithmetic uses built-in operators. <code>float</code> is 64-bit IEEE 754 (same as C <code>double</code>). Division with <code>/</code> always returns <code>float</code>; use <code>//</code> for integer (floor) division.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>No integer overflow</b> &mdash; Python ints grow to arbitrary size. No wrapping, no silent truncation, no need for <code>long</code>.
+<ul>
+<li><code>2 ** 1000</code> works perfectly &mdash; produces a 302-digit number.</li>
+<li>No <code>Integer.MAX_VALUE</code> equivalent needed. Use <code>float('inf')</code> for infinity sentinel.</li>
+</ul>
+<b>Float has limited precision</b> &mdash; ~15&ndash;17 significant digits. <code>0.1 + 0.2 != 0.3</code> due to IEEE 754 representation.
+<br><br><b><code>//</code> floors toward &minus;&infin;</b> &mdash; <code>-7 // 2 == -4</code> (not &minus;3). This differs from C/Java truncation.
+<br><br><b><code>%</code> follows floor division</b> &mdash; <code>-7 % 3 == 2</code> (not &minus;1 like C/Java). Result always has the sign of the divisor.
+<br><br><b><code>**</code> is exponentiation</b> &mdash; not <code>^</code> (which is XOR). <code>pow(base, exp, mod)</code> provides built-in modular exponentiation in O(log exp).
+<br><br><b>No built-in GCD before 3.5</b> &mdash; <code>math.gcd</code> added in 3.5; <code>math.lcm</code> added in 3.9. Both accept multiple arguments from 3.9+.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Arithmetic</td></tr>
+<tr><td>Max</td><td><code>max(a, b)</code></td>                                              <td class="tc-1">O(1)<span class="cmt">2 args; O(n) for iterable</span></td></tr>
+<tr><td>Min</td><td><code>min(a, b)</code></td>                                              <td class="tc-1">O(1)<span class="cmt">2 args; O(n) for iterable</span></td></tr>
+<tr><td>Absolute</td><td><code>abs(x)</code></td>                                            <td class="tc-1">O(1)<span class="cmt">works on any numeric</span></td></tr>
+<tr class="grp"><td colspan="3">Power &amp; Root</td></tr>
+<tr><td>Power</td><td><code>x ** n</code> / <code>pow(x, n)</code></td>                      <td class="tc-1">O(1)<span class="cmt">float; O(log n) for int</span></td></tr>
+<tr><td>Mod power</td><td><code>pow(base, exp, mod)</code></td>                               <td class="tc-logn">O(log exp)<span class="cmt">built-in 3-arg</span></td></tr>
+<tr><td>Square root</td><td><code>math.sqrt(x)</code></td>                                   <td class="tc-1">O(1)<span class="cmt">returns float</span></td></tr>
+<tr><td>Int sqrt</td><td><code>math.isqrt(x)</code></td>                                     <td class="tc-1">O(1)<span class="cmt">exact int, 3.8+; bounded-width values</span></td></tr>
+<tr class="grp"><td colspan="3">Rounding</td></tr>
+<tr><td>Floor</td><td><code>math.floor(x)</code></td>                                        <td class="tc-1">O(1)<span class="cmt">toward &minus;&infin;</span></td></tr>
+<tr><td>Ceiling</td><td><code>math.ceil(x)</code></td>                                       <td class="tc-1">O(1)<span class="cmt">toward +&infin;</span></td></tr>
+<tr><td>Round</td><td><code>round(x)</code></td>                                             <td class="tc-1">O(1)<span class="cmt">banker&rsquo;s rounding</span></td></tr>
+<tr><td>Truncate</td><td><code>math.trunc(x)</code> / <code>int(x)</code></td>               <td class="tc-1">O(1)<span class="cmt">toward zero</span></td></tr>
+<tr class="grp"><td colspan="3">Logarithms</td></tr>
+<tr><td>Natural log</td><td><code>math.log(x)</code></td>                                    <td class="tc-1">O(1)<span class="cmt">base e</span></td></tr>
+<tr><td>Log base 2</td><td><code>math.log2(x)</code></td>                                    <td class="tc-1">O(1)</td></tr>
+<tr><td>Log base 10</td><td><code>math.log10(x)</code></td>                                  <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Number Theory</td></tr>
+<tr><td>GCD</td><td><code>math.gcd(a, b)</code></td>                                         <td class="tc-logn">O(log min)<span class="cmt">3.5+</span></td></tr>
+<tr><td>LCM</td><td><code>math.lcm(a, b)</code></td>                                         <td class="tc-logn">O(log min)<span class="cmt">3.9+</span></td></tr>
+<tr class="grp"><td colspan="3">Special Values</td></tr>
+<tr><td>Infinity</td><td><code>float('inf')</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Neg infinity</td><td><code>float('-inf')</code></td>                                 <td class="tc-1">O(1)</td></tr>
+<tr><td>Is NaN</td><td><code>math.isnan(x)</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Random</td></tr>
+<tr><td>Random int</td><td><code>random.randint(a, b)</code></td>                            <td class="tc-1">O(1)<span class="cmt">[a, b] inclusive</span></td></tr>
+<tr><td>Random float</td><td><code>random.random()</code></td>                               <td class="tc-1">O(1)<span class="cmt">[0.0, 1.0)</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Math Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Arithmetic &mdash;
+max(3, 7)                              # 7
+min(3, 7)                              # 3
+abs(-5)                                # 5  (no overflow trap unlike Java)
+
+# &mdash; Power &amp; Root &mdash;
+2 ** 10                                # 1024  (exact int)
+pow(2, 10)                             # 1024  (same)
+pow(2, 10, 1000)                       # 24    (modular: 1024 % 1000)
+math.sqrt(49)                          # 7.0   (float)
+math.isqrt(49)                         # 7     (exact int, 3.8+)
+int(math.sqrt(49))                     # 7
+
+# Perfect square check (use isqrt for precision)
+sq = math.isqrt(n)
+is_perfect = sq * sq == n
+
+# &mdash; Rounding &mdash;
+math.floor(2.7)                        # 2
+math.ceil(2.1)                         # 3
+round(2.5)                             # 2  &larr; banker's rounding (rounds to even!)
+round(3.5)                             # 4
+int(2.7)                               # 2  (truncates toward zero)
+int(-2.7)                              # -2
+
+# &mdash; Logarithms &mdash;
+math.log(math.e)                       # 1.0  (natural log)
+math.log2(8)                           # 3.0
+math.log10(1000)                       # 3.0
+
+# Number of digits in n (n must be &gt; 0; log10(0) raises ValueError!)
+digits = len(str(n))                   # simplest, works for any n
+digits = math.floor(math.log10(n)) + 1 # math-based, n &gt; 0 only
+
+# &mdash; Integer division &amp; modulo &mdash;
+7 // 2                                 # 3   (floor division)
+-7 // 2                                # -4  (floors toward &minus;&infin;, NOT truncate!)
+-7 % 3                                 # 2   (sign of divisor, unlike C/Java)
+
+# &mdash; Ceiling division (positive a, b) &mdash;
+ceil_div = (a + b - 1) // b            # or -(-a // b)
+
+# &mdash; Safe infinity for DP / shortest path &mdash;
+INF = float('inf')                     # safe for comparisons, no overflow
+INF + 1                                # still inf
+INF &gt; 10**18                           # True</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">GCD, LCM, isPrime, modPow</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># GCD &mdash; built-in (3.5+)
+math.gcd(12, 8)                        # 4
+math.gcd(12, 8, 6)                     # 2  (multi-arg, 3.9+)
+
+# LCM &mdash; built-in (3.9+)
+math.lcm(4, 6)                         # 12
+math.lcm(4, 6, 10)                     # 60  (multi-arg)
+
+# LCM for &lt; 3.9
+def lcm(a, b): return a // math.gcd(a, b) * b
+
+# isPrime &mdash; trial division O(&radic;n)
+def is_prime(n):
+    if n &lt; 2: return False
+    if n &lt; 4: return True
+    if n % 2 == 0 or n % 3 == 0: return False
+    i = 5
+    while i * i &lt;= n:
+        if n % i == 0 or n % (i + 2) == 0: return False
+        i += 6
+    return True
+
+# Modular exponentiation O(log exp) &mdash; built-in!
+MOD = 1_000_000_007
+pow(base, exp, MOD)                    # built-in 3-arg pow
+
+# Safe modular add
+(a % MOD + b % MOD) % MOD
+
+# Safe modular multiply (no overflow in Python!)
+a * b % MOD</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">DP Initialization &mdash; fill with infinity</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># 1D DP with infinity
+dp = [float('inf')] * n
+dp[0] = 0  # base case
+
+# 2D DP with infinity
+dp = [[float('inf')] * cols for _ in range(rows)]
+
+# Memoization (sentinel = -1 for uncomputed)
+memo = [-1] * n
+
+# Boolean DP
+dp = [False] * (n + 1)
+dp[0] = True  # base: empty subset
+
+# Space-optimized (two variables) &mdash; House Robber pattern
+prev2, prev1 = 0, 0
+for num in nums:
+    curr = max(prev1, prev2 + num)
+    prev2 = prev1
+    prev1 = curr
+
+# @lru_cache for recursive memoization
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def solve(i, j):
+    if i &gt;= n: return 0
+    return max(solve(i + 1, j), solve(i + 1, j - 1) + val[i])</code></pre>
+</div>
+</div>
+
+<!-- Math — Common Mistakes -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Floor division with negatives</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ // floors toward -∞, NOT toward zero like C/Java
+-7 // 2                                # -4 (not -3!)
+-1 // 2                                # -1 (not 0!)
+
+# ✅ Truncation toward zero (C/Java behavior)
+int(-7 / 2)                            # -3
+math.trunc(-7 / 2)                     # -3
+
+# ❌ % follows floor division &mdash; sign of divisor
+-7 % 3                                 # 2  (not -1 like C/Java!)
+
+# This actually helps: Python modulo is always non-negative
+# when divisor is positive &mdash; no ((a % n) + n) % n needed</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">round() banker&rsquo;s rounding</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ round() rounds to nearest EVEN for .5 (banker's rounding)
+round(0.5)                             # 0  (not 1!)
+round(1.5)                             # 2  (rounds to nearest even)
+round(2.5)                             # 2  (not 3!)
+
+# ✅ For always-round-up: math.floor(x + 0.5)
+# ✅ For ceiling: math.ceil(x)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Float comparison &mdash; 0.1 + 0.2 != 0.3</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ Float comparison fails due to IEEE 754
+0.1 + 0.2 == 0.3                       # False!
+0.1 + 0.2                              # 0.30000000000000004
+
+# ✅ Use math.isclose() or epsilon
+math.isclose(0.1 + 0.2, 0.3)          # True
+abs(a - b) &lt; 1e-9                      # manual epsilon</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">INF arithmetic traps</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># float('inf') is safe for comparisons but has edge cases
+float('inf') - float('inf')           # nan (not 0!)
+float('inf') * 0                       # nan
+float('inf') == float('inf')           # True
+float('nan') == float('nan')           # False! (NaN != NaN)
+
+# ✅ For DP/shortest path, float('inf') works cleanly:
+if dist[u] + w &lt; dist[v]:             # no overflow risk
+    dist[v] = dist[u] + w</code></pre>
+</div>
+</div>
+
+<!-- ==================== TYPE CONVERSIONS ==================== -->
+<div class="section-title" id="sec-conversions"><span class="icon">&#128260;</span> Type Conversions</div>
+<p class="section-intro">Python is dynamically typed &mdash; conversions are explicit function calls. <code>int()</code>, <code>float()</code>, <code>str()</code> are the core converters. No silent truncation &mdash; invalid conversions raise <code>ValueError</code>. Python has no separate <code>char</code> type; a character is just a string of length 1.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">int &harr; str</td></tr>
+<tr><td>Int to str</td><td><code>str(n)</code></td>                                          <td class="tc-1">O(d)<span class="cmt">d = digits</span></td></tr>
+<tr><td>Str to int</td><td><code>int(s)</code></td>                                          <td class="tc-1">O(d)<span class="cmt">raises ValueError</span></td></tr>
+<tr><td>Str to float</td><td><code>float(s)</code></td>                                     <td class="tc-1">O(d)</td></tr>
+<tr class="grp"><td colspan="3">Radix conversions</td></tr>
+<tr><td>Int to binary</td><td><code>bin(n)</code></td>                                       <td class="tc-1">O(b)<span class="cmt">"0b1010"</span></td></tr>
+<tr><td>Int to hex</td><td><code>hex(n)</code></td>                                          <td class="tc-1">O(b)<span class="cmt">"0xff"</span></td></tr>
+<tr><td>Int to octal</td><td><code>oct(n)</code></td>                                        <td class="tc-1">O(b)<span class="cmt">"0o10"</span></td></tr>
+<tr><td>Parse with radix</td><td><code>int(s, base)</code></td>                              <td class="tc-1">O(d)</td></tr>
+<tr class="grp"><td colspan="3">char &harr; int</td></tr>
+<tr><td>Char to int</td><td><code>ord(c)</code></td>                                         <td class="tc-1">O(1)<span class="cmt">Unicode code point</span></td></tr>
+<tr><td>Int to char</td><td><code>chr(n)</code></td>                                         <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Collection conversions</td></tr>
+<tr><td>Str to list</td><td><code>list(s)</code></td>                                        <td class="tc-n">O(n)<span class="cmt">list of chars</span></td></tr>
+<tr><td>List to str</td><td><code>"".join(lst)</code></td>                                   <td class="tc-n">O(n)</td></tr>
+<tr><td>Tuple to list</td><td><code>list(t)</code></td>                                      <td class="tc-n">O(n)</td></tr>
+<tr><td>List to tuple</td><td><code>tuple(lst)</code></td>                                   <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common Conversions</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; int &harr; str &mdash;
+str(42)                                # "42"
+int("42")                              # 42
+float("3.14")                          # 3.14
+f"{42:05d}"                            # "00042"  (formatted)
+
+# &mdash; char &harr; int (alphabet index) &mdash;
+ord('c') - ord('a')                    # 2
+ord('7') - ord('0')                    # 7
+chr(ord('a') + 2)                      # 'c'
+ord('A')                               # 65
+
+# &mdash; Radix conversions &mdash;
+bin(10)                                # "0b1010"
+hex(255)                               # "0xff"
+oct(8)                                 # "0o10"
+int("1010", 2)                         # 10
+int("ff", 16)                          # 255
+int("10", 8)                           # 8
+f"{10:b}"                              # "1010" (no prefix)
+f"{255:x}"                             # "ff"   (no prefix)
+
+# &mdash; str &harr; list of chars &mdash;
+list("hello")                          # ['h', 'e', 'l', 'l', 'o']
+"".join(['h', 'i'])                    # "hi"
+
+# &mdash; Boolean &mdash;
+bool(0)                                # False
+bool("")                               # False
+bool([])                               # False
+bool(None)                             # False
+bool(1)                                # True  (any non-zero)
+bool("hi")                             # True  (any non-empty)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">int() truncates toward zero</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># int() on float truncates toward zero (like C), not floor
+int(2.9)                               # 2  (not 3)
+int(-2.9)                              # -2 (not -3)
+int(-0.5)                              # 0
+
+# ✅ Use math.floor / math.ceil for directional rounding
+math.floor(-2.9)                       # -3
+math.ceil(-2.9)                        # -2
+
+# ⚠ int("3.14") raises ValueError &mdash; must use float() first
+int(float("3.14"))                     # 3</code></pre>
+</div>
+</div>
+
+<!-- ==================== CHARACTER / STRING OPS ==================== -->
+<div class="section-title" id="sec-char"><span class="icon">&#128288;</span> Character Operations</div>
+<p class="section-intro">Python has no <code>char</code> type &mdash; a character is a <code>str</code> of length 1. Use <code>ord()</code> and <code>chr()</code> for Unicode conversions. String methods like <code>isdigit()</code>, <code>isalpha()</code> work on single characters too.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Classification</td></tr>
+<tr><td>Is digit</td><td><code>c.isdigit()</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Is letter</td><td><code>c.isalpha()</code></td>                                     <td class="tc-1">O(1)</td></tr>
+<tr><td>Is alphanumeric</td><td><code>c.isalnum()</code></td>                                <td class="tc-1">O(1)</td></tr>
+<tr><td>Is space</td><td><code>c.isspace()</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Is upper</td><td><code>c.isupper()</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Is lower</td><td><code>c.islower()</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Conversion</td></tr>
+<tr><td>To upper</td><td><code>c.upper()</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>To lower</td><td><code>c.lower()</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>Char to int</td><td><code>ord(c)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+<tr><td>Int to char</td><td><code>chr(n)</code></td>                                        <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Character Checks &amp; Case Conversion</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">'7'.isdigit()                          # True
+'A'.isalpha()                          # True
+'3'.isalnum()                          # True
+' '.isspace()                          # True
+'A'.isupper()                          # True
+'a'.islower()                          # True
+
+# Inline ASCII checks (tight loops):
+'a' &lt;= c &lt;= 'z'                       # lowercase
+'A' &lt;= c &lt;= 'Z'                       # uppercase
+'0' &lt;= c &lt;= '9'                       # digit
+
+c.upper()                              # 'a' &rarr; 'A'
+c.lower()                              # 'A' &rarr; 'a'
+
+# Bit-level case tricks (ASCII letters only):
+chr(ord(c) | 32)                       # force lowercase
+chr(ord(c) &amp; 95)                       # force uppercase
+chr(ord(c) ^ 32)                       # toggle case
+
+# Vowel check
+c.lower() in 'aeiou'                   # pythonic
+c.lower() in {'a', 'e', 'i', 'o', 'u'} # O(1) set lookup</code></pre>
+</div>
+</div>
+
+<!-- ==================== BIT MANIPULATION ==================== -->
+<div class="section-title" id="sec-bits"><span class="icon">&#9889;</span> Bit Manipulation</div>
+<p class="section-intro">Python integers have <b>arbitrary width</b> &mdash; no 32/64-bit boundary. <code>&amp;</code> AND, <code>|</code> OR, <code>^</code> XOR, <code>~</code> NOT, <code>&lt;&lt;</code> left shift, <code>&gt;&gt;</code> right shift. <b><code>^</code> is XOR</b> (not power &mdash; use <code>**</code>). <code>~n</code> returns <code>-(n+1)</code> due to arbitrary-width two&rsquo;s complement. <code>bin()</code> gives the binary string.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>No fixed bit width</b> &mdash; Python ints grow as needed. <code>~0</code> is <code>-1</code> (not <code>0xFFFFFFFF</code>). To get 32-bit behavior, mask with <code>&amp; 0xFFFFFFFF</code>.
+<br><br><b><code>^</code> is XOR, not power</b> &mdash; <code>2 ^ 3 == 1</code> (XOR), not 8. Use <code>2 ** 3</code> for exponentiation.
+<br><br><b><code>~n == -(n+1)</code></b> &mdash; arbitrary-precision NOT. <code>~5</code> is <code>-6</code>, not some large positive number.
+<br><br><b><code>&gt;&gt;</code> is always arithmetic</b> &mdash; no unsigned right shift (<code>&gt;&gt;&gt;</code>). For unsigned behavior, mask first: <code>(n &amp; 0xFFFFFFFF) &gt;&gt; k</code>.
+<br><br><b><code>int.bit_count()</code></b> &mdash; popcount built-in (3.10+). Before 3.10, use <code>bin(n).count('1')</code>.
+<br><br><b><code>int.bit_length()</code></b> &mdash; number of bits needed to represent value (excluding sign).
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Single-bit</td></tr>
+<tr><td>Check bit i</td><td><code>(n &gt;&gt; i) &amp; 1</code></td>                                  <td class="tc-1">O(1)</td></tr>
+<tr><td>Set bit i</td><td><code>n | (1 &lt;&lt; i)</code></td>                                      <td class="tc-1">O(1)</td></tr>
+<tr><td>Clear bit i</td><td><code>n &amp; ~(1 &lt;&lt; i)</code></td>                                  <td class="tc-1">O(1)</td></tr>
+<tr><td>Toggle bit i</td><td><code>n ^ (1 &lt;&lt; i)</code></td>                                    <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Intrinsics</td></tr>
+<tr><td>Pop count</td><td><code>n.bit_count()</code></td>                                    <td class="tc-1">O(1)<span class="cmt">3.10+</span></td></tr>
+<tr><td>Pop count</td><td><code>bin(n).count('1')</code></td>                                <td class="tc-1">O(b)<span class="cmt">any version</span></td></tr>
+<tr><td>Bit length</td><td><code>n.bit_length()</code></td>                                  <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Common tricks</td></tr>
+<tr><td>Lowest set bit</td><td><code>n &amp; (-n)</code></td>                                    <td class="tc-1">O(1)</td></tr>
+<tr><td>Clear lowest set</td><td><code>n &amp; (n - 1)</code></td>                               <td class="tc-1">O(1)<span class="cmt">Kernighan&rsquo;s</span></td></tr>
+<tr><td>Power of 2</td><td><code>n &gt; 0 and (n &amp; (n - 1)) == 0</code></td>                 <td class="tc-1">O(1)</td></tr>
+<tr><td>Bitmask n bits</td><td><code>(1 &lt;&lt; n) - 1</code></td>                                <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Bit Operations, XOR &amp; Subset Enumeration</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Single-bit operations &mdash;
+(n &gt;&gt; i) &amp; 1                           # check bit i
+n | (1 &lt;&lt; i)                           # set bit i
+n &amp; ~(1 &lt;&lt; i)                          # clear bit i
+n ^ (1 &lt;&lt; i)                           # toggle bit i
+
+# &mdash; Lowest set bit, Kernighan's &mdash;
+n &amp; (-n)                               # isolate rightmost 1: 12(1100) &rarr; 4(0100)
+n &amp; (n - 1)                            # clear lowest set bit
+
+# Count set bits
+bin(n).count('1')                      # any version
+n.bit_count()                          # 3.10+
+
+# &mdash; Shifts, even/odd &mdash;
+n &lt;&lt; k                                 # n &times; 2^k
+n &gt;&gt; k                                 # n &divide; 2^k (arithmetic, floors)
+n &amp; 1 == 0                             # even
+n &amp; 1 == 1                             # odd
+
+# &mdash; XOR rules &mdash;
+a ^ 0 == a                             # unchanged
+a ^ a == 0                             # self-cancels &larr; key for Single Number
+a ^ b ^ a == b                         # associative + self-cancel
+
+# &mdash; Swap without temp &mdash;
+a, b = b, a                            # Pythonic swap (no XOR trick needed)
+
+# &mdash; Bitmask &amp; subset enumeration &mdash;
+(1 &lt;&lt; n) - 1                           # n=4 &rarr; 0b1111 = 15
+
+sub = mask
+while sub &gt; 0:
+    # process sub
+    sub = (sub - 1) &amp; mask
+# don't forget empty subset (sub = 0)
+
+# &mdash; 32-bit mask (for LeetCode problems expecting 32-bit) &mdash;
+n &amp; 0xFFFFFFFF                         # simulate unsigned 32-bit</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">^ is XOR not power</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ Common mistake: ^ is XOR in Python, not exponentiation
+2 ^ 3                                  # 1  (XOR: 10 ^ 11 = 01)
+
+# ✅ Use ** for power
+2 ** 3                                 # 8</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Negative numbers &amp; bit operations</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Python ints have infinite precision &mdash; ~0 is -1, not 0xFFFFFFFF
+~0                                     # -1
+~5                                     # -6  (-(5+1))
+bin(-5)                                # '-0b101'  (shows negative sign)
+
+# For 32-bit problems (e.g. LeetCode Reverse Bits):
+# ✅ Mask with 0xFFFFFFFF to simulate 32-bit unsigned
+n = -1
+n &amp; 0xFFFFFFFF                         # 4294967295 (0xFFFFFFFF)</code></pre>
+</div>
+</div>
+
+<!-- ==================== LISTS ==================== -->
+<div class="section-title" id="sec-list"><span class="icon">&#128203;</span> Lists</div>
+<p class="section-intro">Python lists are <b>dynamic arrays</b> &mdash; contiguous, resizable, heterogeneous. <code>append</code> is amortized O(1); <code>insert</code>/<code>pop(0)</code> are O(n). For O(1) deque operations, use <code>collections.deque</code>. Lists are <b>mutable</b> and passed by reference.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Initialization</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Empty list
+arr = []
+arr = list()
+
+# Pre-filled
+arr = [0] * n                          # [0, 0, ..., 0]
+arr = [1, 2, 3]
+
+# List comprehension
+arr = [i * 2 for i in range(5)]        # [0, 2, 4, 6, 8]
+arr = [0 for _ in range(n)]            # same as [0] * n
+
+# 2D list
+grid = [[0] * cols for _ in range(rows)]
+
+# ❌ 2D trap: shared reference
+grid = [[0] * cols] * rows             # all rows point to SAME list!
+
+# From string / iterable
+list("hello")                          # ['h', 'e', 'l', 'l', 'o']
+list(range(5))                         # [0, 1, 2, 3, 4]</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Mutable &amp; passed by reference</b> &mdash; assigning a list to another variable creates an alias, not a copy. Mutations through one alias affect the other.
+<ul>
+<li><code>len(lst)</code> is O(1) &mdash; stored as an attribute.</li>
+<li>Default empty: <code>[]</code>. Check with <code>if not lst:</code> or <code>if len(lst) == 0:</code></li>
+</ul>
+<b>Negative indexing</b> &mdash; <code>lst[-1]</code> is the last element, <code>lst[-2]</code> second to last. No <code>IndexError</code> unless out of range.
+<br><br><b>Slicing creates a copy</b> &mdash; <code>lst[i:j]</code> returns a new list (shallow copy). <code>lst[:]</code> copies the entire list.
+<br><br><b><code>[x] * n</code> shares references for mutable objects</b> &mdash; <code>[[]] * 3</code> creates three references to the SAME inner list. Use comprehension instead.
+<br><br><b>Lists are comparable</b> &mdash; <code>==</code> compares element-by-element (value comparison). <code>&lt;</code> / <code>&gt;</code> use lexicographic order.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Access</td></tr>
+<tr><td>Length</td><td><code>len(lst)</code></td>                                            <td class="tc-1">O(1)</td></tr>
+<tr><td>Index</td><td><code>lst[i]</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Slice</td><td><code>lst[i:j]</code></td>                                            <td class="tc-n">O(k)<span class="cmt">k = j-i, creates copy</span></td></tr>
+<tr class="grp"><td colspan="3">Modify</td></tr>
+<tr><td>Append</td><td><code>lst.append(x)</code></td>                                      <td class="tc-1">O(1)*<span class="cmt">amortized</span></td></tr>
+<tr><td>Extend</td><td><code>lst.extend(other)</code></td>                                   <td class="tc-n">O(m)</td></tr>
+<tr><td>Insert at i</td><td><code>lst.insert(i, x)</code></td>                               <td class="tc-n">O(n)</td></tr>
+<tr><td>Pop end</td><td><code>lst.pop()</code></td>                                          <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop at i</td><td><code>lst.pop(i)</code></td>                                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Remove val</td><td><code>lst.remove(x)</code></td>                                   <td class="tc-n">O(n)<span class="cmt">first occurrence</span></td></tr>
+<tr><td>Delete at i</td><td><code>del lst[i]</code></td>                                     <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Search</td></tr>
+<tr><td>Contains</td><td><code>x in lst</code></td>                                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Index of</td><td><code>lst.index(x)</code></td>                                      <td class="tc-n">O(n)<span class="cmt">raises if missing</span></td></tr>
+<tr><td>Count</td><td><code>lst.count(x)</code></td>                                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Binary</td><td><code>bisect.bisect_left(lst, x)</code></td>                          <td class="tc-logn">O(log n)<span class="cmt">must be sorted</span></td></tr>
+<tr class="grp"><td colspan="3">Sort &amp; Transform</td></tr>
+<tr><td>Sort in-place</td><td><code>lst.sort()</code></td>                                   <td class="tc-nlogn">O(n log n)<span class="cmt">TimSort, stable</span></td></tr>
+<tr><td>Sorted copy</td><td><code>sorted(lst)</code></td>                                    <td class="tc-nlogn">O(n log n)</td></tr>
+<tr><td>Reverse</td><td><code>lst.reverse()</code></td>                                      <td class="tc-n">O(n)<span class="cmt">in-place</span></td></tr>
+<tr><td>Reversed copy</td><td><code>lst[::-1]</code></td>                                    <td class="tc-n">O(n)</td></tr>
+<tr><td>Copy</td><td><code>lst.copy()</code> / <code>lst[:]</code></td>                      <td class="tc-n">O(n)<span class="cmt">shallow</span></td></tr>
+<tr><td>Min</td><td><code>min(lst)</code></td>                                               <td class="tc-n">O(n)</td></tr>
+<tr><td>Max</td><td><code>max(lst)</code></td>                                               <td class="tc-n">O(n)</td></tr>
+<tr><td>Sum</td><td><code>sum(lst)</code></td>                                               <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common List Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Sort &mdash;
+arr.sort()                             # ascending, in-place
+arr.sort(reverse=True)                 # descending
+sorted(arr)                            # returns new sorted list
+
+# Sort 2D by first element
+intervals.sort(key=lambda x: x[0])
+
+# Sort by multiple keys
+intervals.sort(key=lambda x: (x[0], -x[1]))  # asc by [0], desc by [1]
+
+# Sort by string length
+words.sort(key=len)
+
+# &mdash; Copy &mdash;
+cp = arr[:]                            # shallow copy
+cp = arr.copy()                        # same
+cp = list(arr)                         # same
+
+# 2D deep copy
+import copy
+cp2d = copy.deepcopy(grid)
+# or manually:
+cp2d = [row[:] for row in grid]
+
+# &mdash; Aggregate &mdash;
+sum(arr)                               # total
+min(arr)                               # minimum
+max(arr)                               # maximum
+
+# &mdash; Reverse in-place &mdash;
+arr.reverse()
+arr[::-1]                              # reversed copy
+
+# &mdash; Shuffle &mdash;
+import random
+random.shuffle(arr)                    # in-place
+
+# &mdash; Remove at index &mdash;
+arr.pop(i)                             # O(n), returns removed element
+del arr[i]                             # O(n), no return
+
+# &mdash; Rotate left by k &mdash;
+k %= len(arr)
+arr = arr[k:] + arr[:k]
+
+# &mdash; Remove duplicates (preserve order) &mdash;
+arr = list(dict.fromkeys(arr))
+
+# &mdash; Remove duplicates (sorted) &mdash;
+arr = sorted(set(arr))
+
+# &mdash; Flatten 2D &mdash;
+flat = [x for row in grid for x in row]
+
+# &mdash; Zip &mdash;
+list(zip([1, 2], ['a', 'b']))          # [(1, 'a'), (2, 'b')]
+list(zip(*matrix))                     # transpose
+
+# &mdash; Enumerate &mdash;
+for i, val in enumerate(arr):          # index + value
+    pass
+
+# &mdash; Print &mdash;
+print(arr)                             # [1, 2, 3]</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">2D list &mdash; shared reference trap</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ All rows point to the SAME inner list
+grid = [[0] * 3] * 3
+grid[0][0] = 1
+print(grid)                            # [[1,0,0], [1,0,0], [1,0,0]]  all changed!
+
+# ✅ Use list comprehension &mdash; each row is independent
+grid = [[0] * 3 for _ in range(3)]
+grid[0][0] = 1
+print(grid)                            # [[1,0,0], [0,0,0], [0,0,0]]  correct</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Empty list / single element</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ✅ Guard before any logic
+if not nums: return ...
+if len(nums) &lt; 2: return nums[0]
+
+# Kadane's: init with nums[0], loop from i=1 &rarr; needs guard
+# Two pointers: right = len(nums)-1 &rarr; -1 if empty
+# Fixed window: k &gt; n &rarr; index out of range</code></pre>
+</div>
+</div>
+
+<!-- ==================== STRING ==================== -->
+<div class="section-title" id="sec-string"><span class="icon">&#128221;</span> String Operations</div>
+<p class="section-intro">Python strings are <b>immutable sequences</b> of Unicode characters. Every modification returns a new string. Use <code>list(s)</code> for mutation, then <code>"".join(lst)</code> to convert back. <code>==</code> compares by value (no <code>.equals()</code> trap). String concatenation in a loop is O(n&sup2;) &mdash; use <code>"".join()</code> or list building instead.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Immutable</b> &mdash; strings cannot be modified in place. <code>s[0] = 'X'</code> raises <code>TypeError</code>. Convert to list, modify, join back.
+<br><br><b><code>==</code> is value comparison</b> &mdash; no <code>.equals()</code> needed like Java. <code>"abc" == "abc"</code> is <code>True</code>.
+<br><br><b>Negative indexing</b> &mdash; <code>s[-1]</code> is the last character. <code>s[::-1]</code> reverses the string.
+<br><br><b>Slicing never raises IndexError</b> &mdash; <code>s[100:200]</code> on a 5-char string returns <code>""</code>. Only direct indexing (<code>s[100]</code>) raises.
+<br><br><b><code>"".split()</code> vs <code>"".split(",")</code></b> &mdash; <code>"".split()</code> returns <code>[]</code> (empty list). <code>"".split(",")</code> returns <code>[""]</code> (list with one empty string).
+<br><br><b>f-strings</b> &mdash; <code>f"{var}"</code> is the preferred formatting method (3.6+). Faster than <code>%</code> and <code>.format()</code>.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Access</td></tr>
+<tr><td>Length</td><td><code>len(s)</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Char at i</td><td><code>s[i]</code></td>                                            <td class="tc-1">O(1)</td></tr>
+<tr><td>Substring</td><td><code>s[i:j]</code></td>                                          <td class="tc-n">O(k)<span class="cmt">k = j-i, copy</span></td></tr>
+<tr><td>IsEmpty</td><td><code>not s</code> / <code>len(s) == 0</code></td>                   <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Search</td></tr>
+<tr><td>Contains</td><td><code>sub in s</code></td>                                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Find</td><td><code>s.find(sub)</code></td>                                          <td class="tc-n">O(n&middot;m)<span class="cmt">&minus;1 if not found</span></td></tr>
+<tr><td>Index</td><td><code>s.index(sub)</code></td>                                        <td class="tc-n">O(n&middot;m)<span class="cmt">raises if not found</span></td></tr>
+<tr><td>Count</td><td><code>s.count(sub)</code></td>                                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Starts with</td><td><code>s.startswith(pre)</code></td>                              <td class="tc-1">O(k)</td></tr>
+<tr><td>Ends with</td><td><code>s.endswith(suf)</code></td>                                  <td class="tc-1">O(k)</td></tr>
+<tr class="grp"><td colspan="3">Transform</td></tr>
+<tr><td>Lower</td><td><code>s.lower()</code></td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Upper</td><td><code>s.upper()</code></td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Strip</td><td><code>s.strip()</code></td>                                           <td class="tc-n">O(n)</td></tr>
+<tr><td>Replace</td><td><code>s.replace(old, new)</code></td>                               <td class="tc-n">O(n)</td></tr>
+<tr><td>Split</td><td><code>s.split(sep)</code></td>                                        <td class="tc-n">O(n)</td></tr>
+<tr><td>Join</td><td><code>sep.join(lst)</code></td>                                        <td class="tc-n">O(n)</td></tr>
+<tr class="grp"><td colspan="3">Comparison</td></tr>
+<tr><td>Equals</td><td><code>s1 == s2</code></td>                                           <td class="tc-n">O(n)<span class="cmt">value comparison</span></td></tr>
+<tr><td>Compare</td><td><code>s1 &lt; s2</code></td>                                        <td class="tc-n">O(n)<span class="cmt">lexicographic</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Common String Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Access &mdash;
+len(s)                                 # length
+s[i]                                   # char at index
+s[i:j]                                 # substring [i, j)
+s[-1]                                  # last char
+s[::-1]                                # reversed string
+
+# &mdash; Search &mdash;
+s.find("sub")                          # first index, -1 if not found
+s.rfind("sub")                         # last index, -1 if not found
+s.index("sub")                         # first index, raises ValueError
+"sub" in s                             # boolean
+s.startswith("pre")                    # starts with
+s.endswith("suf")                      # ends with
+s.count("a")                           # count occurrences
+
+# &mdash; Transform &mdash;
+s.lower()                              # lowercase
+s.upper()                              # uppercase
+s.strip()                              # trim whitespace both ends
+s.lstrip()                             # trim left
+s.rstrip()                             # trim right
+s.replace("old", "new")               # replace all
+s.replace("old", "new", 1)            # replace first only
+s.split(",")                           # split by separator
+s.split()                              # split by any whitespace
+",".join(["a", "b", "c"])             # "a,b,c"
+"ab" * 3                               # "ababab"
+
+# &mdash; Mutate via list &mdash;
+chars = list(s)
+chars[0] = 'X'
+s = "".join(chars)
+
+# &mdash; Reverse (via slicing) &mdash;
+s[::-1]                                # "hello" &rarr; "olleh"
+
+# &mdash; Anagram key &mdash;
+key = "".join(sorted(s))               # sorted chars
+key = tuple(sorted(s))                 # tuple key for dict
+
+# Frequency array key (no sort needed)
+freq = [0] * 26
+for c in s: freq[ord(c) - ord('a')] += 1
+key = tuple(freq)                      # hashable key for dict
+
+# &mdash; Regex &mdash;
+import re
+re.findall(r'\d+', "a1b2c3")          # ['1', '2', '3']
+re.match(r'^[a-z]+$', s)              # match from start
+re.sub(r'\s+', ' ', s)                # replace multiple spaces</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">String concatenation in loop &mdash; O(n&sup2;)</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ O(n²) &mdash; each += creates a new string
+result = ""
+for c in chars:
+    result += c                        # quadratic!
+
+# ✅ O(n) &mdash; build list, join at end
+parts = []
+for c in chars:
+    parts.append(c)
+result = "".join(parts)
+
+# ✅ Or use list comprehension
+result = "".join(c for c in chars)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">split() vs split(sep) on empty string</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ⚠ Completely different behavior!
+"".split()                             # []      (empty list)
+"".split(",")                          # [""]    (list with one empty string!)
+
+# "a,,b".split(",") returns ["a", "", "b"] &mdash; empties between delims
+# "a  b".split()    returns ["a", "b"]  &mdash; no empties (collapses whitespace)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Palindrome definition &mdash; empty, spaces</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Empty string &rarr; palindrome (True)
+# Single char &rarr; palindrome (True)
+
+# Valid Palindrome: strip non-alphanumeric, lowercase
+def is_palindrome(s):
+    clean = [c.lower() for c in s if c.isalnum()]
+    return clean == clean[::-1]
+
+# Two-pointer (no extra space):
+def is_palindrome(s):
+    l, r = 0, len(s) - 1
+    while l &lt; r:
+        while l &lt; r and not s[l].isalnum(): l += 1
+        while l &lt; r and not s[r].isalnum(): r -= 1
+        if s[l].lower() != s[r].lower(): return False
+        l += 1; r -= 1
+    return True</code></pre>
+</div>
+</div>
+
+<!-- ==================== SORT & COMPARATORS ==================== -->
+<div class="section-title" id="sec-sort"><span class="icon">&#128202;</span> Sort &amp; Comparators</div>
+<p class="section-intro">Python&rsquo;s <code>sorted()</code> and <code>list.sort()</code> use <b>TimSort</b> (stable, O(n log n)). Sort by <code>key=</code> function &mdash; no subtraction-based comparators. For custom comparison logic, use <code>functools.cmp_to_key</code>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Sorting Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Sort ascending
+arr.sort()                             # in-place
+sorted(arr)                            # new list
+
+# Sort descending
+arr.sort(reverse=True)
+sorted(arr, reverse=True)
+
+# Sort by key function
+arr.sort(key=lambda x: x[0])          # by first element
+arr.sort(key=abs)                      # by absolute value
+arr.sort(key=len)                      # by length
+
+# Multi-key sort: asc by start, desc by end
+intervals.sort(key=lambda x: (x[0], -x[1]))
+
+# Largest Number #179 &mdash; concat comparison
+from functools import cmp_to_key
+strs.sort(key=cmp_to_key(lambda a, b: (b+a &gt; a+b) - (b+a &lt; a+b)))
+
+# Stable sort &mdash; TimSort is always stable
+# Equal elements preserve their original order
+
+# Check if sorted
+all(arr[i] &lt;= arr[i+1] for i in range(len(arr)-1))
+
+# Sort dict by value
+sorted(d.items(), key=lambda x: x[1])
+
+# Sort with None handling
+arr.sort(key=lambda x: (x is None, x))  # None goes last
+
+# Next permutation (no built-in, implement manually)
+# Or use itertools.permutations for all permutations</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">key= vs cmp_to_key &mdash; when to use which</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ✅ key= for simple transformations (preferred)
+arr.sort(key=lambda x: -x)            # descending
+arr.sort(key=lambda x: (x[0], -x[1])) # multi-key
+
+# ✅ cmp_to_key when comparison is pairwise (e.g. concatenation)
+from functools import cmp_to_key
+def compare(a, b):
+    if a + b &gt; b + a: return -1        # a should come first
+    elif a + b &lt; b + a: return 1
+    return 0
+strs.sort(key=cmp_to_key(compare))
+
+# ⚠ cmp_to_key is slower &mdash; prefer key= when possible</code></pre>
+</div>
+</div>
+
+<!-- ==================== SEARCHING ==================== -->
+<div class="section-title" id="sec-searching"><span class="icon">&#128269;</span> Searching</div>
+<p class="section-intro">Python&rsquo;s <code>bisect</code> module provides binary search on sorted sequences. <code>bisect_left</code> returns the leftmost insertion point; <code>bisect_right</code> returns the rightmost. No built-in &ldquo;found&rdquo; boolean &mdash; check the value at the returned index.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Binary Search (sorted input)</td></tr>
+<tr><td>Lower bound</td><td><code>bisect.bisect_left(a, x)</code></td>                      <td class="tc-logn">O(log n)<span class="cmt">first &ge; x</span></td></tr>
+<tr><td>Upper bound</td><td><code>bisect.bisect_right(a, x)</code></td>                     <td class="tc-logn">O(log n)<span class="cmt">first &gt; x</span></td></tr>
+<tr><td>Insert sorted</td><td><code>bisect.insort(a, x)</code></td>                         <td class="tc-n">O(n)<span class="cmt">search O(log n) + shift O(n)</span></td></tr>
+<tr class="grp"><td colspan="3">Linear Search</td></tr>
+<tr><td>Contains</td><td><code>x in lst</code></td>                                         <td class="tc-n">O(n)</td></tr>
+<tr><td>Find index</td><td><code>lst.index(x)</code></td>                                    <td class="tc-n">O(n)<span class="cmt">raises if missing</span></td></tr>
+<tr><td>Min</td><td><code>min(lst)</code></td>                                               <td class="tc-n">O(n)</td></tr>
+<tr><td>Max</td><td><code>max(lst)</code></td>                                               <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Binary Search &amp; Rotated Array</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import bisect
+
+# Binary search (sorted list)
+idx = bisect.bisect_left(sorted_arr, target)
+found = idx &lt; len(sorted_arr) and sorted_arr[idx] == target
+
+# Lower / upper bound
+lb = bisect.bisect_left(arr, target)   # first index where arr[i] &gt;= target
+ub = bisect.bisect_right(arr, target)  # first index where arr[i] &gt; target
+count = ub - lb                        # number of occurrences of target
+
+# Find minimum in rotated sorted array
+def find_min(nums):
+    lo, hi = 0, len(nums) - 1
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if nums[mid] &gt; nums[hi]:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
+
+# Search in rotated array
+def search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target: return mid
+        if nums[lo] &lt;= nums[mid]:
+            if nums[lo] &lt;= target &lt; nums[mid]:
+                hi = mid - 1
+            else: lo = mid + 1
+        else:
+            if nums[mid] &lt; target &lt;= nums[hi]:
+                lo = mid + 1
+            else: hi = mid - 1
+    return -1</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Infinite loop: lo = mid</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ No progress when lo=0, hi=1: mid=0, lo stays 0
+while lo &lt; hi:
+    mid = (lo + hi) // 2
+    if valid(mid): hi = mid
+    else: lo = mid                     # INFINITE LOOP!
+
+# ✅ Always advance by at least 1
+    else: lo = mid + 1
+
+# Rule: lo &lt; hi  &rarr; boundary-finding
+# Rule: lo &lt;= hi &rarr; exact-match</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Search-on-answer wrong boundaries</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># lo/hi must cover the complete valid range!
+
+# Koko Eating Bananas:
+lo = 1                                 # minimum possible rate
+hi = max(piles)                        # one pile per hour
+
+# Capacity to Ship:
+lo = max(weights)                      # must fit heaviest package
+hi = sum(weights)                      # ship everything in one day
+
+# is_feasible must be strictly monotone!</code></pre>
+</div>
+</div>
+
+<!-- ==================== DICT & SET ==================== -->
+<div class="section-title" id="sec-map"><span class="icon">&#128451;&#65039;</span> Dict &amp; Set</div>
+<p class="section-intro"><code>dict</code> is a hash map with O(1) average access, <b>insertion-ordered</b> since Python 3.7. <code>set</code> is a hash set with O(1) membership test. Keys must be <b>hashable</b> (immutable): int, str, tuple &mdash; not list or dict. <code>collections.defaultdict</code> and <code>collections.Counter</code> simplify common patterns.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Dict</td></tr>
+<tr><td>Put</td><td><code>d[key] = val</code></td>                                          <td class="tc-1">O(1)<span class="cmt">avg</span></td></tr>
+<tr><td>Get</td><td><code>d[key]</code></td>                                                <td class="tc-1">O(1)<span class="cmt">KeyError if missing</span></td></tr>
+<tr><td>Get + default</td><td><code>d.get(key, default)</code></td>                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Delete</td><td><code>del d[key]</code></td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Contains</td><td><code>key in d</code></td>                                         <td class="tc-1">O(1)</td></tr>
+<tr><td>Size</td><td><code>len(d)</code></td>                                               <td class="tc-1">O(1)</td></tr>
+<tr><td>Keys</td><td><code>d.keys()</code></td>                                             <td class="tc-1">O(1)<span class="cmt">view object</span></td></tr>
+<tr><td>Values</td><td><code>d.values()</code></td>                                         <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Items</td><td><code>d.items()</code></td>                                           <td class="tc-1">O(1)<span class="cmt">view</span></td></tr>
+<tr><td>Pop</td><td><code>d.pop(key, default)</code></td>                                   <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="3">Set</td></tr>
+<tr><td>Add</td><td><code>s.add(x)</code></td>                                              <td class="tc-1">O(1)</td></tr>
+<tr><td>Contains</td><td><code>x in s</code></td>                                           <td class="tc-1">O(1)</td></tr>
+<tr><td>Remove</td><td><code>s.discard(x)</code></td>                                       <td class="tc-1">O(1)<span class="cmt">no error if missing</span></td></tr>
+<tr><td>Remove</td><td><code>s.remove(x)</code></td>                                        <td class="tc-1">O(1)<span class="cmt">KeyError if missing</span></td></tr>
+<tr><td>Size</td><td><code>len(s)</code></td>                                               <td class="tc-1">O(1)</td></tr>
+<tr><td>Union</td><td><code>s1 | s2</code></td>                                             <td class="tc-n">O(n+m)</td></tr>
+<tr><td>Intersection</td><td><code>s1 &amp; s2</code></td>                                  <td class="tc-n">O(min(n,m))</td></tr>
+<tr><td>Difference</td><td><code>s1 - s2</code></td>                                        <td class="tc-n">O(n)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Dict, Set &amp; Counter Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Dict operations &mdash;
+d = {}
+d[key] = val                           # put
+val = d[key]                           # get (KeyError if missing)
+val = d.get(key, 0)                    # get with default
+del d[key]                             # remove
+key in d                               # contains
+len(d)                                 # size
+
+# Frequency counting
+freq = {}
+for n in nums: freq[n] = freq.get(n, 0) + 1
+
+# &mdash; defaultdict (auto-creates missing keys) &mdash;
+from collections import defaultdict
+freq = defaultdict(int)
+for n in nums: freq[n] += 1           # no KeyError
+
+groups = defaultdict(list)
+for key, item in items: groups[key].append(item)
+
+# &mdash; Counter (frequency Swiss army knife) &mdash;
+from collections import Counter
+freq = Counter(nums)                   # {1: 3, 2: 2, ...}
+freq.most_common(k)                    # top-k [(val, count), ...]
+freq[missing_key]                      # 0 (no KeyError)
+freq1 == freq2                         # True if same frequencies
+
+# Decrement and remove if zero
+freq[key] -= 1
+if freq[key] == 0: del freq[key]
+
+# &mdash; Set operations &mdash;
+s = set()
+s = {1, 2, 3}
+s.add(x)                              # add
+s.discard(x)                          # remove (no error)
+x in s                                 # contains
+s1 | s2                                # union
+s1 &amp; s2                                # intersection
+s1 - s2                                # difference
+s1 ^ s2                                # symmetric difference
+
+# Set from list
+s = set(arr)
+
+# Visited pattern (BFS/DFS)
+visited = set()
+if node not in visited:
+    visited.add(node)
+
+# &mdash; Ordered iteration (dict is insertion-ordered 3.7+) &mdash;
+for k, v in d.items(): pass            # insertion order
+for k in sorted(d): pass               # sorted keys
+
+# &mdash; frozenset (hashable set, usable as dict key) &mdash;
+fs = frozenset([1, 2, 3])
+d[fs] = "value"                        # frozenset as key</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable default argument trap</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ Default list/dict is shared across all calls
+def add(val, lst=[]):
+    lst.append(val)
+    return lst
+add(1)                                 # [1]
+add(2)                                 # [1, 2]  &mdash; NOT [2]!
+
+# ✅ Use None as sentinel
+def add(val, lst=None):
+    if lst is None: lst = []
+    lst.append(val)
+    return lst</code></pre>
+</div>
+</div>
+
+<!-- ==================== HEAP / PRIORITY QUEUE ==================== -->
+<div class="section-title" id="sec-heap"><span class="icon">&#9935;&#65039;</span> Heap / Priority Queue</div>
+<p class="section-intro">Python&rsquo;s <code>heapq</code> module provides a <b>min-heap</b> only. For max-heap, negate values. The heap is just a regular list maintained by <code>heapq</code> functions. Supports tuples for multi-key priority (compared element-by-element).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td>Heapify</td><td><code>heapq.heapify(lst)</code></td>                                <td class="tc-n">O(n)</td></tr>
+<tr><td>Push</td><td><code>heapq.heappush(h, x)</code></td>                                 <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Pop (min)</td><td><code>heapq.heappop(h)</code></td>                                 <td class="tc-logn">O(log n)</td></tr>
+<tr><td>Push + Pop</td><td><code>heapq.heappushpop(h, x)</code></td>                        <td class="tc-logn">O(log n)<span class="cmt">push then pop</span></td></tr>
+<tr><td>Pop + Push</td><td><code>heapq.heapreplace(h, x)</code></td>                        <td class="tc-logn">O(log n)<span class="cmt">pop then push</span></td></tr>
+<tr><td>Peek</td><td><code>h[0]</code></td>                                                  <td class="tc-1">O(1)</td></tr>
+<tr><td>Size</td><td><code>len(h)</code></td>                                                <td class="tc-1">O(1)</td></tr>
+<tr><td>N smallest</td><td><code>heapq.nsmallest(k, lst)</code></td>                        <td class="tc-nlogn">O(n log k)</td></tr>
+<tr><td>N largest</td><td><code>heapq.nlargest(k, lst)</code></td>                          <td class="tc-nlogn">O(n log k)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">MinHeap, MaxHeap &amp; Custom Priority</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import heapq
+
+# &mdash; Min-heap &mdash;
+h = []
+heapq.heappush(h, 5)
+heapq.heappush(h, 3)
+heapq.heappush(h, 7)
+top = heapq.heappop(h)                # 3 (smallest)
+peek = h[0]                            # peek without removing
+
+# Heapify existing list
+arr = [5, 3, 7, 1]
+heapq.heapify(arr)                     # O(n), arr is now a valid heap
+
+# &mdash; Max-heap (negate values) &mdash;
+heapq.heappush(h, -val)               # push negated
+top = -heapq.heappop(h)               # pop and negate back
+
+# &mdash; Tuple heap (multi-key, compared element-by-element) &mdash;
+# Dijkstra: (distance, node)
+heapq.heappush(h, (dist, node))
+d, u = heapq.heappop(h)
+
+# Frequency-based: (-freq, val) for max-freq first
+for val, cnt in freq.items():
+    heapq.heappush(h, (-cnt, val))
+
+# &mdash; Top-K via heap &mdash;
+h = []
+for v in data:
+    heapq.heappush(h, v)
+    if len(h) &gt; k:
+        heapq.heappop(h)              # evict smallest
+# h now holds the k largest elements
+
+# &mdash; Merge sorted lists &mdash;
+merged = list(heapq.merge(sorted1, sorted2))</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Max-heap &mdash; forgetting to negate</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ heapq is ALWAYS min-heap
+heapq.heappush(h, val)
+top = heapq.heappop(h)                # returns SMALLEST
+
+# ✅ Negate for max-heap
+heapq.heappush(h, -val)
+top = -heapq.heappop(h)               # returns LARGEST
+
+# ⚠ With tuples: negate the priority, not the value
+heapq.heappush(h, (-priority, value))
+p, v = heapq.heappop(h)
+actual_priority = -p</code></pre>
+</div>
+</div>
+
+<!-- ==================== STACK / QUEUE / DEQUE ==================== -->
+<div class="section-title" id="sec-stack"><span class="icon">&#128218;</span> Stack / Queue / Deque</div>
+<p class="section-intro">Use <b>list</b> as a stack (append/pop are O(1)). For queues, use <code>collections.deque</code> &mdash; O(1) on both ends. Never use <code>list.pop(0)</code> for queue dequeue &mdash; it&rsquo;s O(n). <code>deque</code> also serves as a deque with <code>appendleft</code>/<code>popleft</code>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Operations &amp; Time Complexity</span>
+</div>
+<div class="card-body">
+<table class="ctable ctable-cmp">
+<thead><tr><th>Category</th><th>Operation</th><th>list</th><th>deque</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Stack (LIFO)</td></tr>
+<tr><td>Push</td><td><code>append(x)</code></td>                  <td class="tc-1">O(1)*</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Peek</td><td><code>[-1]</code></td>                       <td class="tc-1">O(1)</td>       <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop</td><td><code>pop()</code></td>                       <td class="tc-1">O(1)</td>       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Queue (FIFO)</td></tr>
+<tr><td>Enqueue</td><td><code>append(x)</code></td>               <td class="tc-1">O(1)*</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Peek</td><td><code>[0]</code></td>                        <td class="tc-1">O(1)</td>       <td class="tc-1">O(1)</td></tr>
+<tr><td>Dequeue</td><td><code>pop(0) / popleft()</code></td>      <td class="tc-n">O(n)</td>       <td class="tc-1">O(1)</td></tr>
+<tr class="grp"><td colspan="4">Deque</td></tr>
+<tr><td>Push front</td><td><code>appendleft(x)</code></td>        <td class="tc-n">O(n)</td>       <td class="tc-1">O(1)</td></tr>
+<tr><td>Push back</td><td><code>append(x)</code></td>             <td class="tc-1">O(1)*</td>      <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop front</td><td><code>popleft()</code></td>             <td class="tc-n">O(n)</td>       <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop back</td><td><code>pop()</code></td>                  <td class="tc-1">O(1)</td>       <td class="tc-1">O(1)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Stack, Queue, Deque &amp; Sliding Window Max</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">from collections import deque
+
+# &mdash; Stack via list &mdash;
+stack = []
+stack.append(x)                        # push
+top = stack[-1]                        # peek
+stack.pop()                            # pop
+not stack                              # isEmpty
+
+# &mdash; Queue via deque (NOT list.pop(0)!) &mdash;
+queue = deque()
+queue.append(x)                        # enqueue
+front = queue[0]                       # peek
+queue.popleft()                        # dequeue O(1)
+not queue                              # isEmpty
+
+# &mdash; Deque &mdash;
+dq = deque()
+dq.append(x)                          # push back
+dq.appendleft(x)                      # push front
+dq.pop()                              # pop back
+dq.popleft()                          # pop front
+dq[0]                                  # peek front
+dq[-1]                                 # peek back
+
+# Deque with max length (auto-evicts from opposite end)
+dq = deque(maxlen=k)
+
+# &mdash; Sliding window maximum (monotonic decreasing deque) &mdash;
+dq = deque()                           # stores indices
+result = []
+for i, num in enumerate(nums):
+    while dq and nums[dq[-1]] &lt; num:
+        dq.pop()                       # remove smaller from back
+    dq.append(i)
+    if dq[0] &lt;= i - k:
+        dq.popleft()                   # out of window
+    if i &gt;= k - 1:
+        result.append(nums[dq[0]])</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">OrderedDict &mdash; LRU Cache Pattern</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">from collections import OrderedDict
+
+# LRU cache via OrderedDict
+class LRU:
+    def __init__(self, cap):
+        self.cap = cap
+        self.cache = OrderedDict()
+
+    def get(self, key):
+        if key not in self.cache: return -1
+        self.cache.move_to_end(key)    # mark as recently used
+        return self.cache[key]
+
+    def put(self, key, val):
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = val
+        if len(self.cache) &gt; self.cap:
+            self.cache.popitem(last=False)  # evict oldest
+
+# Or use @functools.lru_cache for function memoization</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">list.pop(0) is O(n) &mdash; use deque</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ O(n) per dequeue &mdash; shifts all elements
+queue = []
+queue.append(x)
+queue.pop(0)                           # O(n)!
+
+# ✅ O(1) per dequeue
+from collections import deque
+queue = deque()
+queue.append(x)
+queue.popleft()                        # O(1)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Pop/peek on empty &mdash; IndexError</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ IndexError on empty
+stack[-1]                              # IndexError
+stack.pop()                            # IndexError
+deque().popleft()                      # IndexError
+
+# ✅ Always check before accessing
+if stack: top = stack[-1]
+if queue: front = queue[0]</code></pre>
+</div>
+</div>
+
+<!-- ==================== GRID / MATRIX ==================== -->
+<div class="section-title" id="sec-grid"><span class="icon">&#128306;</span> Grid / Matrix</div>
+<p class="section-intro">Common patterns for 2D grid traversal, coordinate conversion, and matrix transforms. Direction arrays avoid repetitive if-else chains.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Directions, Bounds &amp; Traversal</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># 4-directional (up, right, down, left)
+DIRS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+# 8-directional (includes diagonals)
+DIRS8 = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+# Bounds check
+def in_bounds(r, c, rows, cols):
+    return 0 &lt;= r &lt; rows and 0 &lt;= c &lt; cols
+
+for dr, dc in DIRS:
+    nr, nc = r + dr, c + dc
+    if in_bounds(nr, nc, rows, cols):
+        pass  # valid neighbor
+
+# 2D &harr; 1D index
+idx = r * cols + c
+r, c = divmod(idx, cols)
+
+# Transpose
+list(zip(*matrix))                     # returns list of tuples
+[[row[i] for row in matrix] for i in range(len(matrix[0]))]
+
+# Rotate 90&deg; clockwise = transpose + reverse each row
+rotated = [list(row)[::-1] for row in zip(*matrix)]
+
+# Spiral traversal: 4 boundaries shrinking
+top, bot, left, right = 0, m - 1, 0, n - 1
+while top &lt;= bot and left &lt;= right:
+    # &rarr; top row, &darr; right col, &larr; bottom row, &uarr; left col
+    top += 1; right -= 1; bot -= 1; left += 1
+
+# Diagonal properties:
+# Same diagonal:      r - c  is constant
+# Same anti-diagonal: r + c  is constant
+
+# Grid DFS (4-directional)
+def dfs(grid, vis, r, c):
+    if not in_bounds(r, c, len(grid), len(grid[0])) or vis[r][c]:
+        return
+    vis[r][c] = True
+    for dr, dc in DIRS:
+        dfs(grid, vis, r + dr, c + dc)</code></pre>
+</div>
+</div>
+
+<!-- ==================== LINKED LIST / TREE / GRAPH ==================== -->
+<div class="section-title" id="sec-ds"><span class="icon">&#129521;</span> Linked List / Tree / Graph</div>
+<p class="section-intro">Standard node definitions and templates for linked lists, trees, tries, and graphs. Edge cases for each are the most common source of wrong answers in DSA problems.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Node Definitions &amp; Graph Building</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
+
+# Adjacency list &mdash; unweighted undirected
+from collections import defaultdict
+adj = defaultdict(list)
+for u, v in edges:
+    adj[u].append(v)
+    adj[v].append(u)                   # omit for directed
+
+# Weighted: {neighbor: weight}
+adj = defaultdict(list)
+for u, v, w in edges:
+    adj[u].append((v, w))
+
+# In-degree array (for Kahn's topo sort)
+in_deg = [0] * n
+for u, v in edges: in_deg[v] += 1
+
+# Union-Find (DSU) with path compression + union by rank
+parent = list(range(n))
+rank = [0] * n
+
+def find(x):
+    if parent[x] != x:
+        parent[x] = find(parent[x])   # path compression
+    return parent[x]
+
+def union(x, y):
+    px, py = find(x), find(y)
+    if px == py: return False
+    if rank[px] &lt; rank[py]: px, py = py, px
+    parent[py] = px
+    if rank[px] == rank[py]: rank[px] += 1
+    return True</code></pre>
+</div>
+</div>
+
+<!-- Linked List edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Linked list None guard &amp; dummy head</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">if not head: return None
+if not head.next: return head
+
+# Iterate safely
+while curr:
+    curr = curr.next
+
+# Dummy head avoids None checks for head insertion/deletion
+dummy = ListNode(0, head)
+# ... work with dummy ...
+return dummy.next</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Fast/slow None check &amp; reverse</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ✅ Short-circuit: fast checked before fast.next
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+
+# ✅ Reverse: save next before overwriting
+nxt = curr.next                        # 1. save
+curr.next = prev                       # 2. reverse
+prev = curr                            # 3. advance prev
+curr = nxt                             # 4. advance curr
+
+# Floyd's cycle: phase 2 &mdash; find cycle start
+ptr = head
+while ptr != slow:
+    ptr = ptr.next
+    slow = slow.next
+return ptr                             # cycle entry point</code></pre>
+</div>
+</div>
+
+<!-- Tree edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Tree None guard &amp; BST validate</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># DFS base case &mdash; always first line
+if not node: return 0
+
+# BFS start
+if not root: return result
+
+# BST validate &mdash; use float('inf') bounds (no overflow in Python!)
+def validate(n, lo, hi):
+    if not n: return True
+    if n.val &lt;= lo or n.val &gt;= hi: return False
+    return validate(n.left, lo, n.val) and validate(n.right, n.val, hi)
+validate(root, float('-inf'), float('inf'))
+
+# Max Path Sum: init to -inf (not 0!)
+ans = float('-inf')
+
+# Skewed tree (n=10^5 all left): use iterative to avoid stack overflow
+# Python default recursion limit is 1000!
+import sys
+sys.setrecursionlimit(200000)          # increase for deep recursion</code></pre>
+</div>
+</div>
+
+<!-- Graph edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Graph &mdash; disconnected, Dijkstra, undirected DFS</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ Only visits component containing node 0
+dfs(graph, 0, visited)
+# ✅ Start from every unvisited node
+for i in range(n):
+    if i not in visited:
+        dfs(graph, i, visited)
+        components += 1
+
+# Dijkstra: must skip stale entries
+d, u = heapq.heappop(h)
+if d &gt; dist[u]: continue
+
+# Dijkstra: unreachable nodes
+if dist[dst] == float('inf'): return -1
+# ❌ Dijkstra with negative weights &rarr; use Bellman-Ford
+
+# Undirected DFS: ignore parent, not all visited neighbors
+if neighbor == parent: continue
+if neighbor in visited: return True    # real cycle
+# For directed: use 3-state (unvisited / in-stack / done)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Python recursion limit &mdash; deep trees/graphs</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ Python default recursion limit is 1000
+# Deep DFS on n=100000 nodes &rarr; RecursionError!
+
+# ✅ Increase limit
+import sys
+sys.setrecursionlimit(300000)
+
+# ✅ Or convert to iterative with explicit stack
+stack = [root]
+while stack:
+    node = stack.pop()
+    if node.right: stack.append(node.right)
+    if node.left: stack.append(node.left)</code></pre>
+</div>
+</div>
+
+<!-- ==================== ALGORITHM PATTERNS ==================== -->
+<div class="section-title" id="sec-patterns"><span class="icon">&#127919;</span> Algorithm Patterns</div>
+<p class="section-intro">Common patterns for sliding window, DP, backtracking, and palindrome that appear across many DSA problems. Edge cases from these patterns are the most frequent source of wrong answers.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Palindrome, Result Patterns &amp; Frequency Arrays</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; String palindrome (two pointers) &mdash;
+l, r = 0, len(s) - 1
+while l &lt; r:
+    if s[l] != s[r]: return False
+    l += 1; r -= 1
+
+# &mdash; Integer palindrome (no string conversion) &mdash;
+if x &lt; 0 or (x % 10 == 0 and x != 0): return False
+rev = 0
+while x &gt; rev:
+    rev = rev * 10 + x % 10
+    x //= 10
+return x == rev or x == rev // 10
+
+# &mdash; Expand around center (longest palindrome) &mdash;
+def expand(s, l, r):
+    while l &gt;= 0 and r &lt; len(s) and s[l] == s[r]:
+        l -= 1; r += 1
+    return r - l - 1
+
+# &mdash; Find minimum / maximum &mdash;
+ans = float('inf')
+ans = min(ans, candidate)
+
+# &mdash; Collect results: always copy the list! &mdash;
+result.append(current[:])             # shallow copy via slicing
+result.append(list(current))          # or list() constructor
+
+# &mdash; Frequency arrays &mdash;
+freq = [0] * 26                        # 26 lowercase letters
+for c in s: freq[ord(c) - ord('a')] += 1
+
+# Or use Counter
+from collections import Counter
+freq = Counter(s)
+
+# &mdash; Early-return checklist &mdash;
+if not nums: return ...                # empty list
+if not s: return ...                   # empty string
+if not root: return ...                # None tree
+if not head: return head               # None linked list
+if k &gt; len(nums): return 0             # window too large</code></pre>
+</div>
+</div>
+
+<!-- Sliding Window edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Sliding window &mdash; k &gt; n, matches counter</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">if k &gt; len(nums): return 0
+if len(p) &gt; len(s): return False       # Permutation In String
+
+# Matches counter &mdash; increment only at exact boundary
+if window[c] == need[c]: formed += 1
+
+# Decrement only when crossing below threshold
+window[lc] -= 1
+if window[lc] &lt; need[lc]: formed -= 1</code></pre>
+</div>
+</div>
+
+<!-- DP edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">DP &mdash; base case, circular, knapsack direction</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Climbing Stairs: n=1 &rarr; dp[i-2] accesses dp[-1] (valid in Python, but wrong!)
+if n &lt;= 1: return n
+
+# Decode Ways: s[0]='0' &rarr; 0 ways immediately
+# Coin Change: amount=0 &rarr; 0 (no coins needed)
+# Edit Distance: dp[i][0]=i, dp[0][j]=j &rarr; don't forget!
+
+# House Robber II: can't use first and last together
+if len(nums) == 1: return nums[0]
+return max(rob(nums[:-1]), rob(nums[1:]))
+
+# Unbounded (Coin Change): each coin reusable &rarr; loop FORWARD
+for coin in coins:
+    for j in range(coin, amount + 1):
+        dp[j] = min(dp[j], dp[j - coin] + 1)
+
+# 0/1 Knapsack: each item once &rarr; loop BACKWARD
+for w, v in items:
+    for j in range(W, w - 1, -1):
+        dp[j] = max(dp[j], dp[j - w] + v)</code></pre>
+</div>
+</div>
+
+<!-- Backtracking edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Backtracking &mdash; snapshot &amp; duplicate skip</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># ❌ All results point to the SAME list object
+result.append(current)
+# ✅ Always copy on add
+result.append(current[:])              # slice copy
+result.append(list(current))           # list copy
+
+# ❌ i &gt; 0: skips valid combinations (too aggressive)
+if i &gt; 0 and nums[i] == nums[i - 1]: continue
+# ✅ i &gt; start: only skip duplicates at same recursion level
+if i &gt; start and nums[i] == nums[i - 1]: continue
+# MUST sort array first!
+nums.sort()</code></pre>
+</div>
+</div>
+
+<!-- Value edge cases -->
+<div class="card">
+<div class="card-header">
+  <span class="card-title">All negatives, zeros, duplicates</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Kadane's: ❌ init max_so_far = 0 &rarr; [-3,-1,-2] wrongly returns 0
+# ✅ Init from first element
+max_so_far = curr = nums[0]
+
+# Max Product [2,3,0,4]: zero resets the subarray
+# Product Except Self with zero: 2+ zeros &rarr; all products are zero
+
+# 3Sum [0,0,0] &rarr; duplicate skip avoids repeated i starts, not valid triples
+# if i &gt; 0 and nums[i] == nums[i-1]: continue
+
+# Longest Consecutive [1,1,1] &rarr; answer=1 (not 3); use set
+
+# Rotated Sorted Array II [1,1,1,1]: can't determine sorted half
+if nums[lo] == nums[mid] == nums[hi]:
+    lo += 1; hi -= 1                   # linear fallback</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Off-by-one &amp; return value conventions</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Subarray length: right - left + 1
+# Substring s[i:j]: [i, j), length = j - i
+
+# for l &lt; r  vs  for l &lt;= r
+# Binary search: lo &lt;= hi for exact-match
+# Binary search: lo &lt; hi  for boundary-finding
+
+# Return conventions:
+# Binary Search not found    &rarr; -1
+# Coin Change impossible     &rarr; -1 (NOT 0!)
+# Min Window no window       &rarr; ""
+# Subsets: empty set []      &rarr; valid result
+
+# ⚠ Python negative indexing: s[-1] is valid (last char)
+# This means s[right] with right=-1 does NOT crash &mdash;
+# it silently returns the wrong element!</code></pre>
+</div>
+</div>
+
+<!-- ==================== ITERTOOLS & FUNCTOOLS ==================== -->
+<div class="section-title" id="sec-itertools"><span class="icon">&#128295;</span> itertools &amp; functools</div>
+<p class="section-intro">Python&rsquo;s <code>itertools</code> provides combinatoric generators and lazy iterators. <code>functools</code> provides <code>lru_cache</code> for memoization and <code>cmp_to_key</code> for custom sorting. These are essential for competitive programming and interviews.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">itertools, functools &amp; Common Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import itertools
+from functools import lru_cache, cmp_to_key
+
+# &mdash; Combinatorics &mdash;
+itertools.permutations([1,2,3])        # all 3! = 6 permutations
+itertools.permutations([1,2,3], 2)     # 2-length permutations (P(3,2) = 6)
+itertools.combinations([1,2,3], 2)     # C(3,2) = 3: (1,2),(1,3),(2,3)
+itertools.combinations_with_replacement([1,2], 2)  # (1,1),(1,2),(2,2)
+itertools.product([0,1], repeat=3)     # all 2^3 = 8 binary strings
+
+# &mdash; Iterators &mdash;
+itertools.chain([1,2], [3,4])          # 1, 2, 3, 4  (flatten)
+itertools.accumulate([1,2,3,4])        # 1, 3, 6, 10 (prefix sums)
+itertools.groupby(sorted(data), key=lambda x: x[0])  # group by first element
+itertools.zip_longest([1,2], [3])      # (1,3), (2,None)
+
+# &mdash; Memoization &mdash;
+@lru_cache(maxsize=None)
+def fib(n):
+    if n &lt; 2: return n
+    return fib(n - 1) + fib(n - 2)
+
+# ⚠ lru_cache only works with hashable arguments
+# Lists &rarr; convert to tuple first
+# Clear cache: fib.cache_clear()
+
+# &mdash; Prefix sums via accumulate &mdash;
+from itertools import accumulate
+prefix = list(accumulate(nums))        # [a, a+b, a+b+c, ...]
+prefix = [0] + list(accumulate(nums))  # 0-indexed prefix sum
+
+# &mdash; Enumerate from 1 &mdash;
+for i, val in enumerate(arr, 1): pass  # i starts at 1</code></pre>
+</div>
+</div>
+
+<!-- ==================== I/O & FORMATTING ==================== -->
+<div class="section-title" id="sec-io"><span class="icon">&#128193;</span> I/O &amp; Formatting</div>
+<p class="section-intro">The <code>print()</code> function and f-strings handle most output. For fast input in competitive programming, use <code>sys.stdin</code>. <code>input()</code> strips the trailing newline automatically.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Print, Input &amp; File I/O</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Print &mdash;
+print("hello", 42)                     # hello 42
+print(f"name={name} age={age}")        # f-string (3.6+)
+print(f"{3.14159:.2f}")                # "3.14"
+print(*arr, sep=", ")                  # 1, 2, 3
+print(arr)                             # [1, 2, 3]
+print("no newline", end="")            # suppress newline
+
+# &mdash; Input &mdash;
+s = input()                            # read line (str)
+n = int(input())                       # read int
+a, b = map(int, input().split())       # read two ints
+arr = list(map(int, input().split()))  # read int array
+
+# Fast input for competitive programming
+import sys
+input = sys.stdin.readline             # much faster
+
+# &mdash; File I/O &mdash;
+with open("file.txt") as f:
+    data = f.read()                    # entire file as string
+    lines = data.splitlines()          # list of lines (from already-read data)
+
+with open("file.txt", "w") as f:
+    f.write("hello\n")
+
+# &mdash; String formatting &mdash;
+f"{42:05d}"                            # "00042"  (zero-padded)
+f"{255:08b}"                           # "11111111" (binary, 8-wide)
+f"{255:#x}"                            # "0xff"   (hex with prefix)
+f"{3.14:.4f}"                          # "3.1400" (4 decimal places)</code></pre>
+</div>
+</div>
+
+</div><!-- end cards-grid -->

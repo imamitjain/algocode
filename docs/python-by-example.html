@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>Python by Example — AlgoCode</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" id="hljs-theme"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/severity.css">
+<script>
+(function() {
+  var s = localStorage.getItem('theme') || 'dark';
+  if (s !== 'dark') {
+    document.documentElement.setAttribute('data-theme', s);
+    var l = document.getElementById('hljs-theme');
+    if (l) l.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  }
+})();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="hamburger" id="hamburger" title="Categories">&#9776;</button>
+  <span class="logo"><span class="logo-text">Algo<span>Code</span></span></span>
+  <div class="header-tabs">
+    <a href="index.html#java" class="tab-btn">
+      <span class="tab-icon">&#9749;</span>
+      <span>Java</span>
+    </a>
+    <a href="index.html#golang" class="tab-btn">
+      <span class="tab-icon">&#128039;</span>
+      <span>Golang</span>
+    </a>
+    <a href="index.html#cpp" class="tab-btn">
+      <span class="tab-icon">&#9881;&#65039;</span>
+      <span>C++</span>
+    </a>
+    <a href="index.html#python3" class="tab-btn active">
+      <span class="tab-icon">&#128013;</span>
+      <span>Python3</span>
+    </a>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search classes, decorators, generators...">
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme"></button>
+</div>
+
+<div class="page-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Categories</span>
+      <button class="sidebar-close" id="sidebarClose" title="Close">&times;</button>
+    </div>
+    <div class="sidebar-nav" id="navLinks"></div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrapper">
+    <div id="content">
+    <div class="main">
+    <div class="cards-grid">
+
+<!-- ==================== UNPACKING ==================== -->
+<div class="section-title" id="sec-unpacking"><span class="icon">&#128230;</span> Unpacking &amp; Starred Expressions</div>
+<p class="section-intro">Python destructures any iterable into variables. <code>*</code> collects remainders into a list. <code>*args</code>/<code>**kwargs</code> capture variable positional/keyword arguments.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Basic unpacking</b> &mdash; works with tuples, lists, strings, ranges, any iterable.
+<br><br><b>Starred expression</b> &mdash; <code>*rest</code> collects leftover elements into a list. Only one <code>*var</code> per assignment.
+<br><br><b><code>*args</code></b> collects extra positional arguments as a tuple; <b><code>**kwargs</code></b> collects extra keyword arguments as a dict.
+<br><br><b>Splat operator</b> &mdash; <code>*iterable</code> unpacks into function calls; <code>**dict</code> unpacks keyword arguments.
+<br><br><b>Nested unpacking</b> &mdash; destructures inner structures: <code>(a, b), (c, d) = (1, 2), (3, 4)</code>.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Unpacking Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic unpacking &mdash;
+a, b, c = (1, 2, 3)               # a=1, b=2, c=3
+x, y = [10, 20]                   # works with lists
+first, second, third = "abc"      # works with strings
+a, b = b, a                       # swap without temp
+
+# &mdash; Starred expressions &mdash;
+first, *rest = [1, 2, 3, 4, 5]    # first=1, rest=[2,3,4,5]
+first, *mid, last = [1, 2, 3, 4]  # first=1, mid=[2,3], last=4
+*head, tail = range(5)             # head=[0,1,2,3], tail=4
+
+# &mdash; *args and **kwargs &mdash;
+def func(*args, **kwargs):
+    print(args)                    # (1, 2, 3)
+    print(kwargs)                  # {'x': 10, 'y': 20}
+
+func(1, 2, 3, x=10, y=20)
+
+# &mdash; Splat in function calls &mdash;
+nums = [1, 2, 3]
+opts = {"sep": "-", "end": "\n"}
+print(*nums, **opts)               # 1-2-3
+
+# &mdash; Nested unpacking &mdash;
+(a, b), (c, d) = (1, 2), (3, 4)   # a=1, b=2, c=3, d=4
+
+pairs = [(1, "a"), (2, "b")]
+for i, (num, letter) in enumerate(pairs):
+    print(i, num, letter)          # 0 1 a, 1 2 b</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Unpacking mismatch &mdash; ValueError</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Too few / too many values raises ValueError
+a, b = [1, 2, 3]                  # ValueError: too many values
+a, b, c = [1, 2]                  # ValueError: not enough values
+
+# &#x2705; Use starred expression to absorb extras
+a, *_ = [1, 2, 3]                 # a=1, _ discarded</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable default in function args</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Default list/dict is shared across ALL calls
+def append(val, lst=[]):
+    lst.append(val)
+    return lst
+append(1)                          # [1]
+append(2)                          # [1, 2]  &larr; same list!
+
+# &#x2705; Use None sentinel
+def append(val, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(val)
+    return lst</code></pre>
+</div>
+</div>
+
+<!-- ==================== LAMBDA ==================== -->
+<div class="section-title" id="sec-lambda"><span class="icon">&#9889;</span> Lambda &amp; Higher-Order Functions</div>
+<p class="section-intro">Lambdas are anonymous single-expression functions. <code>map</code>, <code>filter</code>, <code>reduce</code> take functions as arguments. For sort keys and inline callbacks, see the <b>Sort &amp; Comparators</b> section in the main Python3 tab.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Lambda, map, filter, reduce</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Lambda &mdash; single expression, no statements
+square = lambda x: x ** 2
+add = lambda a, b: a + b
+square(5)                              # 25
+add(3, 4)                             # 7
+
+# &mdash; map(fn, iterable) &mdash; lazy iterator
+list(map(lambda x: x**2, [1,2,3,4])) # [1, 4, 9, 16]
+list(map(str, [1, 2, 3]))            # ['1', '2', '3']
+# Prefer comprehension: [x**2 for x in nums]
+
+# &mdash; filter(fn, iterable) &mdash; keeps truthy results
+list(filter(lambda x: x % 2 == 0, range(10)))
+                                      # [0, 2, 4, 6, 8]
+# Prefer comprehension: [x for x in range(10) if x % 2 == 0]
+
+# &mdash; functools.reduce &mdash; folds into single value
+from functools import reduce
+reduce(lambda a, b: a * b, [1,2,3,4]) # 24  ((1*2)*3)*4
+reduce(lambda a, b: a + b, [1,2,3], 100)
+                                      # 106  (100+1+2+3)</code></pre>
+</div>
+</div>
+
+<!-- ==================== CLOSURES ==================== -->
+<div class="section-title" id="sec-closures"><span class="icon">&#128274;</span> Closures &amp; Scoping</div>
+<p class="section-intro">Python resolves names using the <b>LEGB rule</b>: Local &rarr; Enclosing &rarr; Global &rarr; Built-in. Closures capture variables from enclosing scopes by <b>reference</b>, not by value.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>LEGB</b> &mdash; Local scope (inside current function), Enclosing scope (outer function), Global scope (module level), Built-in scope (<code>len</code>, <code>print</code>, etc.).
+<br><br><b>Closure</b> &mdash; an inner function that remembers variables from its enclosing scope even after the outer function returns.
+<br><br><b><code>nonlocal</code></b> &mdash; allows an inner function to rebind a variable in the enclosing scope. Without it, assignment creates a new local.
+<br><br><b><code>global</code></b> &mdash; allows a function to rebind a module-level variable.
+<br><br><b>Late binding</b> &mdash; closures capture the variable <i>reference</i>, not the value. All lambdas in a loop share the final loop variable.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Closures &amp; nonlocal</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Closure: inner function remembers enclosing variables &mdash;
+def make_multiplier(factor):
+    def multiply(x):
+        return x * factor         # captures 'factor' by reference
+    return multiply
+
+double = make_multiplier(2)
+triple = make_multiplier(3)
+double(5)                          # 10
+triple(5)                          # 15
+
+# &mdash; nonlocal: rebind enclosing variable &mdash;
+def counter():
+    count = 0
+    def increment():
+        nonlocal count             # without this, count += 1 fails
+        count += 1
+        return count
+    return increment
+
+c = counter()
+c()                                # 1
+c()                                # 2
+c()                                # 3</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Late binding &mdash; closures in loops</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; All lambdas see the final value of i
+funcs = [lambda: i for i in range(3)]
+[f() for f in funcs]               # [2, 2, 2]
+
+# &#x2705; Default argument captures current value
+funcs = [lambda i=i: i for i in range(3)]
+[f() for f in funcs]               # [0, 1, 2]</code></pre>
+</div>
+</div>
+
+<!-- ==================== DECORATORS ==================== -->
+<div class="section-title" id="sec-decorators"><span class="icon">&#127873;</span> Decorators</div>
+<p class="section-intro">A decorator takes a function (or class) and returns a modified version. <code>@decorator</code> is syntactic sugar for <code>fn = decorator(fn)</code>. Always use <code>@functools.wraps</code> to preserve the original function&rsquo;s name and docstring.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Decorator Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">from functools import wraps
+
+# &mdash; Basic decorator &mdash;
+def log_calls(func):
+    @wraps(func)                       # preserves func.__name__, __doc__
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+@log_calls
+def add(a, b):
+    return a + b
+add(3, 4)                              # prints "Calling add", returns 7
+
+# &mdash; Decorator with arguments (extra nesting) &mdash;
+def repeat(n):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for _ in range(n):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
+
+@repeat(3)
+def greet(name):
+    print(f"Hello {name}")
+greet("World")                         # prints 3 times
+
+# &mdash; Timer decorator &mdash;
+import time
+def timer(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        print(f"{func.__name__} took {elapsed:.4f}s")
+        return result
+    return wrapper
+
+# &mdash; Stacking (applied bottom-up) &mdash;
+@log_calls
+@timer
+def process(): pass
+# Equivalent to: process = log_calls(timer(process))</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Missing @wraps &mdash; metadata lost</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Without @wraps, the decorated function loses its identity
+def bad_decorator(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@bad_decorator
+def my_func(): pass
+my_func.__name__                       # 'wrapper'  &larr; wrong!
+
+# &#x2705; @wraps copies name, docstring, module
+from functools import wraps
+def good_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper</code></pre>
+</div>
+</div>
+
+<!-- ==================== ITERATORS & GENERATORS ==================== -->
+<div class="section-title" id="sec-itergen"><span class="icon">&#128260;</span> Iterators &amp; Generators</div>
+<p class="section-intro">An <b>iterator</b> implements <code>__iter__</code> + <code>__next__</code>. A <b>generator</b> is a function that uses <code>yield</code> to produce values lazily, pausing between each. Generators are iterators. Use generator expressions <code>(x for x in ...)</code> for memory-efficient pipelines.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Iterator protocol</b> &mdash; <code>__iter__</code> returns self; <code>__next__</code> returns the next value or raises <code>StopIteration</code>.
+<br><br><b>Iterable vs Iterator</b> &mdash; a list is iterable (<code>__iter__</code> returns a fresh iterator each time). An iterator is consumed after one pass.
+<br><br><b><code>yield</code></b> &mdash; turns a function into a generator. Each <code>next()</code> runs until the next <code>yield</code>, then pauses.
+<br><br><b><code>yield from</code></b> &mdash; delegates to another iterator. Flattens nested generation.
+<br><br><b><code>send()</code></b> &mdash; pushes a value into a paused generator; the sent value becomes the result of the <code>yield</code> expression.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Iterator Protocol &amp; Custom Iterator</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Manual iteration &mdash;
+nums = [1, 2, 3]
+it = iter(nums)
+next(it)                               # 1
+next(it)                               # 2
+next(it)                               # 3
+# next(it)                             # StopIteration
+
+# &mdash; Custom iterator class &mdash;
+class Countdown:
+    def __init__(self, start):
+        self.current = start
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.current &lt;= 0:
+            raise StopIteration
+        val = self.current
+        self.current -= 1
+        return val
+
+list(Countdown(5))                     # [5, 4, 3, 2, 1]
+
+# &mdash; Iterators are consumed &mdash;
+it = iter([1, 2, 3])
+list(it)                               # [1, 2, 3]
+list(it)                               # []  &larr; exhausted</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Generators, yield from &amp; send</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic generator &mdash;
+def countdown(n):
+    while n &gt; 0:
+        yield n
+        n -= 1
+
+list(countdown(5))                     # [5, 4, 3, 2, 1]
+
+# &mdash; Infinite generator with islice &mdash;
+def fibonacci():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+from itertools import islice
+list(islice(fibonacci(), 8))           # [0, 1, 1, 2, 3, 5, 8, 13]
+
+# &mdash; yield from (delegate to sub-generator) &mdash;
+def flatten(nested):
+    for item in nested:
+        if isinstance(item, list):
+            yield from flatten(item)   # delegates recursively
+        else:
+            yield item
+
+list(flatten([1, [2, [3, 4], 5], 6])) # [1, 2, 3, 4, 5, 6]
+
+# &mdash; Generator expression (lazy, no list in memory) &mdash;
+total = sum(x**2 for x in range(1_000_000))
+any(len(w) &gt; 10 for w in words)
+
+# &mdash; send() &mdash; push value into generator &mdash;
+def accumulator():
+    total = 0
+    while True:
+        value = yield total
+        total += value
+
+acc = accumulator()
+next(acc)                              # 0   (prime the generator)
+acc.send(10)                           # 10
+acc.send(20)                           # 30</code></pre>
+</div>
+</div>
+
+<!-- ==================== CLASSES ==================== -->
+<div class="section-title" id="sec-classes"><span class="icon">&#128736;</span> Classes &amp; OOP</div>
+<p class="section-intro">Classes bundle data and behavior. <code>__init__</code> is the initializer. <code>self</code> is the instance, passed explicitly as the first argument. Python classes are dynamic &mdash; attributes can be added at runtime.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Class Basics, classmethod, staticmethod</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic class &mdash;
+class Point:
+    def __init__(self, x, y):
+        self.x = x                     # instance attribute
+        self.y = y
+
+    def distance(self, other):
+        return ((self.x - other.x)**2 +
+                (self.y - other.y)**2) ** 0.5
+
+p = Point(3, 4)
+q = Point(0, 0)
+p.distance(q)                          # 5.0
+
+# &mdash; Class vs instance attributes &mdash;
+class Dog:
+    species = "Canis familiaris"        # class attr (shared)
+    def __init__(self, name):
+        self.name = name               # instance attr (per-object)
+
+Dog.species                            # "Canis familiaris"
+
+# &mdash; @classmethod (alternative constructor) &mdash;
+class Date:
+    def __init__(self, year, month, day):
+        self.year, self.month, self.day = year, month, day
+
+    @classmethod
+    def from_string(cls, s):           # receives class, not instance
+        y, m, d = map(int, s.split("-"))
+        return cls(y, m, d)
+
+    @staticmethod
+    def is_valid(s):                   # no cls or self
+        return len(s.split("-")) == 3
+
+Date.from_string("2024-01-15")        # Date(2024, 1, 15)
+Date.is_valid("2024-01-15")           # True</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable class attribute &mdash; shared across instances</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Mutable class attr is shared by ALL instances
+class Bad:
+    items = []
+    def add(self, x):
+        self.items.append(x)      # mutates the shared list
+
+a, b = Bad(), Bad()
+a.add(1)
+b.items                            # [1]  &larr; b sees a's data!
+
+# &#x2705; Initialize in __init__
+class Good:
+    def __init__(self):
+        self.items = []            # each instance gets its own</code></pre>
+</div>
+</div>
+
+<!-- ==================== INHERITANCE ==================== -->
+<div class="section-title" id="sec-inherit"><span class="icon">&#128200;</span> Inheritance &amp; MRO</div>
+<p class="section-intro">Python supports single and multiple inheritance. The <b>Method Resolution Order</b> (MRO) uses C3 linearization &mdash; left-to-right, depth-first, no duplication. Always use <code>super()</code> instead of hardcoding parent names.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Inheritance, super() &amp; MRO</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Single inheritance &mdash;
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)         # call parent __init__
+        self.breed = breed
+    def speak(self):
+        return "Woof!"
+
+d = Dog("Rex", "Lab")
+d.name                                 # "Rex"
+d.speak()                              # "Woof!"
+isinstance(d, Animal)                  # True
+
+# &mdash; Multiple inheritance &amp; MRO &mdash;
+class A:
+    def who(self): return "A"
+class B(A):
+    def who(self): return "B"
+class C(A):
+    def who(self): return "C"
+class D(B, C):
+    pass
+
+D().who()                              # "B"  (B before C in MRO)
+D.__mro__                              # (D, B, C, A, object)
+
+# &mdash; Diamond problem: cooperative super() &mdash;
+class Base:
+    def __init__(self): print("Base")
+class Left(Base):
+    def __init__(self):
+        print("Left"); super().__init__()
+class Right(Base):
+    def __init__(self):
+        print("Right"); super().__init__()
+class Child(Left, Right):
+    def __init__(self):
+        print("Child"); super().__init__()
+
+Child()         # Child &rarr; Left &rarr; Right &rarr; Base (each once)</code></pre>
+</div>
+</div>
+
+<!-- ==================== MAGIC METHODS ==================== -->
+<div class="section-title" id="sec-magic"><span class="icon">&#9997;&#65039;</span> Magic Methods</div>
+<p class="section-intro">Dunder methods hook into Python&rsquo;s built-in operations: printing, comparison, arithmetic, indexing, hashing. Implement them to make custom classes work with <code>print</code>, <code>==</code>, <code>+</code>, <code>in</code>, <code>len</code>, <code>sorted</code>, etc.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">__repr__, __str__, Comparison &amp; Arithmetic</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; __repr__ vs __str__ &mdash;
+class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __repr__(self):                # unambiguous, for debugging
+        return f"Point({self.x}, {self.y})"
+    def __str__(self):                 # human-readable, for print()
+        return f"({self.x}, {self.y})"
+
+p = Point(3, 4)
+print(p)                               # (3, 4)       &larr; __str__
+repr(p)                                # Point(3, 4)  &larr; __repr__
+[p]                                    # [Point(3, 4)]&larr; containers use __repr__
+
+# &mdash; Comparison: __eq__ + @total_ordering &mdash;
+from functools import total_ordering
+
+@total_ordering
+class Temp:
+    def __init__(self, val): self.val = val
+    def __eq__(self, other): return self.val == other.val
+    def __lt__(self, other): return self.val &lt; other.val
+
+Temp(30) &lt; Temp(40)                    # True
+Temp(30) &gt;= Temp(20)                   # True (auto-generated)
+
+# &mdash; Arithmetic: __add__, __mul__ &mdash;
+class Vec:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __add__(self, other):
+        return Vec(self.x + other.x, self.y + other.y)
+    def __mul__(self, scalar):
+        return Vec(self.x * scalar, self.y * scalar)
+    def __repr__(self):
+        return f"Vec({self.x}, {self.y})"
+
+Vec(1, 2) + Vec(3, 4)                 # Vec(4, 6)
+Vec(1, 2) * 3                         # Vec(3, 6)</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Container Protocol: __len__, __getitem__, __contains__</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">class Row:
+    def __init__(self, *values):
+        self._data = list(values)
+    def __len__(self):
+        return len(self._data)
+    def __getitem__(self, idx):
+        return self._data[idx]
+    def __contains__(self, val):
+        return val in self._data
+    def __iter__(self):
+        return iter(self._data)
+
+r = Row(10, 20, 30)
+len(r)                                 # 3
+r[1]                                   # 20
+20 in r                                # True
+list(r)                                # [10, 20, 30]</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">__eq__ without __hash__</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># Defining __eq__ makes the class unhashable by default
+class Point:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+# {Point(1,2)}                      # TypeError: unhashable
+
+# &#x2705; Define __hash__ alongside __eq__
+class Point:
+    def __init__(self, x, y): self.x, self.y = x, y
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+{Point(1,2), Point(1,2)}              # 1 element (deduped)</code></pre>
+</div>
+</div>
+
+<!-- ==================== PROPERTIES & DATACLASSES ==================== -->
+<div class="section-title" id="sec-propdata"><span class="icon">&#128220;</span> Properties &amp; Dataclasses</div>
+<p class="section-intro"><code>@property</code> turns a method into a computed attribute with optional validation. <code>@dataclass</code> (3.7+) auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code> from type-annotated fields.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">@property &amp; @dataclass Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; @property: getter / setter / computed &mdash;
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        if value &lt; 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+
+    @property
+    def area(self):                    # computed, read-only
+        import math
+        return math.pi * self._radius ** 2
+
+c = Circle(5)
+c.radius                               # 5   (calls getter)
+c.radius = 10                          # OK  (calls setter)
+c.area                                 # 314.16  (computed)
+# c.radius = -1                        # ValueError
+
+# &mdash; @dataclass: auto __init__, __repr__, __eq__ &mdash;
+from dataclasses import dataclass, field
+
+@dataclass
+class User:
+    name: str
+    age: int
+    tags: list = field(default_factory=list)
+
+u = User("Alice", 30)
+u                                      # User(name='Alice', age=30, tags=[])
+u == User("Alice", 30)                # True (auto __eq__)
+
+# &mdash; frozen=True: immutable + hashable &mdash;
+@dataclass(frozen=True, order=True)
+class Coord:
+    x: float
+    y: float
+
+a, b = Coord(1.0, 2.0), Coord(3.0, 4.0)
+a &lt; b                                  # True (compares by (x, y))
+{a, b}                                 # works in sets (hashable)
+# a.x = 5                              # FrozenInstanceError
+
+# &mdash; __post_init__: validation after __init__ &mdash;
+@dataclass
+class Range:
+    lo: int
+    hi: int
+    def __post_init__(self):
+        if self.lo &gt; self.hi:
+            self.lo, self.hi = self.hi, self.lo</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Mutable default in @dataclass</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Mutable default raises ValueError at class creation
+@dataclass
+class Bad:
+    items: list = []             # ValueError: mutable default
+
+# &#x2705; Use field(default_factory=...)
+@dataclass
+class Good:
+    items: list = field(default_factory=list)</code></pre>
+</div>
+</div>
+
+<!-- ==================== ABC, ENUMS & SLOTS ==================== -->
+<div class="section-title" id="sec-abc"><span class="icon">&#128737;</span> ABC, Enums &amp; Slots</div>
+<p class="section-intro">Abstract Base Classes define interfaces that subclasses must implement. Enums define fixed sets of named constants. <code>__slots__</code> restricts attributes for memory savings.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">ABC, Enums &amp; Slots</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Abstract Base Class &mdash;
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self) -&gt; float: ...
+    @abstractmethod
+    def perimeter(self) -&gt; float: ...
+    def describe(self):                # concrete method is OK
+        return f"Area: {self.area():.2f}"
+
+# Shape()                              # TypeError: can't instantiate
+
+class Rect(Shape):
+    def __init__(self, w, h): self.w, self.h = w, h
+    def area(self): return self.w * self.h
+    def perimeter(self): return 2 * (self.w + self.h)
+
+Rect(3, 4).describe()                 # "Area: 12.00"
+
+# &mdash; Enum &mdash;
+from enum import Enum, IntEnum, auto
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+Color.RED.name                         # 'RED'
+Color.RED.value                        # 1
+Color(2)                               # Color.GREEN
+Color['BLUE']                          # Color.BLUE
+list(Color)                            # [Color.RED, Color.GREEN, Color.BLUE]
+
+class Direction(Enum):
+    NORTH = auto()                     # 1
+    SOUTH = auto()                     # 2
+
+class Perm(IntEnum):
+    READ = 4; WRITE = 2; EXEC = 1
+Perm.READ + Perm.WRITE                # 6 (IntEnum allows arithmetic)
+
+# &mdash; __slots__: restrict attributes, save memory &mdash;
+class Point:
+    __slots__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
+p = Point(1, 2)
+p.x                                    # 1
+# p.z = 3                              # AttributeError
+# p.__dict__                           # AttributeError (no __dict__)
+
+# Python 3.10+ dataclass slots:
+@dataclass(slots=True)
+class Coord:
+    x: float
+    y: float</code></pre>
+</div>
+</div>
+
+<!-- ==================== TYPE HINTS ==================== -->
+<div class="section-title" id="sec-types"><span class="icon">&#128301;</span> Type Hints</div>
+<p class="section-intro">Type annotations document expected types but are <b>not enforced at runtime</b>. Use <code>mypy</code> or <code>pyright</code> for static checking. Built-in generics (<code>list[int]</code>) work since 3.9; <code>X | Y</code> union syntax since 3.10.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Type Hints &amp; Protocol</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Basic annotations &mdash;
+def greet(name: str, times: int = 1) -&gt; str:
+    return (f"Hello {name}! ") * times
+
+age: int = 25
+names: list[str] = ["Alice", "Bob"]        # 3.9+
+config: dict[str, int] = {"timeout": 30}   # 3.9+
+
+# &mdash; Optional, Union, TypeVar &mdash;
+from typing import Optional, TypeVar
+
+def find(items: list[int], target: int) -&gt; Optional[int]:
+    try: return items.index(target)
+    except ValueError: return None
+
+# 3.10+ union syntax:
+def parse(val: str | int) -&gt; str:          # replaces Union[str, int]
+    return str(val)
+
+T = TypeVar('T')
+def first(items: list[T]) -&gt; T:
+    return items[0]
+
+# &mdash; Protocol: structural subtyping (duck typing with static checks) &mdash;
+from typing import Protocol
+
+class Drawable(Protocol):
+    def draw(self) -&gt; None: ...
+
+class Circle:
+    def draw(self) -&gt; None:
+        print("Drawing circle")
+
+def render(shape: Drawable) -&gt; None:
+    shape.draw()
+
+render(Circle())                       # OK &mdash; Circle has draw()</code></pre>
+</div>
+</div>
+
+<!-- ==================== EXCEPTIONS ==================== -->
+<div class="section-title" id="sec-exceptions"><span class="icon">&#128165;</span> Exception Handling</div>
+<p class="section-intro"><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> &mdash; <code>else</code> runs only if no exception was raised; <code>finally</code> always runs. Catch specific exceptions; bare <code>except:</code> catches everything including <code>KeyboardInterrupt</code>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Exception Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; try / except / else / finally &mdash;
+try:
+    result = int("42")
+except ValueError as e:
+    print(f"Bad input: {e}")
+except (TypeError, KeyError):          # catch multiple types
+    print("Wrong type or missing key")
+else:
+    print(f"Parsed: {result}")         # runs ONLY on success
+finally:
+    print("Always runs")              # cleanup
+
+# &mdash; Custom exception &mdash;
+class ValidationError(Exception):
+    def __init__(self, field, message):
+        self.field = field
+        self.message = message
+        super().__init__(f"{field}: {message}")
+
+try:
+    raise ValidationError("age", "must be positive")
+except ValidationError as e:
+    e.field                            # "age"
+    e.message                          # "must be positive"
+
+# &mdash; Exception chaining &mdash;
+try:
+    open("config.json")
+except FileNotFoundError as e:
+    raise RuntimeError("Config missing") from e
+    # Traceback shows: RuntimeError caused by FileNotFoundError
+
+# Suppress chain with `from None`:
+try:
+    int("abc")
+except ValueError:
+    raise TypeError("Expected numeric") from None</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Bare except catches too much</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Bare except catches KeyboardInterrupt, SystemExit
+try:
+    do_work()
+except:                                # catches EVERYTHING
+    pass                               # silences Ctrl+C too!
+
+# &#x2705; Catch Exception (excludes KeyboardInterrupt, SystemExit)
+try:
+    do_work()
+except Exception as e:
+    print(f"Error: {e}")</code></pre>
+</div>
+</div>
+
+<!-- ==================== CONTEXT MANAGERS ==================== -->
+<div class="section-title" id="sec-context"><span class="icon">&#128274;</span> Context Managers</div>
+<p class="section-intro"><code>with</code> ensures setup/teardown happens even on exceptions. Implement <code>__enter__</code>/<code>__exit__</code> or use <code>@contextmanager</code>. Any resource that needs cleanup (files, locks, connections, temp dirs) should use a context manager.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Context Manager Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Built-in &mdash;
+with open("file.txt") as f:
+    data = f.read()                    # f.close() called automatically
+
+# 3.10+ multiple context managers:
+with (
+    open("in.txt") as src,
+    open("out.txt", "w") as dst,
+):
+    dst.write(src.read())
+
+# &mdash; Class-based &mdash;
+class Timer:
+    def __enter__(self):
+        import time
+        self.start = time.perf_counter()
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        import time
+        self.elapsed = time.perf_counter() - self.start
+        print(f"Elapsed: {self.elapsed:.4f}s")
+        return False                   # don't suppress exceptions
+
+with Timer() as t:
+    sum(range(1_000_000))
+# Elapsed: 0.0234s
+
+# &mdash; @contextmanager (generator-based) &mdash;
+from contextlib import contextmanager
+
+@contextmanager
+def temp_dir():
+    import tempfile, shutil
+    path = tempfile.mkdtemp()
+    try:
+        yield path                     # &larr; hand control to with-block
+    finally:
+        shutil.rmtree(path)            # cleanup always runs
+
+with temp_dir() as d:
+    print(d)                           # /tmp/xyz...</code></pre>
+</div>
+</div>
+
+<!-- ==================== MODERN PYTHON ==================== -->
+<div class="section-title" id="sec-modern"><span class="icon">&#127381;</span> Modern Python</div>
+<p class="section-intro"><b>Walrus operator</b> <code>:=</code> (3.8+) assigns and returns a value in one expression. <b>Match / Case</b> (3.10+) provides structural pattern matching with sequence, mapping, and class destructuring.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Walrus Operator &amp; Match / Case</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; Walrus operator := (3.8+) &mdash;
+# Assign and test in one expression
+while (line := input()) != "quit":
+    process(line)
+
+if (n := len(data)) &gt; 10:
+    print(f"Too long: {n}")
+
+# In comprehensions:
+results = [y for x in data if (y := expensive(x)) &gt; 0]
+
+# &mdash; Match / Case (3.10+) &mdash;
+def http_status(code):
+    match code:
+        case 200:                      return "OK"
+        case 301 | 302:               return "Redirect"
+        case 404:                      return "Not Found"
+        case _:                        return "Other"
+
+# &mdash; Sequence &amp; mapping patterns &mdash;
+def handle(command):
+    match command.split():
+        case ["quit"]:                 quit()
+        case ["go", direction]:        move(direction)
+        case ["pick", "up", item]:     pickup(item)
+
+match event:
+    case {"type": "click", "x": x, "y": y}:
+        handle_click(x, y)
+    case {"type": "key", "code": code}:
+        handle_key(code)
+
+# &mdash; Class pattern with guard &mdash;
+@dataclass
+class Point:
+    x: float
+    y: float
+
+def classify(pt):
+    match pt:
+        case Point(x=0, y=0):         return "origin"
+        case Point(x=0, y=y):         return f"y-axis at {y}"
+        case Point(x=x, y=0):         return f"x-axis at {x}"
+        case Point(x=x, y=y) if x == y:
+            return f"diagonal at {x}"
+        case _:                        return "elsewhere"</code></pre>
+</div>
+</div>
+
+<!-- ==================== ASYNC ==================== -->
+<div class="section-title" id="sec-async"><span class="icon">&#9889;</span> Async / Await</div>
+<p class="section-intro">Cooperative concurrency for I/O-bound tasks. <code>async def</code> defines a coroutine; <code>await</code> suspends until a result is ready. Not useful for CPU-bound work &mdash; use <code>multiprocessing</code> for that.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">asyncio Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import asyncio
+
+# &mdash; Basic coroutine &mdash;
+async def fetch(url):
+    print(f"Fetching {url}")
+    await asyncio.sleep(1)             # simulate I/O
+    return f"Data from {url}"
+
+async def main():
+    result = await fetch("https://example.com")
+    print(result)
+
+asyncio.run(main())
+
+# &mdash; gather: run concurrently &mdash;
+async def main():
+    results = await asyncio.gather(
+        fetch("url1"),
+        fetch("url2"),
+        fetch("url3"),
+    )
+    # ~1s total, not ~3s
+
+# &mdash; async for (async iterator) &mdash;
+async def countdown(n):
+    while n &gt; 0:
+        yield n
+        await asyncio.sleep(0.5)
+        n -= 1
+
+async def main():
+    async for val in countdown(3):
+        print(val)                     # 3, 2, 1
+
+# &mdash; async with (async context manager) &mdash;
+# async with aiohttp.ClientSession() as session:
+#     async with session.get(url) as resp:
+#         data = await resp.json()</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Forgetting await &mdash; coroutine never executes</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &#x274c; Calling without await returns a coroutine object
+result = fetch("url")              # &lt;coroutine object&gt;  &larr; NOT the result
+# RuntimeWarning: coroutine was never awaited
+
+# &#x2705; Must await inside an async function
+result = await fetch("url")        # "Data from url"</code></pre>
+</div>
+</div>
+
+<!-- ==================== REGEX ==================== -->
+<div class="section-title" id="sec-regex"><span class="icon">&#128270;</span> Regular Expressions</div>
+<p class="section-intro">The <code>re</code> module provides Perl-style regex. Use raw strings (<code>r"..."</code>) to avoid backslash escaping. <code>search</code> finds first match, <code>findall</code> returns all, <code>sub</code> replaces. Compile patterns for reuse.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Regex Patterns</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python">import re
+
+text = "Order #123 placed on 2024-01-15"
+
+# &mdash; Core functions &mdash;
+re.search(r"\d+", text).group()        # "123"  (first match)
+re.findall(r"\d+", text)              # ["123", "2024", "01", "15"]
+re.sub(r"\d{4}-\d{2}-\d{2}", "DATE", text)
+                                      # "Order #123 placed on DATE"
+bool(re.match(r"Order", text))        # True  (anchored at start)
+bool(re.match(r"\d+", text))          # False (doesn't start with digits)
+
+# &mdash; Named groups &mdash;
+pat = r"(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{2})-(?P&lt;day&gt;\d{2})"
+m = re.search(pat, "Date: 2024-01-15")
+m.group("year")                        # "2024"
+m.group("month")                       # "01"
+m.groupdict()                          # {'year':'2024', 'month':'01', 'day':'15'}
+
+# &mdash; Compile for reuse &mdash;
+email_re = re.compile(
+    r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
+    re.IGNORECASE
+)
+email_re.findall("alice@ex.com Bob@TEST.COM")
+                                      # ['alice@ex.com', 'Bob@TEST.COM']
+
+# &mdash; VERBOSE flag for readable patterns &mdash;
+phone_re = re.compile(r"""
+    (\d{3})   # area code
+    [-.\s]?   # separator
+    (\d{3})   # exchange
+    [-.\s]?   # separator
+    (\d{4})   # number
+""", re.VERBOSE)</code></pre>
+</div>
+</div>
+
+<!-- ==================== COLLECTIONS ==================== -->
+<div class="section-title" id="sec-collections"><span class="icon">&#128451;&#65039;</span> Collections Module</div>
+<p class="section-intro">Specialized containers beyond built-in <code>dict</code>/<code>list</code>/<code>set</code>/<code>tuple</code>. For <code>defaultdict</code>, <code>Counter</code>, and <code>deque</code>, see the main Python3 tab&rsquo;s Dict &amp; Set and Stack sections.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">namedtuple, ChainMap &amp; OrderedDict</span>
+</div>
+<div class="card-body">
+<pre><code class="language-python"># &mdash; namedtuple: lightweight immutable class &mdash;
+from collections import namedtuple
+
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+p.x                                    # 3
+p[0]                                   # 3  (tuple-style access)
+x, y = p                              # unpack like a tuple
+p._asdict()                            # {'x': 3, 'y': 4}
+p._replace(x=10)                       # Point(x=10, y=4)  (new instance)
+
+# &mdash; ChainMap: layered dict lookup &mdash;
+from collections import ChainMap
+
+defaults = {"color": "red", "size": 10}
+user = {"color": "blue"}
+env = {"size": 20, "debug": True}
+
+config = ChainMap(env, user, defaults)
+config["color"]                        # "blue"  (user wins)
+config["size"]                         # 20      (env wins)
+config["debug"]                        # True
+list(config)                           # all unique keys
+
+# &mdash; OrderedDict: move_to_end + LRU cache &mdash;
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.cache = OrderedDict()
+        self.cap = capacity
+
+    def get(self, key):
+        if key not in self.cache: return -1
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key, value):
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) &gt; self.cap:
+            self.cache.popitem(last=False)</code></pre>
+</div>
+</div>
+
+</div><!-- .cards-grid -->
+</div><!-- .main -->
+</div><!-- #content -->
+    <div class="footer" id="footer">Python by Example &mdash; AlgoCode</div>
+  </div><!-- .main-wrapper -->
+</div><!-- .page-body -->
+
+<button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
+
+<script>
+(function () {
+  /* Theme toggle */
+  var toggle = document.getElementById('themeToggle');
+  var hljsLink = document.getElementById('hljs-theme');
+  function updateIcon() {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    toggle.textContent = cur === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  }
+  updateIcon();
+  toggle.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    if (hljsLink) hljsLink.href = next === 'light'
+      ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
+      : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+    localStorage.setItem('theme', next);
+    updateIcon();
+  });
+
+  /* Highlight.js */
+  function highlight() {
+    if (typeof hljs === 'undefined') return setTimeout(highlight, 100);
+    document.querySelectorAll('pre code').forEach(function (b) { hljs.highlightElement(b); });
+    document.querySelectorAll('.ctable td code, .section-intro code').forEach(function (el) {
+      el.classList.add('language-python');
+      hljs.highlightElement(el);
+    });
+  }
+  highlight();
+
+  /* Sidebar toggle (mobile) */
+  var sidebarEl = document.getElementById('sidebar');
+  var overlayEl = document.getElementById('sidebarOverlay');
+  var hamburgerBtn = document.getElementById('hamburger');
+  var sidebarCloseBtn = document.getElementById('sidebarClose');
+  function openSidebar() {
+    if (sidebarEl) sidebarEl.classList.add('open');
+    if (overlayEl) overlayEl.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    if (sidebarEl) sidebarEl.classList.remove('open');
+    if (overlayEl) overlayEl.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+  if (overlayEl) overlayEl.addEventListener('click', closeSidebar);
+
+  /* Nav pills */
+  var navLinksEl = document.getElementById('navLinks');
+  var contentEl = document.getElementById('content');
+  function buildNavLinks() {
+    navLinksEl.innerHTML = '';
+    contentEl.querySelectorAll('.section-title[id]').forEach(function (sec) {
+      var a = document.createElement('a');
+      a.className = 'nav-link';
+      a.href = '#' + sec.id;
+      a.textContent = sec.textContent.trim();
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeSidebar();
+        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      navLinksEl.appendChild(a);
+    });
+  }
+  buildNavLinks();
+
+  /* Active nav link on scroll */
+  function updateActive() {
+    var sections = contentEl.querySelectorAll('.section-title[id]');
+    var links = navLinksEl.querySelectorAll('.nav-link');
+    if (!sections.length) return;
+    var cur = sections[0].id;
+    sections.forEach(function (s) {
+      if (s.getBoundingClientRect().top <= 70) cur = s.id;
+    });
+    links.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) { requestAnimationFrame(function () { updateActive(); ticking = false; }); ticking = true; }
+  }, { passive: true });
+  updateActive();
+
+  /* Scroll to top */
+  var scrollTopBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', function () {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* Search */
+  var searchInput = document.getElementById('searchInput');
+  var searchTimer = 0;
+  searchInput.addEventListener('input', function () {
+    var query = this.value.toLowerCase();
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () {
+      contentEl.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = card.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+      contentEl.querySelectorAll('.section-title').forEach(function (sec) {
+        var next = sec.nextElementSibling;
+        var hasVisible = false;
+        while (next && !next.classList.contains('section-title')) {
+          if (next.classList.contains('card') && next.style.display !== 'none') hasVisible = true;
+          next = next.nextElementSibling;
+        }
+        sec.style.display = hasVisible ? '' : 'none';
+      });
+    }, 150);
+  });
+})();
+</script>
+</body>
+</html>
