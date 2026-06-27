@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>C++ Pointers by Example — AlgoCode</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" id="hljs-theme"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/severity.css">
+<script>
+(function() {
+  var s = localStorage.getItem('theme') || 'dark';
+  if (s !== 'dark') {
+    document.documentElement.setAttribute('data-theme', s);
+    var l = document.getElementById('hljs-theme');
+    if (l) l.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  }
+})();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="hamburger" id="hamburger" title="Categories">&#9776;</button>
+  <span class="logo"><span class="logo-text">Algo<span>Code</span></span></span>
+  <div class="header-tabs">
+    <a href="index.html#java" class="tab-btn">
+      <span class="tab-icon">&#9749;</span>
+      <span>Java</span>
+    </a>
+    <a href="index.html#golang" class="tab-btn">
+      <span class="tab-icon">&#128039;</span>
+      <span>Golang</span>
+    </a>
+    <a href="index.html#cpp" class="tab-btn active">
+      <span class="tab-icon">&#9881;&#65039;</span>
+      <span>C++</span>
+    </a>
+    <a href="index.html#python3" class="tab-btn">
+      <span class="tab-icon">&#128013;</span>
+      <span>Python3</span>
+    </a>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search smart pointers, casting, pitfalls...">
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme"></button>
+</div>
+
+<div class="page-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Categories</span>
+      <button class="sidebar-close" id="sidebarClose" title="Close">&times;</button>
+    </div>
+    <div class="sidebar-nav" id="navLinks"></div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrapper">
+    <div id="content">
+    <div class="main">
+    <div class="cards-grid">
+
+<!-- ==================== POINTER ARITHMETIC ==================== -->
+<div class="section-title" id="sec-arithmetic"><span class="icon">&#128290;</span> Pointer Arithmetic</div>
+<p class="section-intro">Pointer arithmetic moves by <code>sizeof(T)</code>, not by bytes. An <code>int*</code> incremented by 1 advances 4 bytes (on most platforms). Arithmetic on <code>void*</code> is illegal in standard C++. Going more than one element past the end of an array is <b>undefined behavior</b>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Increment/decrement</b> &mdash; <code>p++</code> moves by one element (<code>sizeof(T)</code> bytes), not one byte.
+<br><br><b>Pointer subtraction</b> &mdash; <code>b - a</code> yields the number of <b>elements</b> between two pointers (type <code>ptrdiff_t</code>), not bytes.
+<br><br><b>Comparison</b> &mdash; <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code> are only meaningful within the same array (or one-past-end).
+<br><br><b>void* arithmetic</b> &mdash; illegal in standard C++. <code>void</code> has no size, so the compiler can&rsquo;t compute offsets. GCC allows it as an extension (treats as <code>char*</code>), but don&rsquo;t rely on it.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Pointer Arithmetic Operations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int arr[] = {10, 20, 30, 40, 50};
+int* p = arr;
+
+p++;                                   // points to arr[1] (moved sizeof(int) bytes, typically 4)
+p += 2;                                // points to arr[3]
+p--;                                   // back to arr[2]
+
+// Pointer subtraction &mdash; element count, not bytes
+int* a = &amp;arr[1];
+int* b = &amp;arr[4];
+ptrdiff_t dist = b - a;               // 3 (elements, not 12 bytes)
+
+// Comparison &mdash; only within the same array
+if (a &lt; b) { /* a comes before b */ }
+
+// One-past-end is valid for comparison, not dereference
+int* end = arr + 5;                    // OK: one past end
+// *end = 99;                          // UB: can't dereference</code></pre>
+</div>
+</div>
+
+<!-- ==================== POINTERS & ARRAYS ==================== -->
+<div class="section-title" id="sec-arrays"><span class="icon">&#128203;</span> Pointers &amp; Arrays</div>
+<p class="section-intro">An array name <b>decays</b> to a pointer to its first element in most contexts. <code>arr[i]</code> is syntactic sugar for <code>*(arr + i)</code>. Arrays do <b>not</b> decay in <code>sizeof</code>, <code>&amp;arr</code>, and <code>decltype</code>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Array Decay, Pointer-to-Array &amp; Multidimensional</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int arr[5] = {1, 2, 3, 4, 5};
+
+// Array decays to &amp;arr[0]
+int* p = arr;                          // same as &amp;arr[0]
+arr[3] == *(arr + 3);                  // true
+3[arr] == *(3 + arr);                  // true (don't write this)
+
+// Pointer to an entire array of 5 ints
+int (*pArr)[5] = &amp;arr;                 // pArr points to the whole array
+(*pArr)[2];                            // 3
+
+// Array of 5 pointers to int
+int* ptrArr[5];                        // each element is an int*
+
+// Multidimensional &mdash; grid decays to int(*)[4]
+int grid[3][4] = {{1,2,3,4}, {5,6,7,8}, {9,10,11,12}};
+int (*row)[4] = grid;
+row[1][2];                             // 7
+*(*(row + 1) + 2);                     // 7 (equivalent)
+
+// sizeof does NOT decay
+sizeof(arr);                           // 20 (5 * 4 bytes), not sizeof(int*)</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Confusing int(*p)[N] with int* p[N]</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Read declarations inside-out:
+int (*p)[5];    // p is a pointer to an array of 5 ints
+int* p[5];      // p is an array of 5 pointers to int
+
+// These are completely different types!</code></pre>
+</div>
+</div>
+
+<!-- ==================== CONST CORRECTNESS ==================== -->
+<div class="section-title" id="sec-const"><span class="icon">&#128274;</span> Const Correctness</div>
+<p class="section-intro">Three combinations of <code>const</code> with pointers. The position of <code>const</code> relative to <code>*</code> determines what is immutable. Read declarations <b>right to left</b>.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">const Pointer Combinations</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int x = 10, y = 20;
+
+// 1. Pointer to const &mdash; can't modify the value
+const int* p1 = &amp;x;                   // (or: int const* p1)
+// *p1 = 30;                           // ERROR: data is read-only
+p1 = &amp;y;                              // OK: pointer itself can change
+
+// 2. Const pointer &mdash; can't change where it points
+int* const p2 = &amp;x;
+*p2 = 30;                             // OK: can modify the data
+// p2 = &amp;y;                           // ERROR: pointer is fixed
+
+// 3. Const pointer to const &mdash; nothing can change
+const int* const p3 = &amp;x;
+// *p3 = 30;                           // ERROR
+// p3 = &amp;y;                           // ERROR</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Right-to-left reading rule</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Read from the variable name, going right to left:
+const int* p;         // p is a pointer to an int that is const
+int* const p;         // p is a const pointer to an int
+const int* const p;   // p is a const pointer to a const int
+
+// const int* and int const* are identical.
+// const binds to whatever is immediately to its left;
+// if nothing is to its left, it binds to its right.</code></pre>
+</div>
+</div>
+
+<!-- ==================== POINTER-TO-POINTER ==================== -->
+<div class="section-title" id="sec-doubleptr"><span class="icon">&#128279;</span> Pointer-to-Pointer</div>
+<p class="section-intro"><code>int**</code> stores the address of another pointer. Each <code>*</code> adds one level of indirection. Use for modifying a caller&rsquo;s pointer or dynamic 2D arrays. In modern C++, prefer <code>int*&amp;</code> or return the pointer instead.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Double Pointers &amp; Dynamic 2D Arrays</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int val = 42;
+int* p = &amp;val;
+int** pp = &amp;p;
+**pp = 100;                            // modifies val through two levels
+
+// &mdash; Modifying a caller's pointer &mdash;
+void allocate(int** out) {
+    *out = new int(42);                // modifies the caller's pointer
+}
+int* p = nullptr;
+allocate(&amp;p);                          // p now points to heap-allocated 42
+delete p;
+
+// &mdash; Dynamic 2D array &mdash;
+int rows = 3, cols = 4;
+int** grid = new int*[rows];
+for (int i = 0; i &lt; rows; i++)
+    grid[i] = new int[cols]();         // () zero-initializes
+
+grid[1][2] = 7;
+
+for (int i = 0; i &lt; rows; i++) delete[] grid[i];
+delete[] grid;
+// Prefer vector&lt;vector&lt;int&gt;&gt; or flat vector + index math</code></pre>
+</div>
+</div>
+
+<!-- ==================== VOID POINTERS ==================== -->
+<div class="section-title" id="sec-void"><span class="icon">&#128310;</span> Void Pointers &amp; nullptr</div>
+<p class="section-intro"><code>void*</code> is a generic pointer that holds any object&rsquo;s address but sacrifices type safety. <code>nullptr</code> (C++11) replaces <code>NULL</code> and <code>0</code> as a type-safe null pointer constant.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">void* &amp; nullptr</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; void*: generic pointer &mdash;
+int n = 42;
+double d = 3.14;
+void* vp = &amp;n;                        // any object pointer converts
+vp = &amp;d;                              // can point to any type
+
+// Must cast back before dereferencing
+double* dp = static_cast&lt;double*&gt;(vp);
+*dp;                                   // 3.14
+
+// Cannot dereference void* directly (no sizeof(void))
+// Cannot do arithmetic on void*
+
+// C-style APIs use void* for genericity
+int compare(const void* a, const void* b) {
+    return *static_cast&lt;const int*&gt;(a) -
+           *static_cast&lt;const int*&gt;(b);
+}
+
+// &mdash; nullptr (C++11) &mdash;
+int* p = nullptr;                      // clear intent: null pointer
+
+// Why not NULL or 0:
+void process(int n);
+void process(int* p);
+process(0);                            // calls process(int)
+process(NULL);                         // might call process(int)
+process(nullptr);                      // calls process(int*) &mdash; unambiguous
+
+// nullptr has its own type: std::nullptr_t</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Casting void* to wrong type</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int n = 42;
+void* vp = &amp;n;
+
+// &#x274c; Cast to wrong type &mdash; UB, compiler won't catch it
+double* dp = static_cast&lt;double*&gt;(vp);
+*dp;                                   // UB: reading int as double
+
+// &#x2705; Cast back to the original type
+int* ip = static_cast&lt;int*&gt;(vp);
+*ip;                                   // 42</code></pre>
+</div>
+</div>
+
+<!-- ==================== FUNCTION POINTERS ==================== -->
+<div class="section-title" id="sec-funcptr"><span class="icon">&#9881;&#65039;</span> Function Pointers</div>
+<p class="section-intro">A function pointer stores the address of a function. Use <code>typedef</code> or <code>using</code> to tame the syntax. For captures, use <code>std::function</code>. Captureless lambdas implicitly convert to function pointers.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Function Pointers, Dispatch Tables &amp; std::function</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int add(int a, int b) { return a + b; }
+int sub(int a, int b) { return a - b; }
+int mul(int a, int b) { return a * b; }
+
+// Declaration: pointer to function taking two ints, returning int
+int (*fp)(int, int) = &amp;add;            // &amp; is optional (function decays)
+fp(3, 4);                              // 7
+
+// Readable alias
+using BinaryOp = int(*)(int, int);
+BinaryOp op = add;
+op(10, 20);                            // 30
+
+// &mdash; Dispatch table &mdash;
+BinaryOp ops[] = {add, sub, mul};
+ops[0](10, 5);                         // 15 (add)
+ops[2](10, 5);                         // 50 (mul)
+
+// &mdash; std::function: type-erased callable wrapper &mdash;
+#include &lt;functional&gt;
+int multiplier = 3;
+std::function&lt;int(int)&gt; fn = [multiplier](int x) {
+    return x * multiplier;             // captures state
+};
+fn(10);                                // 30
+
+// Captureless lambda converts to function pointer
+int (*fp2)(int) = [](int x) { return x * 2; };
+fp2(10);                               // 20</code></pre>
+</div>
+</div>
+
+<!-- ==================== POINTERS & FUNCTIONS ==================== -->
+<div class="section-title" id="sec-ptrfunc"><span class="icon">&#128260;</span> Pointers &amp; Functions</div>
+<p class="section-intro">Pass-by-pointer makes modification visible at the call site (<code>&amp;x</code>). Pass-by-reference is cleaner when null is not valid. Never return a pointer to a local variable &mdash; its lifetime ends when the function returns.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Pass-by-Pointer vs Pass-by-Reference</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Pass-by-pointer: nullable, caller sees &amp; at call site
+void increment(int* p) {
+    if (p) *p += 1;                    // must check for null
+}
+int x = 5;
+increment(&amp;x);                        // x is now 6 &mdash; caller sees &amp;
+
+// Pass-by-reference: cannot be null, cleaner syntax
+void increment(int&amp; ref) {
+    ref += 1;                          // no null check needed
+}
+increment(x);                          // x is now 7 &mdash; implicit
+
+// Use pointer when: argument can be null, C interop,
+//   you want call site to show modification visually
+// Use reference when: argument must always be valid</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Returning pointer to local variable</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &#x274c; Dangling pointer &mdash; local destroyed on return
+int* bad() {
+    int local = 42;
+    return &amp;local;                     // local destroyed here
+}
+
+// &#x2705; Heap-allocated (caller must free)
+int* ok_heap() { return new int(42); }
+
+// &#x2705; Static lives for entire program
+int* ok_static() {
+    static int val = 42;
+    return &amp;val;
+}</code></pre>
+</div>
+</div>
+
+<!-- ==================== DYNAMIC MEMORY ==================== -->
+<div class="section-title" id="sec-memory"><span class="icon">&#128451;&#65039;</span> Dynamic Memory</div>
+<p class="section-intro"><code>new</code> allocates on the heap and calls the constructor. <code>delete</code> calls the destructor and frees. Mismatched <code>delete</code> vs <code>delete[]</code> is <b>undefined behavior</b>. In modern C++, avoid raw <code>new</code>/<code>delete</code> entirely &mdash; use smart pointers.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">new / delete, Placement new &amp; nothrow</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// Single object
+int* p = new int(42);
+delete p;
+
+// Array
+int* arr = new int[100];
+delete[] arr;                          // MUST use delete[] for arrays
+
+// &mdash; Placement new: construct at specific address &mdash;
+#include &lt;new&gt;
+alignas(int) char buffer[sizeof(int)];
+int* q = new (buffer) int(42);        // construct at buffer's address
+// No delete &mdash; you manage the memory yourself
+// For non-trivial types: q-&gt;~MyClass();
+
+// &mdash; nothrow: returns nullptr on failure &mdash;
+int* big = new (std::nothrow) int[1000000000];
+if (!big) { /* allocation failed */ }</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">delete vs delete[] mismatch</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &#x274c; Mismatched delete is UB
+int* a = new int[10];
+delete a;                              // UB: should be delete[]
+
+int* b = new int(5);
+delete[] b;                            // UB: should be delete
+
+// Corruption may be silent and crash much later</code></pre>
+</div>
+</div>
+
+<!-- ==================== SMART POINTERS ==================== -->
+<div class="section-title" id="sec-smart"><span class="icon">&#128737;</span> Smart Pointers</div>
+<p class="section-intro">Smart pointers (<code>&lt;memory&gt;</code>) automate ownership and deallocation via RAII. <code>unique_ptr</code> for exclusive ownership (zero overhead), <code>shared_ptr</code> for shared ownership (reference counted), <code>weak_ptr</code> to break circular references.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b><code>unique_ptr</code></b> &mdash; exclusive ownership. Only one <code>unique_ptr</code> owns the resource at a time. Zero overhead vs raw pointer. Transfer with <code>std::move</code>.
+<br><br><b><code>shared_ptr</code></b> &mdash; reference-counted shared ownership. Freed when the last <code>shared_ptr</code> is destroyed. <code>make_shared</code> does a single allocation (control block + object).
+<br><br><b><code>weak_ptr</code></b> &mdash; non-owning observer of <code>shared_ptr</code>. Does not affect reference count. Must <code>lock()</code> before accessing. Breaks circular references.
+<br><br><b><code>make_unique</code> / <code>make_shared</code></b> &mdash; preferred over <code>new</code>. Exception-safe and avoids writing <code>new</code>/<code>delete</code>.
+<br><br><b>Which to use:</b> single owner &rarr; <code>unique_ptr</code>. Multiple owners &rarr; <code>shared_ptr</code>. Back-references &rarr; <code>weak_ptr</code>.
+</div>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">unique_ptr, shared_ptr &amp; weak_ptr</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">#include &lt;memory&gt;
+
+// &mdash; unique_ptr: exclusive ownership &mdash;
+auto p = std::make_unique&lt;int&gt;(42);    // preferred over new
+*p = 100;
+auto q = std::move(p);                 // transfer ownership
+// p is now nullptr, q owns the resource
+
+auto arr = std::make_unique&lt;int[]&gt;(100); // array of 100 ints
+arr[0] = 42;
+
+// &mdash; shared_ptr: reference-counted &mdash;
+auto p1 = std::make_shared&lt;int&gt;(42);
+auto p2 = p1;                          // ref count = 2
+p1.reset();                            // ref count = 1
+p2.use_count();                        // 1
+// freed when p2 is destroyed (count drops to 0)
+
+// &mdash; weak_ptr: non-owning observer &mdash;
+std::shared_ptr&lt;int&gt; strong = std::make_shared&lt;int&gt;(42);
+std::weak_ptr&lt;int&gt; weak = strong;
+
+if (auto sp = weak.lock()) {           // must lock() before access
+    int val = *sp;                     // resource alive
+}
+strong.reset();                        // resource freed
+weak.expired();                        // true
+weak.lock();                           // returns empty shared_ptr</code></pre>
+</div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Custom Deleters &amp; enable_shared_from_this</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &mdash; Custom deleter: for non-new resources (FILE*, C handles) &mdash;
+auto file = std::unique_ptr&lt;FILE, decltype(&amp;fclose)&gt;(
+    fopen("data.txt", "r"), &amp;fclose
+);
+// shared_ptr: deleter doesn't affect the type
+std::shared_ptr&lt;FILE&gt; f(fopen("data.txt", "r"), fclose);
+
+// &mdash; enable_shared_from_this &mdash;
+struct Widget : std::enable_shared_from_this&lt;Widget&gt; {
+    std::shared_ptr&lt;Widget&gt; get_self() {
+        return shared_from_this();     // safe: same control block
+        // NOT: shared_ptr&lt;Widget&gt;(this) &mdash; double-free!
+    }
+};
+auto w = std::make_shared&lt;Widget&gt;();
+auto w2 = w-&gt;get_self();              // correct ref count</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Circular reference &mdash; memory leak</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &#x274c; shared_ptr cycle &mdash; neither is ever freed
+struct Node {
+    std::shared_ptr&lt;Node&gt; next;
+};
+auto a = std::make_shared&lt;Node&gt;();
+auto b = std::make_shared&lt;Node&gt;();
+a-&gt;next = b;
+b-&gt;next = a;                           // circular &mdash; leaked!
+
+// &#x2705; Use weak_ptr for back-references
+struct Node {
+    std::shared_ptr&lt;Node&gt; next;
+    std::weak_ptr&lt;Node&gt; prev;          // non-owning
+};</code></pre>
+</div>
+</div>
+
+<!-- ==================== POINTER CASTING ==================== -->
+<div class="section-title" id="sec-casting"><span class="icon">&#128260;</span> Pointer Casting</div>
+<p class="section-intro">C++ provides four named casts, each for a specific purpose. They are safer than C-style <code>(Type*)</code> because the compiler enforces restrictions and they are searchable in code.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">static_cast, dynamic_cast, reinterpret_cast, const_cast</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">struct Base { virtual ~Base() = default; };
+struct Derived : Base { int data = 0; };
+
+// &mdash; static_cast: well-defined conversions, no runtime check &mdash;
+double d = 3.14;
+int n = static_cast&lt;int&gt;(d);          // 3 (truncates)
+
+Base* bp = new Derived();
+Derived* dp = static_cast&lt;Derived*&gt;(bp); // OK if bp is actually Derived
+
+void* vp = static_cast&lt;void*&gt;(&amp;n);    // any pointer to void*
+int* ip = static_cast&lt;int*&gt;(vp);      // void* back to original type
+
+// &mdash; dynamic_cast: runtime-checked, requires RTTI &mdash;
+Base* bp2 = get_base_ptr();
+Derived* dp2 = dynamic_cast&lt;Derived*&gt;(bp2);
+if (dp2) { /* bp2 actually pointed to Derived */ }
+else     { /* not a Derived */ }
+// With references: throws std::bad_cast on failure
+
+// &mdash; reinterpret_cast: bit-level reinterpretation &mdash;
+int val = 42;
+char* bytes = reinterpret_cast&lt;char*&gt;(&amp;val); // inspect bytes
+uintptr_t addr = reinterpret_cast&lt;uintptr_t&gt;(&amp;val);
+
+// &mdash; const_cast: add/remove const &mdash;
+const int x = 42;
+int* px = const_cast&lt;int*&gt;(&amp;x);
+// *px = 100;                          // compiles, but UB if x is truly const
+// Legitimate: calling non-const C API with safe data
+void legacy_api(char* s);
+const std::string&amp; str = "hello";
+legacy_api(const_cast&lt;char*&gt;(str.c_str()));</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">C-style cast hides dangerous conversions</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">// &#x274c; C-style cast silently picks reinterpret_cast
+int n = 42;
+double* dp = (double*)&amp;n;             // type-punning, likely UB
+// Impossible to grep for; hides the danger
+
+// &#x2705; Named casts make intent visible
+// This would require reinterpret_cast, making the danger obvious
+// double* dp = reinterpret_cast&lt;double*&gt;(&amp;n);</code></pre>
+</div>
+</div>
+
+<!-- ==================== THIS POINTER ==================== -->
+<div class="section-title" id="sec-this"><span class="icon">&#128204;</span> The this Pointer</div>
+<p class="section-intro">Inside a non-static member function, <code>this</code> is an implicit pointer to the current object. Type is <code>T*</code> (or <code>const T*</code> in const methods). Used for method chaining, disambiguation, and passing self to other functions.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">this Pointer &amp; Method Chaining</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">struct Counter {
+    int count = 0;
+
+    Counter&amp; increment() {
+        count++;                       // this-&gt;count++ is equivalent
+        return *this;                  // return by ref for chaining
+    }
+
+    void print() const {
+        // this is const Counter* here &mdash; can't modify members
+        std::cout &lt;&lt; count &lt;&lt; "\n";
+    }
+};
+
+Counter c;
+c.increment().increment().increment(); // chaining via return *this
+c.print();                             // 3
+
+// &mdash; delete this (rare, dangerous) &mdash;
+// Legal only if heap-allocated with new.
+// Must not access any members after delete this.</code></pre>
+</div>
+</div>
+
+<!-- ==================== POINTERS TO MEMBERS ==================== -->
+<div class="section-title" id="sec-members"><span class="icon">&#128279;</span> Pointers to Members</div>
+<p class="section-intro">Pointer-to-member points to a member of a class (not a specific object). Requires <code>.*</code> or <code>-&gt;*</code> to dereference. Simplified by <code>std::invoke</code> (C++17).</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Member Data &amp; Member Function Pointers</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">struct Point { int x, y; };
+
+// Pointer to data member
+int Point::*pm = &amp;Point::x;
+Point pt{10, 20};
+Point* pp = &amp;pt;
+pt.*pm;                                // 10 (access x through member pointer)
+pp-&gt;*pm;                              // 10 (through object pointer)
+pm = &amp;Point::y;
+pt.*pm;                                // 20 (now accessing y)
+
+// Pointer to member function
+struct Calculator {
+    int add(int a, int b) { return a + b; }
+    int sub(int a, int b) { return a - b; }
+};
+
+int (Calculator::*pmf)(int, int) = &amp;Calculator::add;
+Calculator calc;
+(calc.*pmf)(3, 4);                     // 7
+pmf = &amp;Calculator::sub;
+(calc.*pmf)(10, 3);                    // 7
+
+// std::invoke (C++17) &mdash; uniform call syntax
+#include &lt;functional&gt;
+std::invoke(&amp;Point::x, pt);           // 10 &mdash; much cleaner than .*</code></pre>
+</div>
+</div>
+
+<!-- ==================== COMMON PITFALLS ==================== -->
+<div class="section-title" id="sec-pitfalls"><span class="icon">&#128165;</span> Common Pitfalls &amp; UB</div>
+<p class="section-intro">Undefined behavior from pointer misuse is the most common source of hard-to-debug C++ bugs. Smart pointers and RAII eliminate most of these at compile time.</p>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Dangling pointer (use-after-free)</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int* p = new int(42);
+delete p;
+*p = 10;                               // UB: freed memory
+
+// &#x2705; Set to nullptr after delete, or use smart pointers</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Wild / uninitialized pointer</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int* p;                                // garbage address
+*p = 10;                               // UB: random memory
+
+// &#x2705; Always initialize: int* p = nullptr;</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Double free</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int* p = new int(42);
+delete p;
+delete p;                              // UB: heap corruption
+
+// &#x2705; Smart pointers prevent this entirely</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Buffer overflow via pointer arithmetic</span>
+  <span class="severity bug">Wrong Answer</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">int arr[5] = {1, 2, 3, 4, 5};
+int* p = arr + 10;                     // way past the end
+*p = 99;                               // UB: out-of-bounds write</code></pre>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+  <span class="card-title">Strict aliasing violation</span>
+  <span class="severity subtle">Subtle</span>
+</div>
+<div class="card-body">
+<pre><code class="language-cpp">float f = 3.14f;
+
+// &#x274c; Violates strict aliasing &mdash; optimizer may produce wrong code
+int n = *reinterpret_cast&lt;int*&gt;(&amp;f);
+
+// &#x2705; Use memcpy for type punning
+int n2;
+std::memcpy(&amp;n2, &amp;f, sizeof(n2));
+
+// C++20: std::bit_cast&lt;int&gt;(f)
+// char*/unsigned char*/std::byte* are exempt from aliasing</code></pre>
+</div>
+</div>
+
+<!-- ==================== BEST PRACTICES ==================== -->
+<div class="section-title" id="sec-practices"><span class="icon">&#127919;</span> Best Practices</div>
+<p class="section-intro">Modern C++ guidelines for safe, expressive pointer code.</p>
+
+<div class="card" style="grid-column:1/-1">
+<div class="card-header">
+  <span class="card-title">Key Points</span>
+</div>
+<div class="card-body">
+<div class="note">
+<b>Prefer references over raw pointers</b> &mdash; when the target must always be valid (non-null). References can&rsquo;t be null and can&rsquo;t be reseated.
+<br><br><b>Prefer smart pointers over raw new/delete</b> &mdash; <code>unique_ptr</code> is the default choice. Use <code>shared_ptr</code> only for genuine shared ownership.
+<br><br><b>Use const pointers wherever possible</b> &mdash; <code>const</code> communicates intent and catches mistakes at compile time.
+<br><br><b>Check raw pointers for null</b> &mdash; if a function accepts a raw pointer, assume it might be null.
+<br><br><b>RAII over manual memory management</b> &mdash; every resource (memory, files, locks, sockets) should be owned by an object whose destructor releases it.
+<br><br><b>Avoid C-style casts</b> &mdash; use <code>static_cast</code>, <code>dynamic_cast</code>, <code>reinterpret_cast</code>, <code>const_cast</code>. They are searchable and compiler-checked.
+<br><br><b>Don&rsquo;t use void* in C++ code</b> &mdash; use templates for genericity. Reserve <code>void*</code> for C interop.
+<br><br><b>Never return pointers to locals</b> &mdash; return by value or return a smart pointer.
+<br><br><b>Use nullptr, not NULL or 0</b> &mdash; type-safe, avoids overload ambiguity.
+<br><br><b>Pointer arithmetic = array arithmetic only</b> &mdash; defined only within arrays (including one-past-end). Arbitrary address math is UB.
+</div>
+</div>
+</div>
+
+</div><!-- .cards-grid -->
+</div><!-- .main -->
+</div><!-- #content -->
+    <div class="footer" id="footer">C++ Pointers by Example &mdash; AlgoCode</div>
+  </div><!-- .main-wrapper -->
+</div><!-- .page-body -->
+
+<button class="scroll-top" id="scrollTop" title="Scroll to top">&#8593;</button>
+
+<script>
+(function () {
+  /* Theme toggle */
+  var toggle = document.getElementById('themeToggle');
+  var hljsLink = document.getElementById('hljs-theme');
+  function updateIcon() {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    toggle.textContent = cur === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  }
+  updateIcon();
+  toggle.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    if (hljsLink) hljsLink.href = next === 'light'
+      ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
+      : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+    localStorage.setItem('theme', next);
+    updateIcon();
+  });
+
+  /* Highlight.js */
+  function highlight() {
+    if (typeof hljs === 'undefined') return setTimeout(highlight, 100);
+    document.querySelectorAll('pre code').forEach(function (b) { hljs.highlightElement(b); });
+    document.querySelectorAll('.ctable td code, .section-intro code').forEach(function (el) {
+      el.classList.add('language-cpp');
+      hljs.highlightElement(el);
+    });
+  }
+  highlight();
+
+  /* Sidebar toggle (mobile) */
+  var sidebarEl = document.getElementById('sidebar');
+  var overlayEl = document.getElementById('sidebarOverlay');
+  var hamburgerBtn = document.getElementById('hamburger');
+  var sidebarCloseBtn = document.getElementById('sidebarClose');
+  function openSidebar() {
+    if (sidebarEl) sidebarEl.classList.add('open');
+    if (overlayEl) overlayEl.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    if (sidebarEl) sidebarEl.classList.remove('open');
+    if (overlayEl) overlayEl.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+  if (overlayEl) overlayEl.addEventListener('click', closeSidebar);
+
+  /* Nav pills */
+  var navLinksEl = document.getElementById('navLinks');
+  var contentEl = document.getElementById('content');
+  function buildNavLinks() {
+    navLinksEl.innerHTML = '';
+    contentEl.querySelectorAll('.section-title[id]').forEach(function (sec) {
+      var a = document.createElement('a');
+      a.className = 'nav-link';
+      a.href = '#' + sec.id;
+      a.textContent = sec.textContent.trim();
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeSidebar();
+        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      navLinksEl.appendChild(a);
+    });
+  }
+  buildNavLinks();
+
+  /* Active nav link on scroll */
+  function updateActive() {
+    var sections = contentEl.querySelectorAll('.section-title[id]');
+    var links = navLinksEl.querySelectorAll('.nav-link');
+    if (!sections.length) return;
+    var cur = sections[0].id;
+    sections.forEach(function (s) {
+      if (s.getBoundingClientRect().top <= 70) cur = s.id;
+    });
+    links.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) { requestAnimationFrame(function () { updateActive(); ticking = false; }); ticking = true; }
+  }, { passive: true });
+  updateActive();
+
+  /* Scroll to top */
+  var scrollTopBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', function () {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* Search */
+  var searchInput = document.getElementById('searchInput');
+  var searchTimer = 0;
+  searchInput.addEventListener('input', function () {
+    var query = this.value.toLowerCase();
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () {
+      contentEl.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = card.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+      contentEl.querySelectorAll('.section-title').forEach(function (sec) {
+        var next = sec.nextElementSibling;
+        var hasVisible = false;
+        while (next && !next.classList.contains('section-title')) {
+          if (next.classList.contains('card') && next.style.display !== 'none') hasVisible = true;
+          next = next.nextElementSibling;
+        }
+        sec.style.display = hasVisible ? '' : 'none';
+      });
+    }, 150);
+  });
+})();
+</script>
+</body>
+</html>
