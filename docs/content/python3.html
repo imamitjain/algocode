@@ -101,7 +101,7 @@ math.log2(8)                           # 3.0
 math.log10(1000)                       # 3.0
 
 # Number of digits in n (n must be &gt; 0; log10(0) raises ValueError!)
-digits = len(str(n))                   # simplest, works for any n
+digits = len(str(abs(n)))              # works for any n (including negatives)
 digits = math.floor(math.log10(n)) + 1 # math-based, n &gt; 0 only
 
 # &mdash; Integer division &amp; modulo &mdash;
@@ -133,7 +133,7 @@ math.lcm(4, 6)                         # 12
 math.lcm(4, 6, 10)                     # 60  (multi-arg)
 
 # LCM for &lt; 3.9
-def lcm(a, b): return a // math.gcd(a, b) * b
+def lcm(a, b): return 0 if a == 0 or b == 0 else abs(a // math.gcd(a, b) * b)
 
 # isPrime &mdash; trial division O(&radic;n)
 def is_prime(n):
@@ -175,6 +175,7 @@ a * b % MOD</code></pre>
         i += 1
     return composite  # composite[i]==False &rarr; i is prime
 
+composite = sieve(n)
 primes = [i for i in range(2, n + 1) if not composite[i]]</code></pre>
 <p>Use sieve when primality is needed for many numbers. Trial division per number: O(n&radic;n) total. Sieve: O(n log log n).</p>
 </div>
@@ -737,8 +738,9 @@ arr.pop(i)                             # O(n), returns removed element
 del arr[i]                             # O(n), no return
 
 # &mdash; Rotate left by k &mdash;
-k %= len(arr)
-arr = arr[k:] + arr[:k]
+if arr:
+    k %= len(arr)
+    arr = arr[k:] + arr[:k]
 
 # &mdash; Remove duplicates (preserve order) &mdash;
 arr = list(dict.fromkeys(arr))
@@ -1085,6 +1087,7 @@ count = ub - lb                        # number of occurrences of target
 
 # Find minimum in rotated sorted array
 def find_min(nums):
+    if not nums: return None
     lo, hi = 0, len(nums) - 1
     while lo &lt; hi:
         mid = (lo + hi) // 2
@@ -1092,7 +1095,7 @@ def find_min(nums):
             lo = mid + 1
         else:
             hi = mid
-    return lo
+    return nums[lo]
 
 # Search in rotated array
 def search(nums, target):
@@ -1560,6 +1563,8 @@ while top &lt;= bot and left &lt;= right:
 
 # Grid DFS (4-directional)
 def dfs(grid, vis, r, c):
+    if not grid or not grid[0]:
+        return
     if not in_bounds(r, c, len(grid), len(grid[0])) or vis[r][c]:
         return
     vis[r][c] = True
@@ -1691,23 +1696,29 @@ return dummy.next</code></pre>
   <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
-<pre><code class="language-python"># ✅ Short-circuit: fast checked before fast.next
+<pre><code class="language-python"># Floyd's cycle: phase 1 &mdash; detect cycle
+slow = fast = head
+has_cycle = False
 while fast and fast.next:
     slow = slow.next
     fast = fast.next.next
-
-# ✅ Reverse: save next before overwriting
-nxt = curr.next                        # 1. save
-curr.next = prev                       # 2. reverse
-prev = curr                            # 3. advance prev
-curr = nxt                             # 4. advance curr
+    if slow == fast:
+        has_cycle = True
+        break
+if not has_cycle: return None
 
 # Floyd's cycle: phase 2 &mdash; find cycle start
 ptr = head
 while ptr != slow:
     ptr = ptr.next
     slow = slow.next
-return ptr                             # cycle entry point</code></pre>
+return ptr                             # cycle entry point
+
+# ✅ Reverse: save next before overwriting
+nxt = curr.next                        # 1. save
+curr.next = prev                       # 2. reverse
+prev = curr                            # 3. advance prev
+curr = nxt                             # 4. advance curr</code></pre>
 </div>
 </div>
 
@@ -1983,6 +1994,7 @@ while lo &lt; hi:
     else: hi -= 1
 
 # &mdash; Same direction (remove duplicates in-place) &mdash;
+if not nums: return 0
 slow = 0
 for fast in range(1, len(nums)):
     if nums[fast] != nums[slow]:
@@ -2047,40 +2059,35 @@ from collections import deque
 def topo_sort(n, adj):
     in_deg = [0] * n
     for u in range(n):
-        for v in adj[u]: in_deg[v] += 1
+        for v in adj.get(u, []): in_deg[v] += 1
     q = deque(i for i in range(n) if in_deg[i] == 0)
     order = []
     while q:
         u = q.popleft()
         order.append(u)
-        for v in adj[u]:
+        for v in adj.get(u, []):
             in_deg[v] -= 1
             if in_deg[v] == 0: q.append(v)
     return order if len(order) == n else []  # empty = cycle
 
 # &mdash; DFS-based (post-order reverse) &mdash;
-order = []
-state = [0] * n                       # 0=unvisited, 1=in-stack, 2=done
-has_cycle = False
-
-def dfs(u):
-    global has_cycle
-    state[u] = 1
-    for v in adj[u]:
-        if state[v] == 1:
-            has_cycle = True; return
-        if state[v] == 0:
-            dfs(v)
-            if has_cycle: return
-    state[u] = 2
-    order.append(u)
-
-for i in range(n):
-    if state[i] == 0:
-        dfs(i)
-        if has_cycle: break
-if has_cycle: order = []              # empty = cycle
-else: order.reverse()</code></pre>
+def topo_sort_dfs(n, adj):
+    order = []
+    state = [0] * n                       # 0=unvisited, 1=in-stack, 2=done
+    def dfs(u):
+        state[u] = 1
+        for v in adj.get(u, []):
+            if state[v] == 1: return False
+            if state[v] == 0:
+                if not dfs(v): return False
+        state[u] = 2
+        order.append(u)
+        return True
+    for i in range(n):
+        if state[i] == 0:
+            if not dfs(i): return []      # empty = cycle
+    order.reverse()
+    return order</code></pre>
 </div>
 </div>
 
@@ -2239,7 +2246,7 @@ for i, val in enumerate(arr, 1): pass  # i starts at 1</code></pre>
             total += w
             count += 1
             if count == n - 1: break     # MST has exactly n-1 edges
-    return total  # count &lt; n-1 &rarr; disconnected graph</code></pre>
+    return total if count == n - 1 or n &lt;= 1 else -1  # -1 = disconnected graph</code></pre>
 <p>Sort edges by weight; greedily add lightest edge that doesn&rsquo;t form a cycle. Uses Union-Find for cycle detection.</p>
 </div>
 </div>

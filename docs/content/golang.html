@@ -130,8 +130,11 @@ func gcd(a, b int) int {
     return a
 }
 
-// LCM &mdash; divide first to avoid overflow
-func lcm(a, b int) int { return a / gcd(a, b) * b }
+// LCM &mdash; divide first to avoid overflow (guard 0)
+func lcm(a, b int) int {
+    if a == 0 || b == 0 { return 0 }
+    return a / gcd(a, b) * b
+}
 
 // isPrime &mdash; trial division O(&radic;n)
 func isPrime(n int) bool {
@@ -193,6 +196,7 @@ func sieve(n int) []bool {
 }
 
 // Collect primes
+composite := sieve(n)
 primes := []int{}
 for i := 2; i &lt;= n; i++ {
     if !composite[i] { primes = append(primes, i) }
@@ -794,9 +798,11 @@ rand.Shuffle(len(arr), func(i, j int) {
 arr = append(arr[:i], arr[i+1:]...)       // O(n), order preserved
 arr[i] = arr[len(arr)-1]; arr = arr[:len(arr)-1] // O(1), order lost
 
-// &mdash; Rotate left by k (guard empty slice: len==0 panics on %) &mdash;
-if len(s) &gt; 0 { k %= len(s) }
-s = append(s[k:], s[:k]...)
+// &mdash; Rotate left by k (guard empty slice) &mdash;
+if len(s) &gt; 0 {
+    k %= len(s)
+    s = append(s[k:], s[:k]...)
+}
 
 // &mdash; Remove duplicates (sorted) &mdash;
 slices.Sort(s)
@@ -1076,12 +1082,13 @@ sort.Slice(strs, func(i, j int) bool {
     return strs[i]+strs[j] &gt; strs[j]+strs[i]
 })
 
-// Sort by absolute value
+// Sort by absolute value (safe against MinInt wrap)
 sort.Slice(arr, func(i, j int) bool {
-    ai, aj := arr[i], arr[j]
-    if ai &lt; 0 { ai = -ai }
-    if aj &lt; 0 { aj = -aj }
-    return ai &lt; aj
+    absU := func(x int) uint {
+        if x &lt; 0 { return uint(-x) }
+        return uint(x)
+    }
+    return absU(arr[i]) &lt; absU(arr[j])
 })
 
 // Check if sorted
@@ -1493,11 +1500,11 @@ for _, v := range data {
 <tr class="grp"><td colspan="4">Queue (FIFO)</td></tr>
 <tr><td>Enqueue</td><td><code>append(s, x)</code></td>      <td class="tc-1">O(1)*</td>       <td class="tc-1">O(1)</td></tr>
 <tr><td>Peek</td><td><code>s[0]</code></td>                  <td class="tc-1">O(1)</td>        <td class="tc-1">O(1)</td></tr>
-<tr><td>Dequeue</td><td><code>s[1:]</code></td>              <td class="tc-n">O(n)<span class="cmt">copy</span></td> <td class="tc-1">O(1)</td></tr>
+<tr><td>Dequeue</td><td><code>s[1:]</code></td>              <td class="tc-1">O(1)<span class="cmt">reslice</span></td> <td class="tc-1">O(1)</td></tr>
 <tr class="grp"><td colspan="4">Deque</td></tr>
 <tr><td>Push front</td><td><code>append([]T{x}, s...)</code></td> <td class="tc-n">O(n)</td>  <td class="tc-1">O(1)</td></tr>
 <tr><td>Push back</td><td><code>append(s, x)</code></td>     <td class="tc-1">O(1)*</td>       <td class="tc-1">O(1)</td></tr>
-<tr><td>Pop front</td><td><code>s[1:]</code></td>            <td class="tc-n">O(n)</td>        <td class="tc-1">O(1)</td></tr>
+<tr><td>Pop front</td><td><code>s[1:]</code></td>            <td class="tc-1">O(1)</td>        <td class="tc-1">O(1)</td></tr>
 <tr><td>Pop back</td><td><code>s[:len(s)-1]</code></td>      <td class="tc-1">O(1)</td>        <td class="tc-1">O(1)</td></tr>
 </tbody>
 </table>
@@ -1868,15 +1875,14 @@ if node == nil { return 0 }
 // BFS start
 if root == nil { return result }
 
-// ❌ BST validate with int bounds fails for MinInt node
-// ✅ Always use int64 bounds
-func validate(n *TreeNode, lo, hi int64) bool {
+// ❌ BST validate with fixed integer bounds fails for MinInt node
+// ✅ Use pointer bounds where nil represents unbounded (-Inf, +Inf)
+func validate(n *TreeNode, lo, hi *int) bool {
     if n == nil { return true }
-    v := int64(n.Val)
-    if v &lt;= lo || v &gt;= hi { return false }
-    return validate(n.Left, lo, v) &amp;&amp; validate(n.Right, v, hi)
+    if (lo != nil &amp;&amp; n.Val &lt;= *lo) || (hi != nil &amp;&amp; n.Val &gt;= *hi) { return false }
+    return validate(n.Left, lo, &amp;n.Val) &amp;&amp; validate(n.Right, &amp;n.Val, hi)
 }
-validate(root, math.MinInt64, math.MaxInt64)
+validate(root, nil, nil)
 
 // Max Path Sum: init to MinInt (not 0!)
 ans := math.MinInt
@@ -1966,8 +1972,8 @@ return right</code></pre>
 <pre><code class="language-go">// Diameter of tree [1]: diameter = 0 (no edges)
 // Not 1! Diameter counts edges, not nodes.
 
-// BST validate [MinInt]: use int64 bounds
-validate(root, math.MinInt64, math.MaxInt64)
+// BST validate [MinInt]: use pointer bounds (nil = unbounded)
+validate(root, nil, nil)
 
 // LCA: if root is p or q, early return handles it
 if root == p || root == q { return root }</code></pre>
@@ -2088,7 +2094,8 @@ if n &lt;= 1 { return n }
 // Edit Distance: dp[i][0]=i, dp[0][j]=j &rarr; don't forget!
 
 // House Robber II: can't use first and last together
-if len(nums) == 1 { return nums[0] }   // guard before split
+n := len(nums)
+if n == 1 { return nums[0] }   // guard before split
 r1 := rob(nums[0 : n-1]); r2 := rob(nums[1 : n])
 return max(r1, r2)
 
@@ -2193,6 +2200,7 @@ for lo &lt; hi {
 }
 
 // &mdash; Same direction (remove duplicates in-place) &mdash;
+if len(nums) == 0 { return 0 }
 slow := 0
 for fast := 1; fast &lt; len(nums); fast++ {
     if nums[fast] != nums[slow] { slow++; nums[slow] = nums[fast] }
@@ -2375,7 +2383,7 @@ func bellmanFord(n int, edges [][3]int, src int) []int {
     // V-th pass: any further relaxation → negative cycle
     for _, e := range edges {
         if dist[e[0]] < INF && dist[e[0]]+e[2] < dist[e[1]] {
-            dist[e[1]] = -INF // reachable from negative cycle
+            return nil // negative cycle detected
         }
     }
     return dist
@@ -2391,7 +2399,7 @@ func bellmanFord(n int, edges [][3]int, src int) []int {
 <div class="card-body">
 <pre><code class="language-go">// edges = [][3]int{{u, v, w},...} &mdash; O(V&sup3;). Handles negative edges (not neg cycles).
 func floydWarshall(n int, edges [][3]int) [][]int {
-    const INF = 1 &lt;&lt; 60
+    const INF = int(1e9) // safe for addition, fits in 32-bit int
     dist := make([][]int, n)
     for i := range dist {
         dist[i] = make([]int, n)
@@ -2437,7 +2445,8 @@ func kruskalMST(n int, edges [][3]int) int {
         count++
         if count == n-1 { break }       // MST has exactly n&minus;1 edges
     }
-    return total // count &lt; n&minus;1 &rarr; graph is disconnected
+    if n &gt; 1 &amp;&amp; count &lt; n-1 { return -1 } // graph is disconnected
+    return total
 }</code></pre>
 <p>Sort edges by weight; greedily add lightest edge that doesn&rsquo;t form a cycle. Use for: minimum cost to connect all nodes (network design, clustering).</p>
 </div>
@@ -2572,8 +2581,11 @@ l, r := 0, len(nums)-1
 for l &lt; r {
     sum := nums[l] + nums[r]
     if sum == target { break }
-    if sum &lt; target { l++ }  // advancing l strictly increases sum (sorted invariant)
-    else { r-- }              // shrinking r strictly decreases sum
+    if sum &lt; target {
+        l++ // advancing l strictly increases sum (sorted invariant)
+    } else {
+        r-- // shrinking r strictly decreases sum
+    }
 }</code></pre>
 </div>
 </div>
@@ -2768,7 +2780,7 @@ type Reader interface {
 
 // &mdash; Type assertion &mdash;
 v, ok := iface.(ConcreteType)       // safe
-v := iface.(ConcreteType)           // panics if wrong
+v = iface.(ConcreteType)            // panics if wrong
 
 // &mdash; Type switch &mdash;
 switch v := iface.(type) {
@@ -2909,8 +2921,8 @@ json.NewDecoder(r).Decode(&amp;user)     // streaming decode
 // &mdash; Time &mdash;
 now := time.Now()
 unix := now.Unix()
-elapsed := time.Since(start)
 time.Sleep(100 * time.Millisecond)
+elapsed := time.Since(now)
 
 // Go uses reference time: Mon Jan 2 15:04:05 MST 2006
 s := now.Format("2006-01-02 15:04:05")

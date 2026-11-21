@@ -70,7 +70,7 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <div class="main-wrapper">
+  <main class="main-wrapper">
     <div id="content">
     <div class="main">
     <div class="cards-grid">
@@ -270,10 +270,11 @@ double* dp = static_cast&lt;double*&gt;(vp);
 // Cannot dereference void* directly (no sizeof(void))
 // Cannot do arithmetic on void*
 
-// C-style APIs use void* for genericity
+// C-style APIs use void* for genericity (avoid subtraction to prevent overflow)
 int compare(const void* a, const void* b) {
-    return *static_cast&lt;const int*&gt;(a) -
-           *static_cast&lt;const int*&gt;(b);
+    int va = *static_cast&lt;const int*&gt;(a);
+    int vb = *static_cast&lt;const int*&gt;(b);
+    return (va &gt; vb) - (va &lt; vb);
 }
 
 // &mdash; nullptr (C++11) &mdash;
@@ -512,8 +513,9 @@ weak.lock();                           // returns empty shared_ptr</code></pre>
 auto file = std::unique_ptr&lt;FILE, decltype(&amp;fclose)&gt;(
     fopen("data.txt", "r"), &amp;fclose
 );
-// shared_ptr: deleter doesn't affect the type
-std::shared_ptr&lt;FILE&gt; f(fopen("data.txt", "r"), fclose);
+// shared_ptr: deleter doesn't affect the type (guard against fclose(nullptr) UB)
+FILE* fp = fopen("data.txt", "r");
+std::shared_ptr&lt;FILE&gt; f(fp, [](FILE* p) { if (p) fclose(p); });
 
 // &mdash; enable_shared_from_this &mdash;
 struct Widget : std::enable_shared_from_this&lt;Widget&gt; {
@@ -588,10 +590,10 @@ uintptr_t addr = reinterpret_cast&lt;uintptr_t&gt;(&amp;val);
 const int x = 42;
 int* px = const_cast&lt;int*&gt;(&amp;x);
 // *px = 100;                          // compiles, but UB if x is truly const
-// Legitimate: calling non-const C API with safe data
+// Legitimate: calling non-const C API with safe data (only if legacy_api does NOT write)
 void legacy_api(char* s);
-const std::string&amp; str = "hello";
-legacy_api(const_cast&lt;char*&gt;(str.c_str()));</code></pre>
+std::string str = "hello";
+legacy_api(const_cast&lt;char*&gt;(str.c_str())); // safe only if read-only; if modifying, pass std::vector&lt;char&gt;</code></pre>
 </div>
 </div>
 

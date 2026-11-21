@@ -260,7 +260,12 @@ func gcd(a, b int) int {
 }
 
 // LCM (divide first to avoid overflow)
-func lcm(a, b int) int { return a / gcd(a, b) * b }
+func lcm(a, b int) int {
+    if a == 0 || b == 0 {
+        return 0
+    }
+    return a / gcd(a, b) * b
+}
 
 // isPrime O(√n)
 func isPrime(n int) bool {
@@ -641,13 +646,14 @@ for key, val := range m {
     /* ... */
 }
 
-// Check if two maps have same keys
+// Check if two maps have same keys and values
 func mapsEqual(a, b map[int]int) bool {
     if len(a) != len(b) {
         return false
     }
     for k, v := range a {
-        if b[k] != v {
+        bv, ok := b[k]
+        if !ok || bv != v {
             return false
         }
     }

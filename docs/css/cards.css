@@ -144,6 +144,11 @@ code {
   border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   color: var(--text);
 }
+code.hljs:not(pre code) {
+  display: inline !important;
+  padding: .15em .4em !important;
+  background: var(--code-bg) !important;
+}
 
 /* Copy Button on Pre */
 .copy {
@@ -157,7 +162,8 @@ code {
   border-radius: 6px;
   padding: 3px 8px;
   cursor: pointer;
-  opacity: .75;
+  opacity: .95;
+  box-shadow: var(--shadow);
   transition: all .15s ease;
   z-index: 2;
 }
@@ -569,6 +575,9 @@ td, .ctable tbody td {
 
 /* ---- Responsive Tweaks ---- */
 @media (max-width: 900px) {
+  .section-title {
+    scroll-margin-top: 145px;
+  }
   .cards-grid {
     grid-template-columns: 1fr;
   }

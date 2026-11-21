@@ -76,7 +76,15 @@ function bindCopyButtons() {
     b.title = 'Copy code to clipboard';
     b.addEventListener('click', function () {
       var code = pre.querySelector('code');
-      var txt = code ? code.innerText : pre.innerText;
+      var txt;
+      if (code) {
+        txt = code.textContent;
+      } else {
+        var clone = pre.cloneNode(true);
+        var bEl = clone.querySelector('.copy');
+        if (bEl) bEl.remove();
+        txt = clone.textContent;
+      }
       var done = function () {
         b.textContent = 'Copied';
         setTimeout(function () { b.textContent = 'Copy'; }, 1200);
@@ -95,6 +103,11 @@ function bindCopyButtons() {
 function fallback(t) {
   var a = document.createElement('textarea');
   a.value = t;
+  a.style.position = 'fixed';
+  a.style.top = '0';
+  a.style.left = '0';
+  a.style.opacity = '0';
+  a.style.pointerEvents = 'none';
   document.body.appendChild(a);
   a.select();
   try { document.execCommand('copy'); } catch (e) { }
@@ -104,7 +117,8 @@ function fallback(t) {
 /* ── Nav links ── */
 var BY_EXAMPLE = {
   'python3': { href: 'python-by-example.html', text: '📖 Python by Example' },
-  'cpp':     { href: 'cpp-pointers-by-example.html', text: '📖 C++ Pointers by Example' }
+  'cpp':     { href: 'cpp-pointers-by-example.html', text: '📖 C++ Pointers by Example' },
+  'golang':  { href: 'content/go-vs-cpp.html', text: '📖 Go vs C++ Comparison' }
 };
 
 function buildNavLinks() {
@@ -140,12 +154,14 @@ var NAV_OFFSET = 90;
 
 function updateActiveNavLink() {
   if (!navLinksEl) return;
+  var topbar = document.querySelector('.topbar');
+  var offset = (topbar ? topbar.offsetHeight : 70) + 20;
   var sections = contentEl.querySelectorAll('.section-title[id]');
   var links = navLinksEl.querySelectorAll('.nav-link');
   if (!sections.length) return;
   var currentId = sections[0].id;
   sections.forEach(function (sec) {
-    if (sec.getBoundingClientRect().top <= NAV_OFFSET) currentId = sec.id;
+    if (sec.getBoundingClientRect().top <= offset) currentId = sec.id;
   });
   links.forEach(function (link) {
     link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
@@ -184,11 +200,13 @@ function bindSearch() {
         card.style.display = card.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
       contentEl.querySelectorAll('.section-title').forEach(function (sec) {
+        var titleMatches = sec.textContent.toLowerCase().includes(query);
         var next = sec.nextElementSibling;
-        var hasVisible = false;
+        var hasVisible = titleMatches;
         var nonCards = [];
         while (next && !next.classList.contains('section-title')) {
           if (next.classList.contains('card')) {
+            if (titleMatches) next.style.display = '';
             if (next.style.display !== 'none') hasVisible = true;
           } else {
             nonCards.push(next);
@@ -208,15 +226,17 @@ function bindSearch() {
         row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
       contentEl.querySelectorAll('.section-title').forEach(function (sec) {
+        var titleMatches = sec.textContent.toLowerCase().includes(query);
         var next = sec.nextElementSibling;
-        var hasVisible = false;
+        var hasVisible = titleMatches;
         var nonCards = [];
         while (next && !next.classList.contains('section-title')) {
           if (next.tagName === 'TABLE' || next.classList.contains('ctable')) {
             var rows = next.querySelectorAll('tbody tr:not(.grp)');
-            var tableHasVisible = Array.prototype.some.call(rows, function (r) {
+            var tableHasVisible = titleMatches || Array.prototype.some.call(rows, function (r) {
               return r.style.display !== 'none';
             });
+            next.style.display = tableHasVisible ? '' : 'none';
             if (tableHasVisible) hasVisible = true;
           } else {
             nonCards.push(next);
@@ -236,7 +256,7 @@ function bindSearch() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(function () {
       if (!query) {
-        contentEl.querySelectorAll('.card, tbody tr, .section-title, .section-intro, .ctable, p, div').forEach(function (el) {
+        contentEl.querySelectorAll('.card, tbody tr, .section-title, .section-intro, .ctable, table').forEach(function (el) {
           if (el.classList.contains('tab-content') && !el.classList.contains('active')) return;
           el.style.display = '';
         });
@@ -282,10 +302,12 @@ function loadTab(tab) {
     })
     .then(function (content) {
       pageCache[tab] = content;
+      if (currentTab !== tab) return;
       renderContent(content);
       prefetchOtherTabs();
     })
     .catch(function (err) {
+      if (currentTab !== tab) return;
       contentEl.innerHTML = '<div style="padding: 48px; text-align: center; color: var(--danger);">' + err.message + '</div>';
     });
 }
@@ -322,6 +344,14 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(function (btn) {
 
 /* ── Hash change listener ── */
 window.addEventListener('hashchange', function () {
+  var hash = (location.hash || '').replace('#', '');
+  if (hash.startsWith('sec-')) {
+    var el = document.getElementById(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+  }
   loadTab(getTabFromHash());
 });
 

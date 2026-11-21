@@ -486,6 +486,10 @@ footer, .footer {
 }
 
 @media (max-width: 900px) {
+  html {
+    scroll-padding-top: 145px;
+  }
+
   .wrap, .page-body {
     grid-template-columns: 1fr;
     gap: 0;
@@ -526,17 +530,21 @@ footer, .footer {
 
   nav.toc, .sidebar {
     position: fixed;
-    top: 60px;
+    top: 0;
     left: 0;
-    right: 0;
-    max-height: 75vh;
+    bottom: 0;
+    right: auto;
+    width: 280px;
+    max-width: 85vw;
+    max-height: 100vh;
     background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 18px 20px;
-    z-index: 160;
+    border-right: 1px solid var(--border);
+    border-bottom: none;
+    padding: 16px 18px 24px;
+    z-index: 200;
     display: none;
     box-shadow: var(--shadow);
-    border-radius: 0 0 14px 14px;
+    border-radius: 0;
   }
 
   nav.toc.open, .sidebar.open {

@@ -25,13 +25,14 @@
 (function() {
   try {
     var s = localStorage.getItem('theme');
-    if (s) {
-      document.documentElement.setAttribute('data-theme', s);
-      var l = document.getElementById('hljs-theme');
-      if (l) l.href = s === 'light'
-        ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
-        : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+    if (!s) {
+      s = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
     }
+    document.documentElement.setAttribute('data-theme', s);
+    var l = document.getElementById('hljs-theme');
+    if (l) l.href = s === 'light'
+      ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
+      : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
   } catch(e) {}
 })();
 </script>

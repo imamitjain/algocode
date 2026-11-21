@@ -105,8 +105,8 @@ Math.log10(1000);                          // 3.0
 // Number of digits in n (n must be &gt; 0; log10(0) is -Infinity!)
 int digits = (int)(Math.log10(n)) + 1;    // 9999 &rarr; 4
 
-// &mdash; Ceiling division (positive a, b only) &mdash;
-int ceil = (a + b - 1) / b;               // ceil(a / b) without floating point
+// &mdash; Ceiling division (positive a, b only; avoids a + b - 1 overflow) &mdash;
+int ceil = a / b + (a % b != 0 ? 1 : 0);  // safe without floating point or overflow
 
 // &mdash; Safe infinity for DP / shortest path &mdash;
 int INF  = (int) 1e9;                     // 1e9 + 1e9 = 2e9, fits in int
@@ -119,28 +119,29 @@ int INF2 = Integer.MAX_VALUE / 2;         // safe for a single addition</code></
   <span class="card-title">GCD, LCM, isPrime</span>
 </div>
 <div class="card-body">
-<pre><code class="language-java">// GCD &mdash; Euclidean algorithm O(log min(a,b))
+<pre><code class="language-java">// GCD &mdash; Euclidean algorithm O(log min(a,b)); non-negative
 static int gcd(int a, int b) {
     while (b != 0) {
         int t = b;
         b = a % b;
         a = t;
     }
-    return a;
+    return Math.abs(a);
 }
 
-// LCM &mdash; divide first to avoid overflow
+// LCM &mdash; divide first to avoid overflow; guard 0 &amp; non-negative
 static long gcdLong(long a, long b) {
     while (b != 0) {
         long t = b;
         b = a % b;
         a = t;
     }
-    return a;
+    return Math.abs(a);
 }
 
 static long lcm(long a, long b) {
-    return a / gcdLong(a, b) * b;
+    if (a == 0 || b == 0) return 0;
+    return Math.abs(a / gcdLong(a, b) * b);
 }
 
 // isPrime &mdash; trial division O(&radic;n)
@@ -161,10 +162,11 @@ static boolean isPrime(int n) {
 <div class="card-body">
 <pre><code class="language-java">static final int MOD = 1_000_000_007;
 
-// Modular exponentiation O(log exp)
+// Modular exponentiation O(log exp) &mdash; handles negative base &amp; mod == 1
 static long modPow(long base, long exp, long mod) {
+    if (mod == 1) return 0;
     long result = 1;
-    base %= mod;
+    base = (base % mod + mod) % mod;
     while (exp &gt; 0) {
         if ((exp &amp; 1) == 1) result = result * base % mod;
         base = base * base % mod;
@@ -173,8 +175,8 @@ static long modPow(long base, long exp, long mod) {
     return result;
 }
 
-// Safe modular add
-int sumMod = (int) ((a % MOD + b % MOD) % MOD);
+// Safe modular add &mdash; handles negative operands correctly
+int sumMod = (int) ((((long) a + b) % MOD + MOD) % MOD);
 
 // Safe modular multiply &mdash; cast to long to prevent int overflow
 int prodMod = (int) ((long) a * b % MOD);</code></pre>
@@ -629,11 +631,14 @@ for (int sub = mask; sub &gt; 0; sub = (sub - 1) &amp; mask) {
 -1 &gt;&gt;&gt; 1;                  // 2147483647 (Integer.MAX_VALUE)
 -8 &gt;&gt;&gt; 2;                  // 1073741822
 
-// ❌ Using &gt;&gt; for unsigned midpoint
-int mid = (lo + hi) &gt;&gt; 1;        // WRONG for negative (lo + hi)
+// ❌ (lo + hi) / 2 overflows when lo + hi &gt; Integer.MAX_VALUE
+int mid = (lo + hi) / 2;         // WRONG when non-negative sum overflows
 
-// ✅ Use &gt;&gt;&gt; for safe unsigned midpoint
-int mid = (lo + hi) &gt;&gt;&gt; 1;       // correct even if sum is negative
+// ✅ Use &gt;&gt;&gt; ONLY for non-negative indices when their sum overflows int
+int mid = (lo + hi) &gt;&gt;&gt; 1;       // treats overflowed positive sum as unsigned
+
+// ✅ For general values that may genuinely be negative, use subtraction:
+int mid = lo + (hi - lo) / 2;
 
 // ⚠ Integer.bitCount() on negative numbers works correctly
 Integer.bitCount(-1);              // 32 &mdash; all bits set
@@ -1618,7 +1623,7 @@ List&lt;Integer&gt; synced  = Collections.synchronizedList(new ArrayList&lt;&gt;
 <tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E pollLast()</code></td>                       <td class="na">--</td>                                           <td class="tc-1">O(1)</td></tr>
 <tr class="grp"><td colspan="4">Bulk Operations</td></tr>
-<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(n)<span class="cmt">arraycopy</span></td>     <td class="tc-n">O(m)<span class="cmt">append each</span></td></tr>
+<tr><td>Collection</td><td><code>boolean addAll(Collection c)</code></td> <td class="tc-n">O(m)*<span class="cmt">amortized; arraycopy</span></td> <td class="tc-n">O(m)<span class="cmt">append each</span></td></tr>
 <tr><td>Collection</td><td><code>boolean removeAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                    <td class="tc-n">O(n)</td></tr>
 <tr><td>Collection</td><td><code>boolean retainAll(Collection c)</code></td> <td class="tc-n">O(n)</td>                                    <td class="tc-n">O(n)</td></tr>
 <tr><td>Collection</td><td><code>boolean containsAll(Collection c)</code></td> <td class="tc-n">O(n*m)</td>                                <td class="tc-n">O(n*m)</td></tr>
@@ -1644,9 +1649,9 @@ List&lt;Integer&gt; synced  = Collections.synchronizedList(new ArrayList&lt;&gt;
 </div>
 <div class="card-body">
 <pre><code class="language-java">// ❌ Modifying list inside for-each throws ConcurrentModificationException
-List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "b", "c"));
+List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "b", "c", "d"));
 for (String s : list) {
-    if (s.equals("b")) list.remove(s);  // CME!
+    if (s.equals("b")) list.remove(s);  // CME on next iteration!
 }
 
 // ✅ Use Iterator.remove()
@@ -2080,8 +2085,8 @@ Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();   // offer(), poll(), pee
 <tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)<span class="cmt">min element</span></td>      <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
 <tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-logn">O(log n)<span class="cmt">sift down</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td> <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
 <tr class="grp"><td colspan="5">Double-Ended (Deque) &mdash; ArrayDeque &amp; LinkedList</td></tr>
-<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
-<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>boolean offerFirst(E e)</code></td>            <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
+<tr><td>Deque</td><td><code>boolean offerLast(E e)</code></td>             <td class="na">--</td>                                              <td class="tc-1">O(1)*<span class="cmt">amortized</span></td>  <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td>                                      <td class="tc-1">O(1)</td></tr>
@@ -2481,7 +2486,7 @@ while (it.hasNext()) {
     if (it.next().getKey().equals("b")) it.remove();
 }
 
-// ✅ Or collect keys first, then remove
+// ✅ Or remove directly via keySet view (Java 8+)
 map.keySet().removeIf(k -&gt; k.equals("b"));</code></pre>
 </div>
 </div>
@@ -2824,7 +2829,7 @@ BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // boun
 <tr><td>ConcurrentMap</td><td><code>V computeIfAbsent(K, fn)</code></td>   <td class="tc-1">O(1)<span class="cmt">atomic; + fn</span></td>     <td class="tc-logn">O(log n)<span class="cmt">+ fn</span></td></tr>
 <tr><td>ConcurrentMap</td><td><code>V merge(K, V, fn)</code></td>          <td class="tc-1">O(1)<span class="cmt">atomic</span></td>            <td class="tc-logn">O(log n)</td></tr>
 <tr class="grp"><td colspan="4">Size &amp; Metadata</td></tr>
-<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-n">O(n)<span class="cmt">not O(1); aggregates counters. Prefer mappingCount()</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
+<tr><td>Map</td><td><code>int size()</code></td>                           <td class="tc-1">O(1)<span class="cmt">aggregates counter cells; prefer mappingCount() to avoid 32-bit overflow</span></td><td class="tc-n">O(n)<span class="cmt">traversal</span></td></tr>
 <tr><td>Map</td><td><code>boolean isEmpty()</code></td>                    <td class="tc-1">O(1)</td>                                           <td class="tc-1">O(1)</td></tr>
 <tr><td>Map</td><td><code>void clear()</code></td>                         <td class="tc-n">O(n)</td>                                           <td class="tc-n">O(n)</td></tr>
 <tr><td>Map</td><td><code>void putAll(Map m)</code></td>                   <td class="tc-n">O(m)</td>                                           <td class="tc-nlogn">O(m log n)</td></tr>
@@ -2864,8 +2869,8 @@ BlockingQueue&lt;String&gt; lbq2 = new LinkedBlockingQueue&lt;&gt;(100); // boun
 <tr><td>Queue</td><td><code>E peek()</code></td>                           <td class="tc-1">O(1)</td>                                          <td class="tc-1">O(1)<span class="cmt">= peekFirst</span></td></tr>
 <tr><td>Queue</td><td><code>E poll()</code></td>                           <td class="tc-1">O(1)</td>                                          <td class="tc-1">O(1)<span class="cmt">= pollFirst</span></td></tr>
 <tr class="grp"><td colspan="4">Double-Ended (Deque) &mdash; ConcurrentLinkedDeque only</td></tr>
-<tr><td>Deque</td><td><code>void offerFirst(E e)</code></td>               <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
-<tr><td>Deque</td><td><code>void offerLast(E e)</code></td>                <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
+<tr><td>Deque</td><td><code>boolean offerFirst(E e)</code></td>            <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
+<tr><td>Deque</td><td><code>boolean offerLast(E e)</code></td>             <td class="na">--</td>                                              <td class="tc-1">O(1)<span class="cmt">CAS</span></td></tr>
 <tr><td>Deque</td><td><code>E peekFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E peekLast()</code></td>                       <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
 <tr><td>Deque</td><td><code>E pollFirst()</code></td>                      <td class="na">--</td>                                              <td class="tc-1">O(1)</td></tr>
@@ -3178,9 +3183,9 @@ Arrays.sort(words, (a, b) -&gt;
 String[] strs = {"3", "30", "34", "5", "9"};
 Arrays.sort(strs, (a, b) -&gt; (b + a).compareTo(a + b));  // "9534330"
 
-// ── Sort by absolute value ──
+// ── Sort by absolute value (cast to long to avoid Integer.MIN_VALUE wrap) ──
 Integer[] vals = {-5, 2, -1, 4, -3};
-Arrays.sort(vals, (a, b) -&gt; Integer.compare(Math.abs(a), Math.abs(b)));
+Arrays.sort(vals, (a, b) -&gt; Long.compare(Math.abs((long) a), Math.abs((long) b)));
 
 // ── Partial sort (subrange) ──
 int[] data = {5, 3, 8, 1, 9, 2, 7};
@@ -3217,7 +3222,7 @@ for (int l = i + 1, r = nums.length - 1; l &lt; r; l++, r--) {
 <tr><td><code>Arrays.sort(int[])</code></td>          <td class="tc-nlogn">O(n log n)</td><td>Dual-pivot quicksort</td><td>&#10008; No</td></tr>
 <tr><td><code>Arrays.sort(T[], Comparator)</code></td><td class="tc-nlogn">O(n log n)</td><td>TimSort</td><td>&#10004; Yes</td></tr>
 <tr><td><code>Collections.sort(List)</code></td>       <td class="tc-nlogn">O(n log n)</td><td>TimSort</td><td>&#10004; Yes</td></tr>
-<tr><td><code>Arrays.parallelSort(int[])</code></td>   <td class="tc-nlogn">O(n log n)</td><td>Merge sort<span class="cmt">multi-threaded</span></td><td>&#10004; Yes</td></tr>
+<tr><td><code>Arrays.parallelSort(int[])</code></td>   <td class="tc-nlogn">O(n log n)</td><td>Merge sort<span class="cmt">multi-threaded</span></td><td>&#10008; No<span class="cmt">T[] is stable; primitive is not</span></td></tr>
 <tr><td><code>Arrays.sort(int[], from, to)</code></td> <td class="tc-nlogn">O(k log k)<span class="cmt">k = toIndex - fromIndex</span></td><td>Dual-pivot quicksort</td><td>&#10008; No</td></tr>
 </tbody>
 </table>
@@ -3416,10 +3421,10 @@ while (lo &lt; hi) {
     else hi = mid - 1;
 }
 
-// ✅ FIX: always use lo = mid + 1 to guarantee progress
+// ✅ FIX: when using lo = mid, round midpoint UP to guarantee progress
 int lo = 0, hi = arr.length - 1;
 while (lo &lt; hi) {
-    int mid = lo + (hi - lo + 1) / 2;  // round UP when lo = mid + 1 is used
+    int mid = lo + (hi - lo + 1) / 2;  // round UP to avoid infinite loop when lo = mid
     if (check(mid)) lo = mid;
     else hi = mid - 1;
 }</code></pre>
@@ -3483,11 +3488,11 @@ while (lo &lt; hi) {
 // lo == minimum eating speed
 
 // ── Capacity to Ship Packages (LC #1011) ──
-// lo = max(weights) (must carry heaviest), hi = sum(weights) (ship all at once)
-int lo = Arrays.stream(weights).max().getAsInt();
-int hi = Arrays.stream(weights).sum();
+// lo = max(weights) (must carry heaviest), hi = sum(weights) (use long to avoid overflow)
+long lo = Arrays.stream(weights).max().getAsInt();
+long hi = Arrays.stream(weights).asLongStream().sum();
 while (lo &lt; hi) {
-    int mid = lo + (hi - lo) / 2;
+    long mid = lo + (hi - lo) / 2;
     if (canShip(weights, mid, days)) hi = mid;
     else lo = mid + 1;
 }
@@ -4253,6 +4258,7 @@ for (int i = 0; i &lt; nums.length - 2; i++) {
     // ... two-pointer ...
     while (lo &lt; hi &amp;&amp; nums[lo] == nums[lo + 1]) lo++;  // skip inner dups
     while (lo &lt; hi &amp;&amp; nums[hi] == nums[hi - 1]) hi--;
+    lo++; hi--;
 }
 
 // ⚠ Rotated Sorted Array II: linear fallback when lo == mid == hi
@@ -4494,10 +4500,12 @@ int[] bellmanFord(int n, int[][] edges, int src) {
         for (int[] e : edges)
             if (dist[e[0]] &lt; INF &amp;&amp; dist[e[0]] + e[2] &lt; dist[e[1]])
                 dist[e[1]] = dist[e[0]] + e[2];
-    // V-th pass: any further relaxation &rarr; negative cycle
-    for (int[] e : edges)
-        if (dist[e[0]] &lt; INF &amp;&amp; dist[e[0]] + e[2] &lt; dist[e[1]])
-            dist[e[1]] = -INF;    // mark as in/reachable from neg cycle
+    // V-th pass: any further relaxation &rarr; negative cycle exists
+    for (int[] e : edges) {
+        if (dist[e[0]] &lt; INF &amp;&amp; dist[e[0]] + e[2] &lt; dist[e[1]]) {
+            dist[e[1]] = -INF;    // mark node in negative cycle
+        }
+    }
     return dist;
 }
 // ❌ Dijkstra with negative weights &rarr; wrong answers (use Bellman-Ford)</code></pre>

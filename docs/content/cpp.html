@@ -44,8 +44,10 @@
 <tr><td><code>unsigned short</code></td>                          <td>2 bytes</td>     <td>0</td>                                                      <td>65,535</td>                                             <td><code>USHRT_MAX</code></td></tr>
 <tr><td><code>int</code> · <code>int32_t</code></td>             <td>4 bytes</td>     <td>&minus;2,147,483,648 (&minus;2<sup>31</sup>)</td>            <td>2,147,483,647 (2<sup>31</sup>&minus;1)</td>              <td><code>INT_MIN</code> / <code>INT_MAX</code></td></tr>
 <tr><td><code>unsigned int</code></td>                            <td>4 bytes</td>     <td>0</td>                                                      <td>4,294,967,295 (2<sup>32</sup>&minus;1)</td>             <td><code>UINT_MAX</code></td></tr>
-<tr><td><code>long</code> · <code>ptrdiff_t</code></td>          <td>4/8 bytes</td>   <td>&minus;2<sup>31</sup> or &minus;2<sup>63</sup></td>         <td>2<sup>31</sup>&minus;1 or 2<sup>63</sup>&minus;1</td>   <td><code>LONG_MIN</code> / <code>LONG_MAX</code></td></tr>
-<tr><td><code>unsigned long</code> · <code>size_t</code></td>    <td>4/8 bytes</td>   <td>0</td>                                                      <td>2<sup>32</sup>&minus;1 or 2<sup>64</sup>&minus;1</td>   <td><code>ULONG_MAX</code></td></tr>
+<tr><td><code>long</code></td>                                        <td>4/8 bytes</td>   <td>&minus;2<sup>31</sup> or &minus;2<sup>63</sup></td>         <td>2<sup>31</sup>&minus;1 or 2<sup>63</sup>&minus;1</td>   <td><code>LONG_MIN</code> / <code>LONG_MAX</code></td></tr>
+<tr><td><code>unsigned long</code></td>                               <td>4/8 bytes</td>   <td>0</td>                                                      <td>2<sup>32</sup>&minus;1 or 2<sup>64</sup>&minus;1</td>   <td><code>ULONG_MAX</code></td></tr>
+<tr><td><code>size_t</code> · <code>uintptr_t</code></td>             <td>4/8 bytes</td>   <td>0</td>                                                      <td>2<sup>32</sup>&minus;1 or 2<sup>64</sup>&minus;1</td>   <td><code>SIZE_MAX</code> (<code>&lt;cstdint&gt;</code>)</td></tr>
+<tr><td><code>ptrdiff_t</code> · <code>intptr_t</code></td>          <td>4/8 bytes</td>   <td>&minus;2<sup>31</sup> or &minus;2<sup>63</sup></td>         <td>2<sup>31</sup>&minus;1 or 2<sup>63</sup>&minus;1</td>   <td><code>PTRDIFF_MAX</code> (<code>&lt;cstdint&gt;</code>)</td></tr>
 <tr><td><code>long long</code> · <code>int64_t</code></td>       <td>8 bytes</td>     <td>&minus;9,223,372,036,854,775,808 (&minus;2<sup>63</sup>)</td><td>9,223,372,036,854,775,807 (2<sup>63</sup>&minus;1)</td>  <td><code>LLONG_MIN</code> / <code>LLONG_MAX</code></td></tr>
 <tr><td><code>unsigned long long</code></td>                      <td>8 bytes</td>     <td>0</td>                                                      <td>18,446,744,073,709,551,615 (2<sup>64</sup>&minus;1)</td><td><code>ULLONG_MAX</code></td></tr>
 <tr class="grp"><td colspan="5">Floating-Point Types</td></tr>
@@ -121,9 +123,12 @@ pow(2, 10);                                // 1024.0 (double)
 sqrt(49.0);                                // 7.0
 (int)sqrt(49);                             // 7
 
-// Perfect square check
-int sq = (int)sqrt(n);
-bool ok = sq * sq == n || (sq + 1) * (sq + 1) == n;
+// Perfect square check (guard against NaN on negative and int overflow on (sq+1)^2)
+bool ok = false;
+if (n &gt;= 0) {
+    long long sq = round(sqrt(n));
+    ok = (sq * sq == n);
+}
 
 // &mdash; Rounding &mdash;
 floor(2.7);                                // 2.0
@@ -163,13 +168,14 @@ gcd(12, 8);                                // 4
 lcm(4, 6);                                // 12
 
 // GCD &mdash; Euclidean algorithm O(log min(a,b))
-int gcd(int a, int b) {
+long long gcd(long long a, long long b) {
     while (b) { a %= b; swap(a, b); }
     return a;
 }
 
 // LCM &mdash; divide first to avoid overflow
 long long lcm(long long a, long long b) {
+    if (a == 0 || b == 0) return 0;
     return a / gcd(a, b) * b;
 }
 
@@ -530,8 +536,8 @@ c &amp; '_';    // force uppercase  ('a'&rarr;'A', 'A'&rarr;'A')
 c ^ ' ';    // toggle case      ('a'&harr;'A')
 // ' ' = 32 = 0b0010_0000,  '_' = 95 = 0b0101_1111
 
-// Vowel check
-char lower = tolower(c);
+// Vowel check (cast to unsigned char to avoid UB with negative char values)
+char lower = tolower(static_cast&lt;unsigned char&gt;(c));
 bool isVowel = lower=='a' || lower=='e' || lower=='i'
             || lower=='o' || lower=='u';</code></pre>
 </div>
@@ -633,11 +639,11 @@ a ^= b; b ^= a; a ^= b;  // XOR trick (avoid — less readable)
 n = (n &amp; ~(1 &lt;&lt; i)) | (v &lt;&lt; i);
 
 // &mdash; Highest one bit (floor power of 2, n must be &gt; 0) &mdash;
-// __builtin_clz(0) is UB &mdash; always guard n &gt; 0
-1 &lt;&lt; (31 - __builtin_clz(n));            // 12 &rarr; 8, 16 &rarr; 16
+// __builtin_clz(0) is UB &mdash; always guard n &gt; 0; use 1u to avoid 1 &lt;&lt; 31 UB
+1u &lt;&lt; (31 - __builtin_clz(n));           // 12 &rarr; 8, 16 &rarr; 16
 
 // &mdash; Bitmask &amp; subset enumeration &mdash;
-(1 &lt;&lt; n) - 1;       // n=4 &rarr; 0b1111 = 15
+(1LL &lt;&lt; n) - 1;      // use 1LL to prevent signed overflow for n &ge; 31
 
 for (int sub = m; sub &gt; 0; sub = (sub - 1) &amp; m) {
     // process sub
@@ -977,9 +983,9 @@ while (iss &gt;&gt; word) parts.push_back(word);
 // &mdash; Join &mdash;
 // No built-in join; use a loop with ostringstream
 ostringstream oss;
-for (int i = 0; i &lt; v.size(); i++) {
+for (int i = 0; i &lt; (int)parts.size(); i++) {
     if (i) oss &lt;&lt; ",";
-    oss &lt;&lt; v[i];
+    oss &lt;&lt; parts[i];
 }
 string joined = oss.str();
 
@@ -1040,11 +1046,11 @@ bool isPalindrome(string s) {
 }
 
 // Two-pointer version (O(1) space):
-int l = 0, r = s.size() - 1;
+int l = 0, r = (int)s.size() - 1;
 while (l &lt; r) {
-    while (l &lt; r &amp;&amp; !isalnum(s[l])) l++;
-    while (l &lt; r &amp;&amp; !isalnum(s[r])) r--;
-    if (tolower(s[l]) != tolower(s[r])) return false;
+    while (l &lt; r &amp;&amp; !isalnum(static_cast&lt;unsigned char&gt;(s[l]))) l++;
+    while (l &lt; r &amp;&amp; !isalnum(static_cast&lt;unsigned char&gt;(s[r]))) r--;
+    if (tolower(static_cast&lt;unsigned char&gt;(s[l])) != tolower(static_cast&lt;unsigned char&gt;(s[r]))) return false;
     l++; r--;
 }
 return true;</code></pre>
@@ -1173,15 +1179,16 @@ bool found = binary_search(v.begin(), v.end(), target);
 auto [lo, hi] = equal_range(v.begin(), v.end(), target);
 int cnt = hi - lo;
 
-// Find minimum in rotated sorted array (= pivot index)
+// Find minimum in rotated sorted array (LC #153)
 int findMin(vector&lt;int&gt;&amp; nums) {
-    int lo = 0, hi = nums.size() - 1;
+    if (nums.empty()) return -1;
+    int lo = 0, hi = (int)nums.size() - 1;
     while (lo &lt; hi) {
         int mid = lo + (hi - lo) / 2;
         if (nums[mid] &gt; nums[hi]) lo = mid + 1;
         else hi = mid;
     }
-    return lo;
+    return nums[lo];
 }
 
 // Search in rotated array
@@ -1258,9 +1265,9 @@ if (nums[mid] == target) lo = mid + 1;   // last: search RIGHT</code></pre>
 lo = 1;                            // minimum possible rate
 hi = *max_element(p.begin(), p.end()); // one pile per hour
 
-// Capacity to Ship:
-lo = *max_element(w.begin(), w.end());  // must fit heaviest
-hi = accumulate(w.begin(), w.end(), 0); // everything in one day
+// Capacity to Ship (use 0LL to avoid signed integer overflow):
+long long lo = *max_element(w.begin(), w.end());  // must fit heaviest
+long long hi = accumulate(w.begin(), w.end(), 0LL); // everything in one day
 
 // isFeasible must be monotone!</code></pre>
 </div>
@@ -1744,7 +1751,13 @@ for (auto&amp; e : edges) inDeg[e[1]]++;</code></pre>
 <pre><code class="language-cpp">// Uses TrieNode defined in Node Definitions above
 class Trie {
     TrieNode* root = new TrieNode();
+    void clear(TrieNode* node) {
+        if (!node) return;
+        for (int i = 0; i &lt; 26; i++) clear(node-&gt;children[i]);
+        delete node;
+    }
 public:
+    ~Trie() { clear(root); }
     void insert(const string&amp; word) {
         auto* node = root;
         for (char c : word) {
@@ -2042,7 +2055,9 @@ if (n &lt;= 1) return n;
 // Edit Distance: dp[i][0]=i, dp[0][j]=j &rarr; don't forget!
 
 // House Robber II: can't use first and last together
-if (nums.size() == 1) return nums[0];     // guard before split
+int n = nums.size();
+if (n == 0) return 0;
+if (n == 1) return nums[0];     // guard before split
 int r1 = rob(nums, 0, n - 2);
 int r2 = rob(nums, 1, n - 1);
 return max(r1, r2);
@@ -2155,13 +2170,14 @@ if ((int)nums.size() &lt; 2) return nums[0];
 <pre><code class="language-cpp">// &mdash; Opposite ends (sorted pair sum) &mdash;
 int lo = 0, hi = n - 1;
 while (lo &lt; hi) {
-    int sum = nums[lo] + nums[hi];
+    long long sum = 1LL * nums[lo] + nums[hi];  // avoid signed overflow
     if (sum == target) { /* found */ lo++; hi--; }
     else if (sum &lt; target) lo++;
     else hi--;
 }
 
 // &mdash; Same direction (remove duplicates in-place) &mdash;
+if (n == 0) return 0;
 int slow = 0;
 for (int fast = 1; fast &lt; n; fast++) {
     if (nums[fast] != nums[slow]) nums[++slow] = nums[fast];
@@ -2190,13 +2206,13 @@ while (l &lt; r) {
   <span class="card-title">Prefix Sum &mdash; 1D &amp; 2D</span>
 </div>
 <div class="card-body">
-<pre><code class="language-cpp">// &mdash; 1D prefix sum &mdash;
-vector&lt;int&gt; pre(n + 1, 0);
+<pre><code class="language-cpp">// &mdash; 1D prefix sum (use long long to prevent overflow) &mdash;
+vector&lt;long long&gt; pre(n + 1, 0);
 for (int i = 0; i &lt; n; i++) pre[i + 1] = pre[i] + nums[i];
 // sum of [l, r] inclusive = pre[r + 1] - pre[l]
 
-// &mdash; 2D prefix sum &mdash;
-vector&lt;vector&lt;int&gt;&gt; pre(m + 1, vector&lt;int&gt;(n + 1, 0));
+// &mdash; 2D prefix sum (use long long to prevent overflow) &mdash;
+vector&lt;vector&lt;long long&gt;&gt; pre(m + 1, vector&lt;long long&gt;(n + 1, 0));
 for (int i = 0; i &lt; m; i++)
     for (int j = 0; j &lt; n; j++)
         pre[i+1][j+1] = mat[i][j] + pre[i][j+1] + pre[i+1][j] - pre[i][j];
@@ -2307,6 +2323,7 @@ for (int s : starts) {
 </div>
 <div class="card-body">
 <pre><code class="language-cpp">// edges = vector&lt;array&lt;int,3&gt;&gt; {{u,v,w},...} &mdash; O(V&middot;E)
+// Returns empty vector if negative cycle detected
 vector&lt;int&gt; bellmanFord(int n, vector&lt;array&lt;int,3&gt;&gt;&amp; edges, int src) {
     const int INF = INT_MAX / 2;
     vector&lt;int&gt; dist(n, INF);
@@ -2318,7 +2335,7 @@ vector&lt;int&gt; bellmanFord(int n, vector&lt;array&lt;int,3&gt;&gt;&amp; edges
     // V-th pass: any further relaxation &rarr; negative cycle
     for (auto&amp; e : edges)
         if (dist[e[0]] &lt; INF &amp;&amp; dist[e[0]] + e[2] &lt; dist[e[1]])
-            dist[e[1]] = -INF;  // mark as reachable from negative cycle
+            return {};  // negative cycle detected (unbounded shortest path)
     return dist;
 }
 // ❌ Dijkstra with negative weights &rarr; wrong answers (already noted above)</code></pre>
@@ -2353,15 +2370,17 @@ vector&lt;vector&lt;int&gt;&gt; floydWarshall(int n, vector&lt;array&lt;int,3&gt
   <span class="card-title">Kruskal&rsquo;s MST &mdash; minimum spanning tree O(E log E)</span>
 </div>
 <div class="card-body">
-<pre><code class="language-cpp">// edges = {{w,u,v},...} sorted by weight &mdash; uses inline Union-Find
-int kruskalMST(int n, vector&lt;array&lt;int,3&gt;&gt; edges) {
+<pre><code class="language-cpp">// edges = {{w,u,v},...} sorted by weight &mdash; uses inline Union-Find (returns -1 if disconnected)
+long long kruskalMST(int n, vector&lt;array&lt;int,3&gt;&gt; edges) {
+    if (n &lt;= 1) return 0;
     sort(edges.begin(), edges.end());
     vector&lt;int&gt; parent(n), rnk(n, 0);
     iota(parent.begin(), parent.end(), 0);
     function&lt;int(int)&gt; find = [&amp;](int x) {
         return parent[x] == x ? x : parent[x] = find(parent[x]);
     };
-    int total = 0, count = 0;
+    long long total = 0;
+    int count = 0;
     for (auto&amp; e : edges) {
         int pu = find(e[1]), pv = find(e[2]);
         if (pu == pv) continue;              // same component &rarr; cycle
@@ -2371,7 +2390,7 @@ int kruskalMST(int n, vector&lt;array&lt;int,3&gt;&gt; edges) {
         total += e[0];
         if (++count == n - 1) break;         // MST has n&minus;1 edges
     }
-    return total;  // count &lt; n&minus;1 &rarr; graph is disconnected
+    return count == n - 1 ? total : -1;  // -1 &rarr; graph is disconnected
 }</code></pre>
 <p>Sort edges by weight; greedily add lightest edge that doesn&rsquo;t form a cycle. Use for: minimum cost to connect all nodes.</p>
 </div>
@@ -2441,17 +2460,18 @@ struct SegTree {
 <div class="card-body">
 <pre><code class="language-cpp">// 1-indexed. Simpler than segment tree; sum only (not min/max without tricks).
 struct BIT {
-    vector&lt;int&gt; bit; int n;
+    vector&lt;long long&gt; bit; int n;
     BIT(int n) : n(n), bit(n + 1, 0) {}
-    void update(int i, int delta) {          // add delta to index i
+    void update(int i, long long delta) {          // add delta to index i
+        if (i &lt;= 0) return;                        // guard against infinite loop if 0 is passed
         for (; i &lt;= n; i += i &amp; -i) bit[i] += delta;
     }
-    int query(int i) {                       // prefix sum [1..i]
-        int s = 0;
+    long long query(int i) {                       // prefix sum [1..i]
+        long long s = 0;
         for (; i &gt; 0; i -= i &amp; -i) s += bit[i];
         return s;
     }
-    int rangeQuery(int l, int r) { return query(r) - query(l - 1); }
+    long long rangeQuery(int l, int r) { return query(r) - query(l - 1); }
 };
 // i &amp; -i isolates the lowest set bit &mdash; drives both update and query traversal
 // Use for: inversion count, rank queries after coordinate compression</code></pre>
@@ -2493,7 +2513,7 @@ while (!q.empty()) {
 
 int l = 0, r = (int)nums.size() - 1;
 while (l &lt; r) {
-    int sum = nums[l] + nums[r];
+    long long sum = 1LL * nums[l] + nums[r];
     if (sum == target) break;
     else if (sum &lt; target) l++;  // advancing l strictly increases sum
     else r--;                     // shrinking r strictly decreases sum

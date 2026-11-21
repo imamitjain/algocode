@@ -70,7 +70,7 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <div class="main-wrapper">
+  <main class="main-wrapper">
     <div id="content">
     <div class="main">
     <div class="cards-grid">
@@ -297,6 +297,7 @@ def repeat(n):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            result = None
             for _ in range(n):
                 result = func(*args, **kwargs)
             return result
@@ -450,7 +451,8 @@ def accumulator():
     total = 0
     while True:
         value = yield total
-        total += value
+        if value is not None:
+            total += value
 
 acc = accumulator()
 next(acc)                              # 0   (prime the generator)
@@ -632,6 +634,7 @@ class Vec:
         return Vec(self.x + other.x, self.y + other.y)
     def __mul__(self, scalar):
         return Vec(self.x * scalar, self.y * scalar)
+    __rmul__ = __mul__
     def __repr__(self):
         return f"Vec({self.x}, {self.y})"
 

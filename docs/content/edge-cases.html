@@ -14,9 +14,9 @@ a := math.MaxInt
 b := 1
 sum := a + b   // wraps to math.MinInt
 
-// ✅ Check before adding
-if a &gt; math.MaxInt - b {
-    // would overflow
+// ✅ Check before adding (positive overflow &amp; negative underflow)
+if (b &gt; 0 &amp;&amp; a &gt; math.MaxInt-b) || (b &lt; 0 &amp;&amp; a &lt; math.MinInt-b) {
+    // would overflow/underflow
 }</code></pre>
 </div>
 </div>
@@ -779,8 +779,8 @@ heights = append(heights, 0)
   <span class="severity bug">Wrong Answer</span>
 </div>
 <div class="card-body">
-<pre><code class="language-go">// Climbing Stairs: n=1 → dp[i-2] accesses dp[-1]
-if n &lt;= 1 {
+<pre><code class="language-go">// Climbing Stairs: n &lt;= 2 early return prevents out of bounds
+if n &lt;= 2 {
     return n
 }
 
