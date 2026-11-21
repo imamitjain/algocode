@@ -1,0 +1,126 @@
+name: Bump Version and Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine Next Semantic Version
+        id: version
+        shell: python
+        run: |
+          import os, re, subprocess, sys
+
+          def run(cmd):
+              return subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
+
+          # 1. Fetch all tags
+          try:
+              subprocess.run(["git", "fetch", "--tags", "--force"], check=True)
+          except Exception as e:
+              print(f"Warning fetching tags: {e}")
+
+          # 2. Check if current HEAD already has a semver tag
+          try:
+              head_tags = run(["git", "tag", "--points-at", "HEAD"]).split()
+          except Exception:
+              head_tags = []
+
+          for t in head_tags:
+              if re.match(r"^v?\d+\.\d+\.\d+$", t):
+                  print(f"HEAD is already tagged with {t}. Skipping release.")
+                  with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                      f.write("should_release=false\n")
+                  sys.exit(0)
+
+          # 3. Find latest semver tag
+          try:
+              all_tags = run(["git", "tag", "-l", "v*"]).split()
+          except Exception:
+              all_tags = []
+
+          valid_tags = []
+          for t in all_tags:
+              m = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", t)
+              if m:
+                  valid_tags.append(((int(m.group(1)), int(m.group(2)), int(m.group(3))), t))
+
+          if not valid_tags:
+              latest_tag = None
+              latest_semver = (1, 0, 0)
+              new_tag = "v1.0.0"
+              print("No existing tags found. First release will be v1.0.0.")
+          else:
+              valid_tags.sort(key=lambda x: x[0])
+              latest_semver, latest_tag = valid_tags[-1]
+              print(f"Latest tag: {latest_tag} ({latest_semver})")
+
+              # 4. Get commits between latest_tag and HEAD
+              try:
+                  commits = run(["git", "log", f"{latest_tag}..HEAD", "--pretty=format:%B"])
+              except Exception:
+                  commits = ""
+
+              if not commits.strip():
+                  print(f"No new commits since {latest_tag}. Skipping release.")
+                  with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                      f.write("should_release=false\n")
+                  sys.exit(0)
+
+              if "[skip release]" in commits or "[skip ci]" in commits:
+                  print("Found [skip release] or [skip ci] in commit message. Skipping.")
+                  with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                      f.write("should_release=false\n")
+                  sys.exit(0)
+
+              # 5. Determine bump type (major, minor, or patch)
+              bump = "patch"
+              if re.search(r"(?i)BREAKING[ -]CHANGE|^[a-z]+(\([^\)]+\))?!:", commits, re.MULTILINE):
+                  bump = "major"
+              elif re.search(r"^feat(\([^\)]+\))?:", commits, re.MULTILINE):
+                  bump = "minor"
+              elif re.search(r"^fix(\([^\)]+\))?:", commits, re.MULTILINE):
+                  bump = "patch"
+
+              major, minor, patch = latest_semver
+              if bump == "major":
+                  new_tag = f"v{major + 1}.0.0"
+              elif bump == "minor":
+                  new_tag = f"v{major}.{minor + 1}.0"
+              else:
+                  new_tag = f"v{major}.{minor}.{patch + 1}"
+
+          print(f"Computed new version tag: {new_tag}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("should_release=true\n")
+              f.write(f"new_tag={new_tag}\n")
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          echo "Publishing GitHub Release for $NEW_TAG..."
+          gh release create "$NEW_TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$NEW_TAG" \
+            --generate-notes
